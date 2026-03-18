@@ -1,3 +1,15 @@
+.white-btn {
+  background: #faf9f5;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+}
+
+.white-btn:hover {
+  background: #eeedea;
+}
+
 .row {
   display: flex;
   justify-content: space-between;

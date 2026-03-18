@@ -38,7 +38,7 @@ const currentConversation = computed(() =>
     <p>
       There's many pages of info about Jason here, but this isn't one of them.
     </p>
-    <button @click="currentSlug = DEFAULT_SLUG">Go back home</button>
+    <button class="white-btn" @click="currentSlug = DEFAULT_SLUG">Go back home</button>
   </div>
 </template>
 
@@ -69,6 +69,7 @@ body,
   flex: 1;
   gap: 0.5rem;
   min-height: 100vh;
+  color: #c2c0b6;
 }
 
 .not-found h1 {
