@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import sidebarToggleIcon from "../assets/sidebar-toggle.svg";
 import plusIcon from "../assets/plus.svg";
 import contactIcon from "../assets/contact.svg";
 import SidebarButton from "./SidebarButton.vue";
@@ -8,37 +6,32 @@ import SidebarButton from "./SidebarButton.vue";
 defineProps<{
   conversations: { slug: string; title: string }[];
   currentSlug: string;
+  collapsed: boolean;
 }>();
 
-const emit = defineEmits<{ navigate: [slug: string] }>();
-
-const isCollapsed = ref(false);
+const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
 </script>
 
 <template>
-  <aside :class="{ collapsed: isCollapsed }">
+  <aside :class="{ collapsed: collapsed }">
     <div class="sidebar-inner">
       <div class="row top-row">
-        <div v-if="!isCollapsed" class="title-block">
+        <div v-if="!collapsed" class="title-block">
           <span>Jason Lernerman</span>
           <span class="subtitle">is looking for a job.</span>
         </div>
 
-        <button @click="isCollapsed = !isCollapsed" class="icon-btn">
-          <img
-            :src="sidebarToggleIcon"
-            class="transition text-text-400 group-hover:text-text-100"
-            style="flex-shrink: 0; filter: brightness(0) invert(1)"
-          />
+        <button @click="emit('toggle')" class="icon-btn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16.5 4C17.3284 4 18 4.67157 18 5.5V14.5C18 15.3284 17.3284 16 16.5 16H3.5C2.67157 16 2 15.3284 2 14.5V5.5C2 4.67157 2.67157 4 3.5 4H16.5ZM7 15H16.5C16.7761 15 17 14.7761 17 14.5V5.5C17 5.22386 16.7761 5 16.5 5H7V15ZM3.5 5C3.22386 5 3 5.22386 3 5.5V14.5C3 14.7761 3.22386 15 3.5 15H6V5H3.5Z"></path></svg>
         </button>
       </div>
 
       <div class="new-chat-row">
-        <SidebarButton :icon="plusIcon" label="New Chat" :collapsed="isCollapsed" />
-        <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="isCollapsed" />
+        <SidebarButton :icon="plusIcon" label="New Chat" :collapsed="collapsed" />
+        <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="collapsed" />
       </div>
 
-      <div v-if="!isCollapsed" class="recent-section">
+      <div v-if="!collapsed" class="recent-section">
         <span class="recent-heading">Recent Job Experience</span>
         <button
           v-for="conv in conversations"
@@ -52,9 +45,9 @@ const isCollapsed = ref(false);
       </div>
     </div>
     <div
-      v-if="!isCollapsed"
+      v-if="!collapsed"
       class="overlay-backdrop"
-      @click="isCollapsed = true"
+      @click="emit('toggle')"
     />
   </aside>
 </template>
@@ -82,9 +75,13 @@ const isCollapsed = ref(false);
 
 /* Overlay mode (small screens, default) */
 aside {
-  width: calc(32px + 1em);
+  width: 0;
   flex-shrink: 0;
   position: relative;
+}
+
+aside.collapsed {
+  display: none;
 }
 
 .sidebar-inner {
@@ -97,11 +94,6 @@ aside {
   overflow: hidden;
   background: var(--bg-base);
   z-index: 10;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.collapsed .sidebar-inner {
-  width: calc(32px + 1em);
 }
 
 .overlay-backdrop {
@@ -165,7 +157,7 @@ button {
 
   border-radius: 10px;
 
-  color: var(--text-bright);
+  color: var(--text-muted);
 }
 
 .new-chat-row {

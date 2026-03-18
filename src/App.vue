@@ -8,6 +8,9 @@ const DEFAULT_SLUG = "cerium";
 
 const currentSlug = ref(window.location.hash.slice(1) || DEFAULT_SLUG);
 
+const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
+const sidebarCollapsed = ref(isOverlay);
+
 watchEffect(() => {
   window.location.hash = currentSlug.value;
 });
@@ -26,13 +29,17 @@ const currentConversation = computed(() =>
     <Sidebar
       :conversations="conversations"
       :current-slug="currentSlug"
+      :collapsed="sidebarCollapsed"
       @navigate="currentSlug = $event"
+      @toggle="sidebarCollapsed = !sidebarCollapsed"
     />
     <Conversation
       v-if="currentConversation"
       :slug="currentSlug"
       :title="currentConversation.title"
       :conversation="currentConversation.conversation"
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />
   </div>
   <div v-else class="not-found">
