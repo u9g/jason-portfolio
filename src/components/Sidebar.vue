@@ -80,10 +80,6 @@ aside {
   position: relative;
 }
 
-aside.collapsed {
-  display: none;
-}
-
 .sidebar-inner {
   position: absolute;
   top: 0;
@@ -94,6 +90,12 @@ aside.collapsed {
   overflow: hidden;
   background: var(--bg-base);
   z-index: 10;
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+.collapsed .sidebar-inner {
+  transform: translateX(-100%);
 }
 
 .overlay-backdrop {
@@ -111,7 +113,7 @@ aside.collapsed {
     width: 260px;
     overflow: hidden;
     border-right: 1px solid var(--border-color);
-    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.2s ease;
   }
 
   aside.collapsed {
@@ -127,6 +129,7 @@ aside.collapsed {
 
   .collapsed .sidebar-inner {
     width: auto;
+    transform: none;
   }
 
   .overlay-backdrop {
