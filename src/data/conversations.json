@@ -1,4 +1,18 @@
 [
-  { "slug": "cerium", "title": "Cerium, Software Engineer" },
-  { "slug": "midnight-sky", "title": "MidnightSky, Software Engineer" }
+  {
+    "slug": "cerium",
+    "title": "Cerium, Software Engineer",
+    "conversation": [
+      { "role": "user", "message": "What's Cerium?" },
+      { "role": "assistant", "message": "Cerium is an iOS app that I built to learn Swift, Xcode, and AI model APIs." }
+    ]
+  },
+  {
+    "slug": "midnight-sky",
+    "title": "MidnightSky, Software Engineer",
+    "conversation": [
+      { "role": "user", "message": "What's MidnightSky?" },
+      { "role": "assistant", "message": "MidnightSky is a project I worked on as a software engineer." }
+    ]
+  }
 ]

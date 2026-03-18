@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import Sidebar from "./components/Sidebar.vue";
+import Conversation from "./components/Conversation.vue";
 import conversations from "./data/conversations.json";
 
 const DEFAULT_SLUG = "cerium";
@@ -31,6 +32,7 @@ const currentConversation = computed(() =>
       v-if="currentConversation"
       :slug="currentSlug"
       :title="currentConversation.title"
+      :conversation="currentConversation.conversation"
     />
   </div>
   <div v-else class="not-found">

@@ -51,6 +51,11 @@ const isCollapsed = ref(false);
         </button>
       </div>
     </div>
+    <div
+      v-if="!isCollapsed"
+      class="overlay-backdrop"
+      @click="isCollapsed = true"
+    />
   </aside>
 </template>
 
@@ -75,15 +80,66 @@ const isCollapsed = ref(false);
   color: #6b6a65;
 }
 
+/* Overlay mode (small screens, default) */
 aside {
-  width: 260px;
-  border-right: 1px solid #42413d;
-  overflow: hidden;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: calc(32px + 1em);
+  flex-shrink: 0;
+  position: relative;
 }
 
 .sidebar-inner {
-  min-width: 260px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  border-right: 1px solid #42413d;
+  overflow: hidden;
+  background: #262624;
+  z-index: 10;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsed .sidebar-inner {
+  width: calc(32px + 1em);
+}
+
+.overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+/* Inline mode (screens wider than iPad) */
+@media (min-width: 1025px) {
+  aside {
+    width: 260px;
+    overflow: hidden;
+    border-right: 1px solid #42413d;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  aside.collapsed {
+    width: calc(32px + 1em);
+  }
+
+  .sidebar-inner {
+    position: static;
+    min-width: 260px;
+    height: auto;
+    z-index: auto;
+  }
+
+  .collapsed .sidebar-inner {
+    width: auto;
+  }
+
+  .overlay-backdrop {
+    display: none;
+  }
 }
 
 button {
@@ -92,10 +148,6 @@ button {
 
 button:hover {
   background: #141413;
-}
-
-.collapsed {
-  width: calc(32px + 1em);
 }
 
 button {
