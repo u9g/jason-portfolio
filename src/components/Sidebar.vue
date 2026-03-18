@@ -15,8 +15,9 @@ const isCollapsed = ref(false);
 
 <template>
   <aside :class="{ collapsed: isCollapsed }">
+    <div class="sidebar-inner">
     <div class="row top-row">
-      <span class="sidebar-text">Jason</span>
+      <span v-if="!isCollapsed">Jason</span>
 
       <button @click="isCollapsed = !isCollapsed" class="icon-btn">
         <img
@@ -32,11 +33,11 @@ const isCollapsed = ref(false);
         <span class="plus-circle">
           <img :src="plusIcon" style="flex-shrink: 0" />
         </span>
-        <span class="sidebar-text">New Chat</span>
+        <span v-if="!isCollapsed">New Chat</span>
       </button>
     </div>
 
-    <div class="recent-section sidebar-text">
+    <div v-if="!isCollapsed" class="recent-section">
       <span class="recent-heading">Recent Job Experience</span>
       <button
         v-for="conv in conversations"
@@ -47,6 +48,7 @@ const isCollapsed = ref(false);
       >
         {{ conv.title }}
       </button>
+    </div>
     </div>
   </aside>
 </template>
@@ -66,7 +68,11 @@ aside {
   width: 260px;
   border-right: 1px solid #42413d;
   overflow: hidden;
-  transition: width 0.15s ease;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-inner {
+  min-width: 260px;
 }
 
 button {
@@ -147,15 +153,6 @@ button {
   color: #faf9f5;
 }
 
-aside.collapsed .new-chat-row {
-  padding: 0 8px;
-}
-
-aside.collapsed .new-chat-btn {
-  justify-content: center;
-  padding: 4px;
-  gap: 0;
-}
 
 .recent-section {
   display: flex;
@@ -190,18 +187,5 @@ aside.collapsed .new-chat-btn {
 .recent-item.active {
   background: #141413;
   color: #faf9f5;
-}
-
-.sidebar-text {
-  opacity: 1;
-  transition: opacity 0.15s ease 0.1s;
-}
-
-aside.collapsed .sidebar-text {
-  opacity: 0;
-  width: 0;
-  padding: 0;
-  overflow: hidden;
-  transition: opacity 0.05s ease, width 0s 0.05s, padding 0s 0.05s;
 }
 </style>
