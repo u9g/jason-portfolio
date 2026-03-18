@@ -3,6 +3,13 @@ import { ref } from "vue";
 import sidebarToggleIcon from "../assets/sidebar-toggle.svg";
 import plusIcon from "../assets/plus.svg";
 
+defineProps<{
+  conversations: { slug: string; title: string }[];
+  currentSlug: string;
+}>();
+
+const emit = defineEmits<{ navigate: [slug: string] }>();
+
 const isCollapsed = ref(false);
 </script>
 
@@ -23,12 +30,22 @@ const isCollapsed = ref(false);
     <div class="new-chat-row">
       <button class="new-chat-btn">
         <span class="plus-circle">
-          <img
-            :src="plusIcon"
-            style="flex-shrink: 0"
-          />
+          <img :src="plusIcon" style="flex-shrink: 0" />
         </span>
         <span v-if="!isCollapsed">New Chat</span>
+      </button>
+    </div>
+
+    <div v-if="!isCollapsed" class="recent-section">
+      <span class="recent-heading">Recent Job Experience</span>
+      <button
+        v-for="conv in conversations"
+        :key="conv.slug"
+        class="recent-item"
+        :class="{ active: conv.slug === currentSlug }"
+        @click="emit('navigate', conv.slug)"
+      >
+        {{ conv.title }}
       </button>
     </div>
   </aside>
@@ -137,5 +154,39 @@ aside.collapsed .new-chat-row {
 aside.collapsed .new-chat-btn {
   justify-content: center;
   padding: 4px;
+}
+
+.recent-section {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 0;
+  gap: 2px;
+}
+
+.recent-heading {
+  font-size: 0.7rem;
+  color: #6b6a65;
+  padding: 4px 6px;
+}
+
+.recent-item {
+  font-size: 0.8rem;
+  color: #c2c0b6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 8px;
+  padding: 0 8px;
+  height: 32px;
+  text-align: left;
+}
+
+.recent-item:hover {
+  color: #faf9f5;
+}
+
+.recent-item.active {
+  background: #141413;
+  color: #faf9f5;
 }
 </style>

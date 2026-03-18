@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import Sidebar from "./components/Sidebar.vue";
-
-const conversations = [
-  { slug: "cerium", title: "Cerium, Software Engineer" },
-  { slug: "midnight-sky", title: "MidnightSky, Software Engineer" },
-];
+import conversations from "./data/conversations.json";
 
 const DEFAULT_SLUG = "cerium";
 
@@ -26,7 +22,11 @@ const currentConversation = computed(() =>
 
 <template>
   <div class="layout" v-if="currentConversation">
-    <Sidebar />
+    <Sidebar
+      :conversations="conversations"
+      :current-slug="currentSlug"
+      @navigate="currentSlug = $event"
+    />
     <Conversation
       v-if="currentConversation"
       :slug="currentSlug"
