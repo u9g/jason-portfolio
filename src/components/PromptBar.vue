@@ -28,8 +28,8 @@
   gap: 12px;
   padding: 14px;
   border-radius: 20px;
-  border: 0.5px solid #42413d;
-  background: #30302e;
+  border: 0.5px solid var(--border-color);
+  background: var(--bg-raised);
   box-shadow:
     0 0.25rem 1.25rem rgba(0, 0, 0, 0.035),
     0 0 0 0.5px rgba(66, 65, 61, 0.15);
@@ -53,7 +53,7 @@
   max-height: 24rem;
   overflow-y: auto;
   outline: none;
-  color: #faf9f5;
+  color: var(--text-bright);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 300;
@@ -63,7 +63,7 @@
 
 .prompt-input:empty::before {
   content: attr(data-placeholder);
-  color: #6b6a65;
+  color: var(--text-dim);
   pointer-events: none;
 }
 
@@ -83,14 +83,14 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #6b6a65;
+  color: var(--text-dim);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 .prompt-icon-btn:hover,
 .prompt-send-btn:hover {
-  background: #2a2a28;
-  color: #faf9f5;
+  background: var(--bg-hover-light);
+  color: var(--text-bright);
 }
 </style>

@@ -1,5 +1,5 @@
 .white-btn {
-  background: #faf9f5;
+  background: var(--text-bright);
   border: none;
   border-radius: 5px;
   padding: 0.5rem 1.25rem;

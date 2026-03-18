@@ -33,7 +33,7 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #c2c0b6;
+  color: var(--text-muted);
   white-space: nowrap;
   border-radius: 10px;
   padding: 3px 12px 3px 6px;
@@ -48,8 +48,8 @@ defineProps<{
 }
 
 .sidebar-btn:hover {
-  background: #141413;
-  color: #faf9f5;
+  background: var(--bg-hover);
+  color: var(--text-bright);
 }
 
 .icon-circle {
@@ -59,7 +59,7 @@ defineProps<{
   width: 20px;
   height: 20px;
   border-radius: 9999px;
-  background: #383735;
+  background: var(--bg-icon);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }

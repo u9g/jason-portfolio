@@ -45,14 +45,26 @@ const currentConversation = computed(() =>
 </template>
 
 <style>
+:root {
+  --text-bright: #faf9f5;
+  --text-muted: #c2c0b6;
+  --text-dim: #6b6a65;
+  --bg-base: #262624;
+  --bg-raised: #30302e;
+  --bg-hover: #141413;
+  --bg-icon: #383735;
+  --bg-hover-light: #2a2a28;
+  --border-color: #42413d;
+}
+
 html,
 body,
 #app {
   margin: 0;
   padding: 0;
 
-  background: #262624;
-  color: #faf9f5;
+  background: var(--bg-base);
+  color: var(--text-bright);
   font-family: "Lora", serif;
 }
 </style>
@@ -71,7 +83,7 @@ body,
   flex: 1;
   gap: 0.5rem;
   min-height: 100vh;
-  color: #c2c0b6;
+  color: var(--text-muted);
 }
 
 .not-found h1 {

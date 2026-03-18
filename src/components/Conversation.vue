@@ -46,9 +46,9 @@ defineProps<{
 
 .top-bar button {
   background: transparent;
-  border: 0.5px solid #6b6a65;
+  border: 0.5px solid var(--text-dim);
   border-radius: 8px;
-  color: #faf9f5;
+  color: var(--text-bright);
   cursor: pointer;
   width: 64px;
   height: 32px;
@@ -72,8 +72,8 @@ defineProps<{
 
 .message.user {
   align-self: flex-end;
-  background: #141413;
-  color: #faf9f5;
+  background: var(--bg-hover);
+  color: var(--text-bright);
   padding: 12px 16px;
   border-radius: 12px;
   max-width: 80%;

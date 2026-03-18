@@ -77,7 +77,7 @@ const isCollapsed = ref(false);
 
 .subtitle {
   font-size: 0.7rem;
-  color: #6b6a65;
+  color: var(--text-dim);
 }
 
 /* Overlay mode (small screens, default) */
@@ -93,9 +93,9 @@ aside {
   left: 0;
   width: 260px;
   height: 100vh;
-  border-right: 1px solid #42413d;
+  border-right: 1px solid var(--border-color);
   overflow: hidden;
-  background: #262624;
+  background: var(--bg-base);
   z-index: 10;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -118,7 +118,7 @@ aside {
   aside {
     width: 260px;
     overflow: hidden;
-    border-right: 1px solid #42413d;
+    border-right: 1px solid var(--border-color);
     transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -147,7 +147,7 @@ button {
 }
 
 button:hover {
-  background: #141413;
+  background: var(--bg-hover);
 }
 
 button {
@@ -165,7 +165,7 @@ button {
 
   border-radius: 10px;
 
-  color: #faf9f5;
+  color: var(--text-bright);
 }
 
 .new-chat-row {
@@ -183,14 +183,14 @@ button {
 
 .recent-heading {
   font-size: 0.7rem;
-  color: #6b6a65;
+  color: var(--text-dim);
   padding: 4px 6px;
   user-select: none;
 }
 
 .recent-item {
   font-size: 0.8rem;
-  color: #c2c0b6;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -201,11 +201,11 @@ button {
 }
 
 .recent-item:hover {
-  color: #faf9f5;
+  color: var(--text-bright);
 }
 
 .recent-item.active {
-  background: #141413;
-  color: #faf9f5;
+  background: var(--bg-hover);
+  color: var(--text-bright);
 }
 </style>
