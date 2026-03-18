@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import sidebarToggleIcon from "../assets/sidebar-toggle.svg";
+import plusIcon from "../assets/plus.svg";
 
 const isCollapsed = ref(false);
 </script>
@@ -22,19 +23,10 @@ const isCollapsed = ref(false);
     <div class="new-chat-row">
       <button class="new-chat-btn">
         <span class="plus-circle">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
+          <img
+            :src="plusIcon"
             style="flex-shrink: 0"
-          >
-            <path
-              d="M10 3C10.4142 3 10.75 3.33579 10.75 3.75V9.25H16.25C16.6642 9.25 17 9.58579 17 10C17 10.3882 16.7051 10.7075 16.3271 10.7461L16.25 10.75H10.75V16.25C10.75 16.6642 10.4142 17 10 17C9.58579 17 9.25 16.6642 9.25 16.25V10.75H3.75C3.33579 10.75 3 10.4142 3 10C3 9.58579 3.33579 9.25 3.75 9.25H9.25V3.75C9.25 3.33579 9.58579 3 10 3Z"
-            ></path>
-          </svg>
+          />
         </span>
         <span v-if="!isCollapsed">New Chat</span>
       </button>
@@ -98,8 +90,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 9999px;
   background: #383735;
   flex-shrink: 0;
@@ -107,7 +99,18 @@ button {
 }
 
 .new-chat-btn:hover .plus-circle {
-  transform: rotate(-5deg);
+  transform: scale(1.1);
+}
+
+.plus-circle img {
+  width: 14px;
+  height: 14px;
+  filter: brightness(0) invert(0.75);
+  transition: filter 0.2s ease;
+}
+
+.new-chat-btn:hover .plus-circle img {
+  filter: brightness(0) invert(1);
 }
 
 .new-chat-btn {
@@ -117,8 +120,10 @@ button {
   color: #c2c0b6;
   white-space: nowrap;
   border-radius: 10px;
-  padding: 4px 16px 4px 8px;
+  padding: 3px 12px 3px 6px;
   width: 100%;
+  height: 32px;
+  font-size: 0.8rem;
 }
 
 .new-chat-btn:hover {
