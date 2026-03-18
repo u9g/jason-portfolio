@@ -53,7 +53,7 @@
   max-height: 24rem;
   overflow-y: auto;
   outline: none;
-  color: var(--text-bright);
+  color: var(--text-mid);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 300;
@@ -63,7 +63,7 @@
 
 .prompt-input:empty::before {
   content: attr(data-placeholder);
-  color: var(--text-dim);
+  color: var(--text-mid);
   pointer-events: none;
 }
 
@@ -83,7 +83,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--text-mid);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }

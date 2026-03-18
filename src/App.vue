@@ -48,6 +48,7 @@ const currentConversation = computed(() =>
 :root {
   --text-bright: #faf9f5;
   --text-muted: #c2c0b6;
+  --text-mid: #9c9a92;
   --text-dim: #6b6a65;
   --bg-base: #262624;
   --bg-raised: #30302e;
