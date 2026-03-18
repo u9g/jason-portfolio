@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import sidebarToggleIcon from "../assets/sidebar-toggle.svg";
 import plusIcon from "../assets/plus.svg";
+import contactIcon from "../assets/contact.svg";
+import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
   conversations: { slug: string; title: string }[];
@@ -16,52 +18,61 @@ const isCollapsed = ref(false);
 <template>
   <aside :class="{ collapsed: isCollapsed }">
     <div class="sidebar-inner">
-    <div class="row top-row">
-      <span v-if="!isCollapsed">Jason</span>
+      <div class="row top-row">
+        <div v-if="!isCollapsed" class="title-block">
+          <span>Jason Lernerman</span>
+          <span class="subtitle">is looking for a job.</span>
+        </div>
 
-      <button @click="isCollapsed = !isCollapsed" class="icon-btn">
-        <img
-          :src="sidebarToggleIcon"
-          class="transition text-text-400 group-hover:text-text-100"
-          style="flex-shrink: 0; filter: brightness(0) invert(1)"
-        />
-      </button>
-    </div>
+        <button @click="isCollapsed = !isCollapsed" class="icon-btn">
+          <img
+            :src="sidebarToggleIcon"
+            class="transition text-text-400 group-hover:text-text-100"
+            style="flex-shrink: 0; filter: brightness(0) invert(1)"
+          />
+        </button>
+      </div>
 
-    <div class="new-chat-row">
-      <button class="new-chat-btn">
-        <span class="plus-circle">
-          <img :src="plusIcon" style="flex-shrink: 0" />
-        </span>
-        <span v-if="!isCollapsed">New Chat</span>
-      </button>
-    </div>
+      <div class="new-chat-row">
+        <SidebarButton :icon="plusIcon" label="New Chat" :collapsed="isCollapsed" />
+        <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="isCollapsed" />
+      </div>
 
-    <div v-if="!isCollapsed" class="recent-section">
-      <span class="recent-heading">Recent Job Experience</span>
-      <button
-        v-for="conv in conversations"
-        :key="conv.slug"
-        class="recent-item"
-        :class="{ active: conv.slug === currentSlug }"
-        @click="emit('navigate', conv.slug)"
-      >
-        {{ conv.title }}
-      </button>
-    </div>
+      <div v-if="!isCollapsed" class="recent-section">
+        <span class="recent-heading">Recent Job Experience</span>
+        <button
+          v-for="conv in conversations"
+          :key="conv.slug"
+          class="recent-item"
+          :class="{ active: conv.slug === currentSlug }"
+          @click="emit('navigate', conv.slug)"
+        >
+          {{ conv.title }}
+        </button>
+      </div>
     </div>
   </aside>
 </template>
 
 <style lang="css" scoped>
 .top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px;
-
+  height: 56px;
   font-size: large;
 }
 
-.top-row span {
+.title-block {
+  display: flex;
+  flex-direction: column;
   padding-left: 8px;
+}
+
+.subtitle {
+  font-size: 0.7rem;
+  color: #6b6a65;
 }
 
 aside {
@@ -109,49 +120,6 @@ button {
   padding: 0 8px;
 }
 
-.plus-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 9999px;
-  background: #383735;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.new-chat-btn:hover .plus-circle {
-  transform: scale(1.1);
-}
-
-.plus-circle img {
-  width: 14px;
-  height: 14px;
-  filter: brightness(0) invert(0.75);
-  transition: filter 0.2s ease;
-}
-
-.new-chat-btn:hover .plus-circle img {
-  filter: brightness(0) invert(1);
-}
-
-.new-chat-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #c2c0b6;
-  white-space: nowrap;
-  border-radius: 10px;
-  padding: 3px 12px 3px 6px;
-  width: 100%;
-  height: 32px;
-  font-size: 0.8rem;
-}
-
-.new-chat-btn:hover {
-  color: #faf9f5;
-}
 
 
 .recent-section {
