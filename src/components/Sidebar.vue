@@ -35,6 +35,8 @@ const isCollapsed = ref(false);
 aside {
   width: 260px;
   border-right: 1px solid #42413d;
+  overflow: hidden;
+  transition: width 0.25s ease;
 }
 
 button {
