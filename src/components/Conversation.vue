@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import PromptBar from "./PromptBar.vue";
+
 defineProps<{
   title: string;
   slug: string;
@@ -21,6 +23,8 @@ defineProps<{
         {{ msg.message }}
       </div>
     </div>
+
+    <PromptBar />
   </div>
 </template>
 
@@ -73,5 +77,4 @@ defineProps<{
   padding: 12px 16px;
   border-radius: 12px;
   max-width: 80%;
-}
-</style>
+}</style>
