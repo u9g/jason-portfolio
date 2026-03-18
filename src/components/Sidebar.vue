@@ -11,14 +11,25 @@ defineProps<{
 const emit = defineEmits<{ navigate: [slug: string] }>();
 
 const isCollapsed = ref(false);
+const isTextVisible = ref(true);
+
+function toggle() {
+  if (isCollapsed.value) {
+    isCollapsed.value = false;
+    setTimeout(() => (isTextVisible.value = true), 150);
+  } else {
+    isTextVisible.value = false;
+    isCollapsed.value = true;
+  }
+}
 </script>
 
 <template>
   <aside :class="{ collapsed: isCollapsed }">
     <div class="row top-row">
-      <span v-if="!isCollapsed">Jason</span>
+      <span v-if="isTextVisible">Jason</span>
 
-      <button @click="isCollapsed = !isCollapsed" class="icon-btn">
+      <button @click="toggle" class="icon-btn">
         <img
           :src="sidebarToggleIcon"
           class="transition text-text-400 group-hover:text-text-100"
@@ -32,11 +43,11 @@ const isCollapsed = ref(false);
         <span class="plus-circle">
           <img :src="plusIcon" style="flex-shrink: 0" />
         </span>
-        <span v-if="!isCollapsed">New Chat</span>
+        <span v-if="isTextVisible">New Chat</span>
       </button>
     </div>
 
-    <div v-if="!isCollapsed" class="recent-section">
+    <div v-if="isTextVisible" class="recent-section">
       <span class="recent-heading">Recent Job Experience</span>
       <button
         v-for="conv in conversations"
@@ -66,7 +77,7 @@ aside {
   width: 260px;
   border-right: 1px solid #42413d;
   overflow: hidden;
-  transition: width 0.25s ease;
+  transition: width 0.15s ease;
 }
 
 button {
@@ -167,6 +178,7 @@ aside.collapsed .new-chat-btn {
   font-size: 0.7rem;
   color: #6b6a65;
   padding: 4px 6px;
+  user-select: none;
 }
 
 .recent-item {
