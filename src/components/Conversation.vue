@@ -1,12 +1,24 @@
 <script setup lang="ts">
-
 const props = defineProps({
-    author: String,
-    subject: String
-})
+  title: String,
+  slug: String,
+});
 
+const conversation = [
+  { role: "user", message: "What's Cerium" },
+  {
+    role: "assistant",
+    message:
+      "Cerium is an iOS app that I built to learn Swift, XCode, and AI model APIs.",
+  },
+];
 </script>
 
 <template>
-    {{ author }} => {{ subject }}
+  <div class="row">
+    {{ title }}
+
+    <button>Share</button>
+  </div>
+  <!-- title -->
 </template>
