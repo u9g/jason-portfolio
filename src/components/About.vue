@@ -8,6 +8,7 @@ defineProps<{
 const emit = defineEmits<{ toggleSidebar: [] }>();
 
 const aboutContent = ref<HTMLElement | null>(null);
+const highlightLang = ref("");
 const particle = ref<HTMLElement | null>(null);
 const particleEnabled = ref(true);
 
@@ -214,23 +215,26 @@ onUnmounted(() => {
         </svg>
       </button>
       About Jason
-      <label class="particle-toggle">
-        <input
-          type="checkbox"
-          :checked="particleEnabled"
-          @change="toggleParticle"
-        />
-        show particle
-      </label>
+      <button class="share-btn">Share</button>
     </div>
-    <div class="about-content" ref="aboutContent">
-      <div class="color-index">
-        <span class="color-swatch lang-js">JavaScript</span>
-        <span class="color-swatch lang-ts">TypeScript</span>
-        <span class="color-swatch lang-java">Java</span>
-        <span class="color-swatch lang-kotlin">Kotlin</span>
-        <span class="color-swatch lang-rust">Rust</span>
-        <span class="color-swatch lang-gleam">Gleam</span>
+    <div class="about-content" ref="aboutContent" :class="{ 'highlight-active': highlightLang }" :data-highlight="highlightLang">
+      <div class="color-index-row">
+        <div class="color-index">
+          <span class="color-swatch lang-js" @mouseenter="highlightLang = 'lang-js'" @mouseleave="highlightLang = ''">JavaScript</span>
+          <span class="color-swatch lang-ts" @mouseenter="highlightLang = 'lang-ts'" @mouseleave="highlightLang = ''">TypeScript</span>
+          <span class="color-swatch lang-java" @mouseenter="highlightLang = 'lang-java'" @mouseleave="highlightLang = ''">Java</span>
+          <span class="color-swatch lang-kotlin" @mouseenter="highlightLang = 'lang-kotlin'" @mouseleave="highlightLang = ''">Kotlin</span>
+          <span class="color-swatch lang-rust" @mouseenter="highlightLang = 'lang-rust'" @mouseleave="highlightLang = ''">Rust</span>
+          <span class="color-swatch lang-gleam" @mouseenter="highlightLang = 'lang-gleam'" @mouseleave="highlightLang = ''">Gleam</span>
+        </div>
+        <label class="particle-toggle">
+          <input
+            type="checkbox"
+            :checked="particleEnabled"
+            @change="toggleParticle"
+          />
+          show particle
+        </label>
       </div>
       <div ref="particle" class="particle" />
       <p>
@@ -360,6 +364,12 @@ onUnmounted(() => {
   color: var(--text-muted);
 }
 
+.color-index-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .color-index {
   display: flex;
   flex-wrap: wrap;
@@ -438,6 +448,24 @@ onUnmounted(() => {
   background: var(--bg-hover);
 }
 
+.share-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 0.5px solid var(--text-dim);
+  border-radius: 8px;
+  color: var(--text-bright);
+  cursor: pointer;
+  width: 64px;
+  height: 32px;
+  margin-right: 12px;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.share-btn:hover {
+  background: #000;
+}
+
 @media (min-width: 1025px) {
   .sidebar-toggle {
     display: none;
@@ -458,7 +486,20 @@ onUnmounted(() => {
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   padding-bottom: 1px;
+  transition: color 0.2s ease;
 }
+
+.highlight-active a {
+  color: #666 !important;
+}
+
+.highlight-active[data-highlight="lang-js"] a.lang-js { color: #f7df1e !important; }
+.highlight-active[data-highlight="lang-ts"] a.lang-ts { color: #58a6ff !important; }
+.highlight-active[data-highlight="lang-java"] a.lang-java { color: #f89820 !important; }
+.highlight-active[data-highlight="lang-kotlin"] a.lang-kotlin { color: #c77dff !important; }
+.highlight-active[data-highlight="lang-rust"] a.lang-rust { color: #ff6b4a !important; }
+.highlight-active[data-highlight="lang-gleam"] a.lang-gleam { color: #ffaff3 !important; }
+.highlight-active[data-highlight="lang-psu"] a.lang-psu { color: #1e6cb6 !important; }
 
 .particle {
   position: absolute;
