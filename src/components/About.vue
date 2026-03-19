@@ -13,6 +13,15 @@ const emit = defineEmits<{ toggleSidebar: []; navigate: [slug: string] }>();
 const aboutContent = ref<HTMLElement | null>(null);
 const highlightLang = ref("");
 const lockedLang = ref("");
+
+function toggleLock(lang: string) {
+  if (lockedLang.value === lang) {
+    lockedLang.value = "";
+    highlightLang.value = "";
+  } else {
+    lockedLang.value = lang;
+  }
+}
 const particle = ref<HTMLElement | null>(null);
 const particleEnabled = ref(true);
 
@@ -238,7 +247,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-js'"
             @mouseleave="highlightLang = ''"
-            @click="lockedLang = lockedLang === 'lang-js' ? '' : 'lang-js'"
+            @click="toggleLock('lang-js')"
             >JavaScript</span
           >
           <span
@@ -249,7 +258,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-ts'"
             @mouseleave="highlightLang = ''"
-            @click="lockedLang = lockedLang === 'lang-ts' ? '' : 'lang-ts'"
+            @click="toggleLock('lang-ts')"
             >TypeScript</span
           >
           <span
@@ -262,7 +271,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-java'"
             @mouseleave="highlightLang = ''"
-            @click="lockedLang = lockedLang === 'lang-java' ? '' : 'lang-java'"
+            @click="toggleLock('lang-java')"
             >Java</span
           >
           <span
@@ -276,9 +285,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-kotlin'"
             @mouseleave="highlightLang = ''"
-            @click="
-              lockedLang = lockedLang === 'lang-kotlin' ? '' : 'lang-kotlin'
-            "
+            @click="toggleLock('lang-kotlin')"
             >Kotlin</span
           >
           <span
@@ -291,7 +298,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-rust'"
             @mouseleave="highlightLang = ''"
-            @click="lockedLang = lockedLang === 'lang-rust' ? '' : 'lang-rust'"
+            @click="toggleLock('lang-rust')"
             >Rust</span
           >
           <span
@@ -304,9 +311,7 @@ onUnmounted(() => {
             ]"
             @mouseenter="highlightLang = 'lang-gleam'"
             @mouseleave="highlightLang = ''"
-            @click="
-              lockedLang = lockedLang === 'lang-gleam' ? '' : 'lang-gleam'
-            "
+            @click="toggleLock('lang-gleam')"
             >Gleam</span
           >
           <button v-if="lockedLang" class="clear-btn" @click="lockedLang = ''">
