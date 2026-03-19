@@ -209,7 +209,7 @@ onUnmounted(() => {
         target="_blank"
         rel="noopener noreferrer"
         class="lang-psu"
-        >Penn State ↗</a
+        >Penn State University ↗</a
       >! If my experience sounds like something you are hiring for or know
       someone who is hiring for, please
       <SidebarButton
