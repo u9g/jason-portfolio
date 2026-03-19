@@ -7,7 +7,7 @@
         { "role": "user", "message": "What's MidnightSky?" },
         {
           "role": "assistant",
-          "message": "MidnightSky is a small game company (2 developers, 3 administrative staff) that runs a Minecraft Server with ~75 concurrent players (at all times of the day) and several thousand monthly active users where I lead feature development from July to October 2025."
+          "message": "MidnightSky is a startup game company (2 developers, 3 administrative staff) that runs a Minecraft Server with ~75 concurrent players (at all times of the day) and several thousand monthly active users where I lead feature development from July to October 2025."
         },
         { "role": "user", "message": "What was the tech stack?" },
         {
@@ -41,7 +41,7 @@
         { "role": "user", "message": "What's Dataset AI?" },
         {
           "role": "assistant",
-          "message": "Dataset AI is a small company (3 engineers) where I worked as a Software Engineer from January to May 2025."
+          "message": "Dataset AI is a startup AI company (3 engineers) where I worked as a Software Engineer from January to May 2025."
         },
         { "role": "user", "message": "What was the tech stack?" },
         {
