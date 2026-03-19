@@ -8,7 +8,8 @@ import sourceIcon from "../assets/source.svg";
 import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
-  conversations: { slug: string; title: string }[];
+  jobs: { slug: string; title: string }[];
+  projects: { slug: string; title: string }[];
   currentSlug: string;
   collapsed: boolean;
 }>();
@@ -78,9 +79,22 @@ const buildDate = __BUILD_DATE__;
       </div>
 
       <div v-if="!collapsed" class="recent-section">
-        <span class="recent-heading">Jason's Recent Job Experience</span>
+        <span class="recent-heading">Jason's Job Experience</span>
         <button
-          v-for="conv in conversations"
+          v-for="conv in jobs"
+          :key="conv.slug"
+          class="recent-item"
+          :class="{ active: conv.slug === currentSlug }"
+          @click="emit('navigate', conv.slug)"
+        >
+          {{ conv.title }}
+        </button>
+      </div>
+
+      <div v-if="!collapsed" class="recent-section">
+        <span class="recent-heading">Jason's Personal Projects</span>
+        <button
+          v-for="conv in projects"
           :key="conv.slug"
           class="recent-item"
           :class="{ active: conv.slug === currentSlug }"
@@ -98,7 +112,11 @@ const buildDate = __BUILD_DATE__;
           rel="noopener noreferrer"
           class="attribution-link"
           >Anthropic's Claude
-          <img :src="claudeIcon" class="claude-logo" aria-hidden="true" />&nbsp;↗</a
+          <img
+            :src="claudeIcon"
+            class="claude-logo"
+            aria-hidden="true"
+          />&nbsp;↗</a
         >
       </p>
 

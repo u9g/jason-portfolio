@@ -9,6 +9,13 @@ defineProps<{
   sidebarCollapsed: boolean;
 }>();
 
+function linkify(text: string): string {
+  return text.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
+  );
+}
+
 const emit = defineEmits<{ toggleSidebar: [] }>();
 </script>
 
@@ -27,7 +34,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
         :key="i"
         :class="['message', msg.role]"
       >
-        {{ msg.message }}
+        <span v-html="linkify(msg.message)"></span>
       </div>
     </div>
 
@@ -40,7 +47,6 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow-y: auto;
   min-height: 0;
   max-width: 724px;
   margin: 0 auto;
@@ -53,10 +59,9 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   gap: 8px;
   padding: 8px 16px;
   height: 56px;
-  position: sticky;
-  top: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+  background: var(--bg-base);
 }
 
 .sidebar-toggle {
@@ -91,6 +96,9 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   padding: 1rem;
   font-size: 0.9rem;
   font-weight: 300;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .message.user {
@@ -100,4 +108,14 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   padding: 12px 16px;
   border-radius: 12px;
   max-width: 80%;
+}
+
+.message :deep(a) {
+  color: var(--text-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.message :deep(a:hover) {
+  color: var(--text-muted);
 }</style>

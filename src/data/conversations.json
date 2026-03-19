@@ -1,46 +1,103 @@
-[
-  {
-    "slug": "cerium",
-    "title": "Cerium, Software Engineer",
-    "conversation": [
-      { "role": "user", "message": "What's Cerium?" },
-      { "role": "assistant", "message": "Cerium is an AI chat application I worked on as a Software Engineer from October to November 2025." },
-      { "role": "user", "message": "What did you do there?" },
-      { "role": "assistant", "message": "I designed and implemented a SwiftUI mobile app similar to the ChatGPT mobile app. I also implemented a backend for the SwiftUI mobile app in Typescript using Convex." }
-    ]
-  },
-  {
-    "slug": "midnight-sky",
-    "title": "MidnightSky, Software Engineer",
-    "conversation": [
-      { "role": "user", "message": "What's MidnightSky?" },
-      { "role": "assistant", "message": "MidnightSky is a company where I worked as a Software Engineer from July to October 2025." },
-      { "role": "user", "message": "What did you do there?" },
-      { "role": "assistant", "message": "I designed and implemented an interface for events to be sent from Kotlin to PostHog to allow for data-based decision making, which resulted in observability dashboards for an application with ~50 concurrent active users at all times and several thousand active users a month." },
-      { "role": "user", "message": "Anything else?" },
-      { "role": "assistant", "message": "I also did feature development on a large (50K LOC+) Kotlin and Java project that stored data in a MongoDB database." }
-    ]
-  },
-  {
-    "slug": "dataset-ai",
-    "title": "Dataset AI, Software Engineer",
-    "conversation": [
-      { "role": "user", "message": "What's Dataset AI?" },
-      { "role": "assistant", "message": "Dataset AI is a company where I worked as a Software Engineer from January to May 2025." },
-      { "role": "user", "message": "What did you do there?" },
-      { "role": "assistant", "message": "I collaborated with a team of 3 to build a web app which supported an excel-like editor for fine-tuning data for training future AI models, using React and Google Cloud, which led to increased AI response coherency for users of the team lead's AI model." },
-      { "role": "user", "message": "What else?" },
-      { "role": "assistant", "message": "I optimized a React app that had gotten slow using industry tools like react-scan, resulting in a much faster experience on average. I also assisted a team of 3 with feature development on a large (10K LOC+) React Native project that talks to a Python backend with about 1 million monthly active users." }
-    ]
-  },
-  {
-    "slug": "vue-technology",
-    "title": "Vue Technology LLC, SWE Intern",
-    "conversation": [
-      { "role": "user", "message": "What's Vue Technology LLC?" },
-      { "role": "assistant", "message": "Vue Technology LLC is where I did a Software Engineer Internship from December 2022 to January 2023." },
-      { "role": "user", "message": "What did you do there?" },
-      { "role": "assistant", "message": "I implemented improvements to an application that saves significant bandwidth when communicating between website and client code. These improvements were contributed to a Rust application that has 609,000 weekly downloads on npm — it's called oxlint." }
-    ]
-  }
-]
+{
+  "jobs": [
+    {
+      "slug": "midnight-sky",
+      "title": "MidnightSky, Software Engineer",
+      "conversation": [
+        { "role": "user", "message": "What's MidnightSky?" },
+        {
+          "role": "assistant",
+          "message": "MidnightSky is a small game company (2 developers, 3 administrative staff) that runs a Minecraft Server with ~75 concurrent players (at all times of the day) and several thousand monthly active users where I lead feature development from July to October 2025."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "The stack was a large (50K LOC+) Kotlin and Java project that stored data in a MongoDB database and eventually PostHog."
+        },
+        { "role": "user", "message": "What did you do there?" },
+        {
+          "role": "assistant",
+          "message": "I designed several large new features from the design stage all the way to the implementation stage along with support from administrative staff. Then, we launched a new \"season\" (3 month period in which everyone starts the game from scratch with whatever new features came in the new update)."
+        },
+        { "role": "user", "message": "Did you do anything else?" },
+        {
+          "role": "assistant",
+          "message": "Funny that you ask, yes I in fact did. Once we released a new season of the game, I quickly learned we had zero analytics about how users were interacting with both existing features, and the new features I had created. This made it hard to know whether any of the thousands of magic numbers the game had needed to be tweaked."
+        },
+        {
+          "role": "user",
+          "message": "So what did you do about the lack of analytics?"
+        },
+        {
+          "role": "assistant",
+          "message": "I designed and implemented an interface for events to be sent from Kotlin to PostHog to allow for data-based decision making for all of the game staff. This addition started from neither me nor anybody else on the team knowing anything about analytics, to the first event, to the first graph, to leading a seminar amongst the team how to make more graphs, to eventually having the ability for any member of the team being able to make a graph for what they were looking to monitor without even needing to loop in a developer. All in all, a success much larger than I could have imagined at the outset."
+        }
+      ]
+    },
+    {
+      "slug": "dataset-ai",
+      "title": "Dataset AI, Software Engineer",
+      "conversation": [
+        { "role": "user", "message": "What's Dataset AI?" },
+        {
+          "role": "assistant",
+          "message": "Dataset AI is a company where I worked as a Software Engineer from January to May 2025."
+        },
+        { "role": "user", "message": "What did you do there?" },
+        {
+          "role": "assistant",
+          "message": "I collaborated with a team of 3 to build a web app which supported an excel-like editor for fine-tuning data for training future AI models, using React and Google Cloud, which led to increased AI response coherency for users of the team lead's AI model."
+        },
+        { "role": "user", "message": "What else?" },
+        {
+          "role": "assistant",
+          "message": "I optimized a React app that had gotten slow using industry tools like react-scan, resulting in a much faster experience on average. I also assisted a team of 3 with feature development on a large (10K LOC+) React Native project that talks to a Python backend with about 1 million monthly active users."
+        }
+      ]
+    },
+    {
+      "slug": "vue-technology",
+      "title": "Vue Technology LLC, SWE Intern",
+      "conversation": [
+        { "role": "user", "message": "What's Vue Technology LLC?" },
+        {
+          "role": "assistant",
+          "message": "Vue Technology LLC is where I did a Software Engineer Internship from December 2022 to January 2023."
+        },
+        { "role": "user", "message": "What did you do there?" },
+        {
+          "role": "assistant",
+          "message": "I implemented improvements to an application that saves significant bandwidth when communicating between website and client code. These improvements were contributed to a Rust application that has 609,000 weekly downloads on npm — it's called oxlint."
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "slug": "cerium",
+      "title": "Cerium, SwiftUI App",
+      "conversation": [
+        { "role": "user", "message": "What's Cerium?" },
+        {
+          "role": "assistant",
+          "message": "Cerium is an AI chat application I worked on to learn AI model API's and the data structure of a typical AI chat app."
+        },
+        { "role": "user", "message": "What did you do there?" },
+        {
+          "role": "assistant",
+          "message": "I designed and implemented a SwiftUI mobile app similar to the ChatGPT mobile app."
+        },
+        { "role": "user", "message": "What was the tech stack used?" },
+        {
+          "role": "assistant",
+          "message": "The frontend was a SwiftUI iOS native app. The backend was a typescript API through Convex (a serverless function provider similar to AWS Lambda or Cloudflare Workers). The database was Convex's builtin document store (like MongoDB)."
+        },
+        { "role": "user", "message": "Can I see it on the iOS App Store?" },
+        {
+          "role": "assistant",
+          "message": "Yeah absolutely, take a look at [it here on the App Store](https://apps.apple.com/us/app/cerium-modern-ai-chat/id6754980265)."
+        }
+      ]
+    }
+  ]
+}

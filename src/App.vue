@@ -25,15 +25,18 @@ window.addEventListener("hashchange", () => {
   currentSlug.value = window.location.hash.slice(1) || DEFAULT_SLUG;
 });
 
+const allConversations = [...conversations.jobs, ...conversations.projects];
+
 const currentConversation = computed(() =>
-  conversations.find((x) => x.slug === currentSlug.value),
+  allConversations.find((x) => x.slug === currentSlug.value),
 );
 </script>
 
 <template>
   <div class="layout" v-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
     <Sidebar
-      :conversations="conversations"
+      :jobs="conversations.jobs"
+      :projects="conversations.projects"
       :current-slug="currentSlug"
       :collapsed="sidebarCollapsed"
       @navigate="currentSlug = $event; if (isOverlay) sidebarCollapsed = true"

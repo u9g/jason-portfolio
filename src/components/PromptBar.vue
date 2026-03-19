@@ -239,10 +239,8 @@ function onInput(e: Event) {
 
 <style lang="css" scoped>
 .prompt-bar-wrapper {
-  margin-top: auto;
   padding: 12px 16px 16px;
-  position: sticky;
-  bottom: 0;
+  background: var(--bg-base);
 }
 
 .prompt-bar {

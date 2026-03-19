@@ -99,7 +99,9 @@ function getAllLinks() {
 function getLinkColor(link: Element): string {
   const active = activeLangs.value;
   if (active.size > 0) {
-    const isHighlighted = [...active].some(lang => link.classList.contains(lang));
+    const isHighlighted = [...active].some((lang) =>
+      link.classList.contains(lang),
+    );
     if (!isHighlighted) return "#666666";
   }
   for (const cls of link.classList) {
@@ -331,7 +333,11 @@ onUnmounted(() => {
             @click="toggleLock('lang-gleam')"
             >Gleam</span
           >
-          <button v-if="lockedLangs.size > 0" class="clear-btn" @click="lockedLangs = new Set()">
+          <button
+            v-if="lockedLangs.size > 0"
+            class="clear-btn"
+            @click="lockedLangs = new Set()"
+          >
             ✕
           </button>
           <span class="color-hint">(hover and click the colors!)</span>
@@ -453,7 +459,7 @@ onUnmounted(() => {
         For more, see
         <SidebarButton
           :icon="codeIcon"
-          label="Notable OSS Contributions"
+          label="Jason's Notable OSS Contributions"
           :collapsed="false"
           class="inline-oss-btn"
           @click="emit('navigate', 'oss')"
@@ -508,7 +514,9 @@ onUnmounted(() => {
 
 .color-swatch {
   cursor: pointer;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
   user-select: none;
 }
 
@@ -606,7 +614,6 @@ onUnmounted(() => {
 .sidebar-toggle:hover {
   background: var(--bg-hover);
 }
-
 
 @media (min-width: 1025px) {
   .sidebar-toggle {
