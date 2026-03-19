@@ -9,6 +9,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
 
 const aboutContent = ref<HTMLElement | null>(null);
 const highlightLang = ref("");
+const lockedLang = ref("");
 const particle = ref<HTMLElement | null>(null);
 const particleEnabled = ref(true);
 
@@ -217,15 +218,16 @@ onUnmounted(() => {
       About Jason
       <button class="share-btn">Share</button>
     </div>
-    <div class="about-content" ref="aboutContent" :class="{ 'highlight-active': highlightLang }" :data-highlight="highlightLang">
+    <div class="about-content" ref="aboutContent" :class="{ 'highlight-active': lockedLang || highlightLang }" :data-highlight="lockedLang || highlightLang">
       <div class="color-index-row">
         <div class="color-index">
-          <span class="color-swatch lang-js" @mouseenter="highlightLang = 'lang-js'" @mouseleave="highlightLang = ''">JavaScript</span>
-          <span class="color-swatch lang-ts" @mouseenter="highlightLang = 'lang-ts'" @mouseleave="highlightLang = ''">TypeScript</span>
-          <span class="color-swatch lang-java" @mouseenter="highlightLang = 'lang-java'" @mouseleave="highlightLang = ''">Java</span>
-          <span class="color-swatch lang-kotlin" @mouseenter="highlightLang = 'lang-kotlin'" @mouseleave="highlightLang = ''">Kotlin</span>
-          <span class="color-swatch lang-rust" @mouseenter="highlightLang = 'lang-rust'" @mouseleave="highlightLang = ''">Rust</span>
-          <span class="color-swatch lang-gleam" @mouseenter="highlightLang = 'lang-gleam'" @mouseleave="highlightLang = ''">Gleam</span>
+          <span :class="['color-swatch', 'lang-js', { 'active-swatch': (lockedLang || highlightLang) === 'lang-js' }]" @mouseenter="highlightLang = 'lang-js'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-js' ? '' : 'lang-js'">JavaScript</span>
+          <span :class="['color-swatch', 'lang-ts', { 'active-swatch': (lockedLang || highlightLang) === 'lang-ts' }]" @mouseenter="highlightLang = 'lang-ts'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-ts' ? '' : 'lang-ts'">TypeScript</span>
+          <span :class="['color-swatch', 'lang-java', { 'active-swatch': (lockedLang || highlightLang) === 'lang-java' }]" @mouseenter="highlightLang = 'lang-java'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-java' ? '' : 'lang-java'">Java</span>
+          <span :class="['color-swatch', 'lang-kotlin', { 'active-swatch': (lockedLang || highlightLang) === 'lang-kotlin' }]" @mouseenter="highlightLang = 'lang-kotlin'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-kotlin' ? '' : 'lang-kotlin'">Kotlin</span>
+          <span :class="['color-swatch', 'lang-rust', { 'active-swatch': (lockedLang || highlightLang) === 'lang-rust' }]" @mouseenter="highlightLang = 'lang-rust'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-rust' ? '' : 'lang-rust'">Rust</span>
+          <span :class="['color-swatch', 'lang-gleam', { 'active-swatch': (lockedLang || highlightLang) === 'lang-gleam' }]" @mouseenter="highlightLang = 'lang-gleam'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-gleam' ? '' : 'lang-gleam'">Gleam</span>
+          <button v-if="lockedLang" class="clear-btn" @click="lockedLang = ''">✕</button>
         </div>
         <label class="particle-toggle">
           <input
@@ -381,6 +383,33 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.color-swatch {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.highlight-active .color-swatch {
+  opacity: 0.3;
+}
+
+.highlight-active .color-swatch.active-swatch {
+  opacity: 1;
+}
+
+.clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.clear-btn:hover {
+  color: var(--text-bright);
 }
 
 .color-swatch::before {
