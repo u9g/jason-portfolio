@@ -13,6 +13,9 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
+
+const buildDate = __BUILD_DATE__;
+
 </script>
 
 <template>
@@ -91,6 +94,8 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
         This website's theme and design were heavily inspired by<br />
         <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="attribution-link">Anthropic's
         Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /> ↗</a>
+
+        <span class="last-updated">Last updated: {{ buildDate }}</span>
       </p>
     </div>
     <div v-if="!collapsed" class="overlay-backdrop" @click="emit('toggle')" />
@@ -258,7 +263,8 @@ button {
 
 .attribution {
   margin-top: auto;
-  padding: 16px;
+  margin-bottom: 0;
+  padding: 16px 16px 0;
   font-size: 0.75rem;
   color: var(--text-dim);
   text-align: center;
@@ -282,5 +288,12 @@ button {
   height: 0.75rem;
   vertical-align: middle;
   margin-left: 2px;
+}
+
+.last-updated {
+  display: inline-block;
+  margin-top: 20px;
+  padding-bottom: 6px;
+  font-size: 0.65rem;
 }
 </style>
