@@ -242,6 +242,8 @@ const repos: RepoInfo[] = [
 
 // GitHub API cache (descriptions + stars)
 const CACHE_KEY = "oss-repo-info";
+const CACHE_TS_KEY = "oss-repo-info-ts";
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 1 week
 
 interface RepoGHInfo {
   description: string;
@@ -250,8 +252,19 @@ interface RepoGHInfo {
 
 const repoGHInfo = ref<Record<string, RepoGHInfo>>({});
 
+function isCacheExpired(): boolean {
+  const ts = localStorage.getItem(CACHE_TS_KEY);
+  if (!ts) return true;
+  return Date.now() - Number(ts) > CACHE_TTL;
+}
+
 function loadCache(): Record<string, RepoGHInfo> {
   try {
+    if (isCacheExpired()) {
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_TS_KEY);
+      return {};
+    }
     const raw = localStorage.getItem(CACHE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {
@@ -262,6 +275,7 @@ function loadCache(): Record<string, RepoGHInfo> {
 
 function saveCache(cache: Record<string, RepoGHInfo>) {
   localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
 }
 
 async function fetchRepoInfo() {
