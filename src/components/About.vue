@@ -456,7 +456,7 @@ onUnmounted(() => {
         >.
       </p>
       <p>
-        For more, see
+        For more of my open source contributions, see
         <SidebarButton
           :icon="codeIcon"
           label="Jason's Notable OSS Contributions"
