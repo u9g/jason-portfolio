@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
+import OSSContributions from "./components/OSSContributions.vue";
 import conversations from "./data/conversations.json";
 
 const DEFAULT_SLUG = "about";
@@ -30,7 +31,7 @@ const currentConversation = computed(() =>
 </script>
 
 <template>
-  <div class="layout" v-if="currentSlug === 'about' || currentConversation">
+  <div class="layout" v-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
     <Sidebar
       :conversations="conversations"
       :current-slug="currentSlug"
@@ -40,6 +41,11 @@ const currentConversation = computed(() =>
     />
     <About
       v-if="currentSlug === 'about'"
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+    />
+    <OSSContributions
+      v-else-if="currentSlug === 'oss'"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />

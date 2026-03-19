@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import bookIcon from "../assets/book.svg";
+import codeIcon from "../assets/code.svg";
 import contactIcon from "../assets/contact.svg";
 import SidebarButton from "./SidebarButton.vue";
 
@@ -28,6 +29,7 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
 
       <div class="new-chat-row">
         <SidebarButton :icon="bookIcon" label="About Jason" :collapsed="collapsed" @click="emit('navigate', 'about')" />
+        <SidebarButton :icon="codeIcon" label="Notable OSS Contributions" :collapsed="collapsed" @click="emit('navigate', 'oss')" />
         <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="collapsed" />
       </div>
 
