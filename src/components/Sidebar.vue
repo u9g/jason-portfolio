@@ -4,6 +4,7 @@ import codeIcon from "../assets/code.svg";
 import contactIcon from "../assets/contact.svg";
 import claudeIcon from "../assets/claude.svg";
 import githubIcon from "../assets/github.svg";
+import sourceIcon from "../assets/source.svg";
 import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
@@ -15,7 +16,6 @@ defineProps<{
 const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
 
 const buildDate = __BUILD_DATE__;
-
 </script>
 
 <template>
@@ -92,11 +92,28 @@ const buildDate = __BUILD_DATE__;
 
       <p v-if="!collapsed" class="attribution">
         This website's theme and design were heavily inspired by<br />
-        <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="attribution-link">Anthropic's
-        Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /> ↗</a>
-
-        <span class="last-updated">Last updated: {{ buildDate }}</span>
+        <a
+          href="https://claude.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="attribution-link"
+          >Anthropic's Claude
+          <img :src="claudeIcon" class="claude-logo" aria-hidden="true" />&nbsp;↗</a
+        >
       </p>
+
+      <div v-if="!collapsed" class="source-link">
+        <SidebarButton
+          :icon="sourceIcon"
+          label="See the code"
+          href="https://github.com/u9g/jason-portfolio"
+          :collapsed="collapsed"
+        />
+      </div>
+
+      <span v-if="!collapsed" class="last-updated"
+        >Last updated: {{ buildDate }}</span
+      >
     </div>
     <div v-if="!collapsed" class="overlay-backdrop" @click="emit('toggle')" />
   </aside>
@@ -290,10 +307,32 @@ button {
   margin-left: 2px;
 }
 
-.last-updated {
-  display: inline-block;
-  margin-top: 20px;
+.source-link {
+  padding: 6px 8px 0;
+}
+
+.source-link :deep(.sidebar-btn) {
+  position: relative;
+  justify-content: center;
+  height: auto;
+  padding-top: 6px;
   padding-bottom: 6px;
+}
+
+.source-link :deep(.label) {
+  flex: none;
+}
+
+.source-link :deep(.external-icon) {
+  position: absolute;
+  right: 12px;
+}
+
+.last-updated {
+  display: block;
+  padding: 4px 16px;
   font-size: 0.65rem;
+  color: var(--text-dim);
+  text-align: center;
 }
 </style>

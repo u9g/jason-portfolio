@@ -73,10 +73,16 @@ defineProps<{
   text-decoration: none;
 }
 
-.sidebar-btn:hover,
 .sidebar-btn.active {
   background: var(--bg-hover);
   color: var(--text-bright);
+}
+
+@media (hover: hover) {
+  .sidebar-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-bright);
+  }
 }
 
 .icon-circle {
@@ -91,19 +97,11 @@ defineProps<{
   transition: transform 0.2s ease;
 }
 
-.sidebar-btn:hover .icon-circle {
-  transform: scale(1.1);
-}
-
 .icon-circle img {
   width: 14px;
   height: 14px;
   filter: brightness(0) invert(0.75);
   transition: filter 0.2s ease;
-}
-
-.sidebar-btn:hover .icon-circle img {
-  filter: brightness(0) invert(1);
 }
 
 .label {
@@ -118,7 +116,17 @@ defineProps<{
   transition: opacity 0.2s ease;
 }
 
-.sidebar-btn:hover .external-icon {
-  opacity: 1;
+@media (hover: hover) {
+  .sidebar-btn:hover .icon-circle {
+    transform: scale(1.1);
+  }
+
+  .sidebar-btn:hover .icon-circle img {
+    filter: brightness(0) invert(1);
+  }
+
+  .sidebar-btn:hover .external-icon {
+    opacity: 1;
+  }
 }
 </style>
