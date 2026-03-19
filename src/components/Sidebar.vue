@@ -27,7 +27,7 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
       </div>
 
       <div class="new-chat-row">
-        <SidebarButton :icon="plusIcon" label="New Chat" :collapsed="collapsed" />
+        <SidebarButton :icon="plusIcon" label="New Chat" :collapsed="collapsed" @click="emit('navigate', 'about')" />
         <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="collapsed" />
       </div>
 

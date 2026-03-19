@@ -2,9 +2,10 @@
 import { computed, ref, watchEffect } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
+import About from "./components/About.vue";
 import conversations from "./data/conversations.json";
 
-const DEFAULT_SLUG = "cerium";
+const DEFAULT_SLUG = "about";
 
 const currentSlug = ref(window.location.hash.slice(1) || DEFAULT_SLUG);
 
@@ -12,7 +13,11 @@ const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
 
 watchEffect(() => {
-  window.location.hash = currentSlug.value;
+  if (currentSlug.value === DEFAULT_SLUG) {
+    history.replaceState(null, "", window.location.pathname);
+  } else {
+    window.location.hash = currentSlug.value;
+  }
 });
 
 window.addEventListener("hashchange", () => {
@@ -25,7 +30,7 @@ const currentConversation = computed(() =>
 </script>
 
 <template>
-  <div class="layout" v-if="currentConversation">
+  <div class="layout" v-if="currentSlug === 'about' || currentConversation">
     <Sidebar
       :conversations="conversations"
       :current-slug="currentSlug"
@@ -33,8 +38,13 @@ const currentConversation = computed(() =>
       @navigate="currentSlug = $event"
       @toggle="sidebarCollapsed = !sidebarCollapsed"
     />
+    <About
+      v-if="currentSlug === 'about'"
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+    />
     <Conversation
-      v-if="currentConversation"
+      v-else-if="currentConversation"
       :slug="currentSlug"
       :title="currentConversation.title"
       :conversation="currentConversation.conversation"

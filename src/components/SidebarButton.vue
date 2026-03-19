@@ -20,7 +20,7 @@ defineProps<{
     </span>
     <span v-if="!collapsed">{{ label }}</span>
   </a>
-  <button v-else class="sidebar-btn">
+  <button v-else class="sidebar-btn" @click="$emit('click')">
     <span class="icon-circle">
       <img :src="icon" style="flex-shrink: 0" />
     </span>
