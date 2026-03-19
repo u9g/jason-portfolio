@@ -28,6 +28,7 @@ const colorMap: Record<string, string> = {
   "lang-rust": "#ff6b4a",
   "lang-kotlin": "#c77dff",
   "lang-ts": "#58a6ff",
+  "lang-java": "#f89820",
 };
 let currentIndex = 0;
 let animationId: number | undefined;
@@ -209,8 +210,33 @@ onUnmounted(() => {
           rel="noopener noreferrer"
           class="lang-js"
           >make a minecraft bot ↗</a
-        >. Along that journey I have programmed in many
-        different programming languages such as
+        >. Then I learned Typescript so I could
+        <a
+          href="https://github.com/u9g/minecraft-proxy-handler/commit/6caa09e3fbcbcf3b0e5d96054e4ff46561d4233f"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-ts"
+          >make APIs ↗</a
+        >
+        for myself and others. Around the same time I also started learning Java
+        because if you're already making minecraft bots you may as well start
+        <a
+          href="https://github.com/u9g/ReverseHopper/commit/36300a67a2ecb2400e9fd300634fc91b3e2434bd"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-java"
+          >making minecraft mods ↗</a
+        >
+        and
+        <a
+          href="https://github.com/u9g/McDataExtracting/commit/2e68722a6afb4366bd1fdb0f12fb8afa127f9fef"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-java"
+          >contributing to Java tools↗</a
+        >
+        for Javascript minecraft bots. Along that journey I have programmed in
+        many different programming languages such as
         <a
           href="https://github.com/PrismarineJS/mineflayer/commits?author=u9g"
           target="_blank"
@@ -319,5 +345,8 @@ onUnmounted(() => {
 }
 .lang-ts {
   color: #58a6ff;
+}
+.lang-java {
+  color: #f89820;
 }
 </style>
