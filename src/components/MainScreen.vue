@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Conversation from "./Conversation.vue";
-
 
 </script>
 

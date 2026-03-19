@@ -53,7 +53,6 @@ let currentIndex = 0;
 let animationId: number | undefined;
 let alive = true;
 let paused = false;
-let pauseTime = 0;
 let lastTime = 0;
 
 // Physics state
