@@ -208,7 +208,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="conversation">
+  <div class="conversation" :class="{ 'highlight-active': activeLangs.size > 0 }" :data-highlight="[...activeLangs].join(' ')">
     <div class="top-bar">
       <button
         v-if="sidebarCollapsed"
@@ -229,129 +229,41 @@ onUnmounted(() => {
         </svg>
       </button>
       About Jason
+      <label class="particle-toggle">
+        <input
+          type="checkbox"
+          :checked="particleEnabled"
+          @change="toggleParticle"
+        />
+        show particle
+      </label>
       <ShareButton />
     </div>
-    <p class="intro-line">
-      I've worked on a lot of fun and interesting projects, as you will see if
-      you read on, and have now graduated from
-      <a
-        href="https://www.psu.edu"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="lang-psu"
-        >Penn State University ↗</a
-      >! If my experience sounds like something you are hiring for or know
-      someone who is hiring for, please
-      <SidebarButton
-        :icon="contactIcon"
-        label="Contact Jason"
-        href="https://www.linkedin.com/in/jason-lernerman/"
-        :collapsed="false"
-        class="inline-contact-btn"
-      />
-      !
-    </p>
     <div
       class="about-content"
       ref="aboutContent"
-      :class="{ 'highlight-active': activeLangs.size > 0 }"
-      :data-highlight="[...activeLangs].join(' ')"
     >
-      <div class="color-index-row">
-        <div class="color-index">
-          <span
-            :class="[
-              'color-swatch',
-              'lang-js',
-              { 'active-swatch': isActive('lang-js') },
-            ]"
-            @mouseenter="highlightLang = 'lang-js'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-js')"
-            >JavaScript</span
-          >
-          <span
-            :class="[
-              'color-swatch',
-              'lang-ts',
-              { 'active-swatch': isActive('lang-ts') },
-            ]"
-            @mouseenter="highlightLang = 'lang-ts'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-ts')"
-            >TypeScript</span
-          >
-          <span
-            :class="[
-              'color-swatch',
-              'lang-java',
-              {
-                'active-swatch': isActive('lang-java'),
-              },
-            ]"
-            @mouseenter="highlightLang = 'lang-java'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-java')"
-            >Java</span
-          >
-          <span
-            :class="[
-              'color-swatch',
-              'lang-kotlin',
-              {
-                'active-swatch': isActive('lang-kotlin'),
-              },
-            ]"
-            @mouseenter="highlightLang = 'lang-kotlin'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-kotlin')"
-            >Kotlin</span
-          >
-          <span
-            :class="[
-              'color-swatch',
-              'lang-rust',
-              {
-                'active-swatch': isActive('lang-rust'),
-              },
-            ]"
-            @mouseenter="highlightLang = 'lang-rust'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-rust')"
-            >Rust</span
-          >
-          <span
-            :class="[
-              'color-swatch',
-              'lang-gleam',
-              {
-                'active-swatch': isActive('lang-gleam'),
-              },
-            ]"
-            @mouseenter="highlightLang = 'lang-gleam'"
-            @mouseleave="highlightLang = ''"
-            @click="toggleLock('lang-gleam')"
-            >Gleam</span
-          >
-          <button
-            v-if="lockedLangs.size > 0"
-            class="clear-btn"
-            @click="lockedLangs = new Set()"
-          >
-            ✕
-          </button>
-          <span class="color-hint">(hover and click the colors!)</span>
-        </div>
-        <label class="particle-toggle">
-          <input
-            type="checkbox"
-            :checked="particleEnabled"
-            @change="toggleParticle"
-          />
-          show particle
-        </label>
-      </div>
       <div ref="particle" class="particle" />
+      <p>
+        I've worked on a lot of fun and interesting projects, as you will see if
+        you read on, and have now graduated from
+        <a
+          href="https://www.psu.edu"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-psu"
+          >Penn State University ↗</a
+        >! If my experience sounds like something you are hiring for or know
+        someone who is hiring for, please
+        <SidebarButton
+          :icon="contactIcon"
+          label="Contact Jason"
+          href="https://www.linkedin.com/in/jason-lernerman/"
+          :collapsed="false"
+          class="inline-contact-btn"
+        />
+        !
+      </p>
       <p>
         Hi, my name is Jason and I have been programming for a while. Since way
         back in senior year of highschool, when I decided I would learn
@@ -467,6 +379,84 @@ onUnmounted(() => {
         !
       </p>
     </div>
+    <div class="color-bar">
+      <div class="color-index">
+        <span
+          :class="[
+            'color-swatch',
+            'lang-js',
+            { 'active-swatch': isActive('lang-js') },
+          ]"
+          @mouseenter="highlightLang = 'lang-js'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-js')"
+          >JavaScript</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-ts',
+            { 'active-swatch': isActive('lang-ts') },
+          ]"
+          @mouseenter="highlightLang = 'lang-ts'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-ts')"
+          >TypeScript</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-java',
+            { 'active-swatch': isActive('lang-java') },
+          ]"
+          @mouseenter="highlightLang = 'lang-java'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-java')"
+          >Java</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-kotlin',
+            { 'active-swatch': isActive('lang-kotlin') },
+          ]"
+          @mouseenter="highlightLang = 'lang-kotlin'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-kotlin')"
+          >Kotlin</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-rust',
+            { 'active-swatch': isActive('lang-rust') },
+          ]"
+          @mouseenter="highlightLang = 'lang-rust'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-rust')"
+          >Rust</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-gleam',
+            { 'active-swatch': isActive('lang-gleam') },
+          ]"
+          @mouseenter="highlightLang = 'lang-gleam'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-gleam')"
+          >Gleam</span
+        >
+        <button
+          v-if="lockedLangs.size > 0"
+          class="clear-btn"
+          @click="lockedLangs = new Set()"
+        >
+          ✕
+        </button>
+        <span class="color-hint">(hover and click the colors!)</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -493,10 +483,12 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.color-index-row {
+.color-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  padding: 12px 16px;
+  background: var(--bg-base);
 }
 
 .color-index {
@@ -559,7 +551,7 @@ onUnmounted(() => {
 }
 
 .particle-toggle {
-  margin-left: auto;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -621,10 +613,14 @@ onUnmounted(() => {
   }
 }
 
+.about-content p {
+  margin: 0;
+}
+
 .about-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
   padding: 1rem;
   font-size: 0.9rem;
   font-weight: 300;
@@ -637,17 +633,6 @@ onUnmounted(() => {
   color: var(--text-bright);
 }
 
-.intro-line {
-  padding: 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 300;
-}
-
-.intro-line a {
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 1px;
-}
 
 .inline-contact-btn,
 .inline-oss-btn {
@@ -656,6 +641,7 @@ onUnmounted(() => {
   vertical-align: middle;
   border: 0.5px solid var(--text-dim) !important;
   border-radius: 8px !important;
+  margin-top: 4px;
 }
 
 .about-content a {
