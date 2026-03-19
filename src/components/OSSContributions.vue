@@ -373,14 +373,14 @@ onMounted(fetchRepoInfo);
           >
             <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} <span class="arrow">↗</span></span>
           </a>
+          <span v-if="repoGHInfo[repo.name]?.description" class="repo-about">
+            <em>{{ repoGHInfo[repo.name].description }}</em>
+          </span>
           <span class="lang-label" :style="{ color: repo.color }">{{ repo.lang }}</span>
           <span v-if="repoGHInfo[repo.name]?.stars" class="star-count">
             &#9733; {{ formatStars(repoGHInfo[repo.name].stars) }}
           </span>
         </div>
-        <p v-if="repoGHInfo[repo.name]?.description" class="repo-about">
-          <em>{{ repoGHInfo[repo.name].description }}</em>
-        </p>
         <table class="pr-table">
           <tbody>
             <tr
@@ -537,20 +537,25 @@ onMounted(fetchRepoInfo);
 
 .lang-label {
   font-size: 0.7rem;
+  margin-left: auto;
 }
 
 .star-count {
   font-size: 0.7rem;
   color: var(--text-bright);
-  margin-left: auto;
 }
 
 .repo-about {
-  margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 300;
   color: var(--text-mid);
-  padding-left: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 0 1 50%;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .repo-about em {
