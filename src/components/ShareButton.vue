@@ -6,6 +6,18 @@ const copied = ref(false);
 
 const currentUrl = computed(() => window.location.href);
 
+const displayUrl = computed(() => {
+  try {
+    const url = new URL(currentUrl.value);
+    const host = url.hostname.replace(/^www\./, "");
+    const short = host.split(".")[0];
+    const rest = url.pathname + url.hash;
+    return rest && rest !== "/" ? short + "…" + rest : short;
+  } catch {
+    return currentUrl.value;
+  }
+});
+
 function copyLink() {
   navigator.clipboard.writeText(currentUrl.value);
   copied.value = true;
@@ -32,7 +44,7 @@ function onBackdropClick(e: MouseEvent) {
         </div>
         <div class="share-link-row">
           <button class="link-btn" @click="visitLink">
-            <span class="link-text">{{ currentUrl }}</span>
+            <span class="link-text">{{ displayUrl }}</span>
             <div class="link-fade"></div>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="link-arrow"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg>
           </button>
