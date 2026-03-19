@@ -42,6 +42,7 @@ const colorMap: Record<string, string> = {
   "lang-kotlin": "#c77dff",
   "lang-ts": "#58a6ff",
   "lang-java": "#f89820",
+  "lang-psu": "#1e6cb6",
 };
 let currentIndex = 0;
 let animationId: number | undefined;
@@ -223,8 +224,9 @@ onUnmounted(() => {
     <div class="about-content" ref="aboutContent">
       <div ref="particle" class="particle" />
       <p>
-        Hi, my name is Jason and I have programmed for a while. Since way back
-        in senior year of highschool, when I decided I would learn Javascript to
+        Hi, my name is Jason and I have been programming for a while. Since way
+        back in senior year of highschool, when I decided I would learn
+        Javascript to
         <a
           href="https://github.com/PrismarineJS/mineflayer"
           target="_blank"
@@ -286,6 +288,17 @@ onUnmounted(() => {
           class="lang-ts"
           >Typescript ↗</a
         >.
+      </p>
+      <p>
+        Since then, I've graduated
+        <a
+          href="https://www.psu.edu"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-psu"
+          >Penn State ↗</a
+        >
+        and am looking for an exciting place to work!
       </p>
     </div>
   </div>
@@ -406,5 +419,8 @@ onUnmounted(() => {
 }
 .lang-java {
   color: #f89820;
+}
+.lang-psu {
+  color: #1e6cb6;
 }
 </style>
