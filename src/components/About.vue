@@ -9,6 +9,19 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
 
 const aboutContent = ref<HTMLElement | null>(null);
 const particle = ref<HTMLElement | null>(null);
+const particleEnabled = ref(true);
+
+function toggleParticle() {
+  particleEnabled.value = !particleEnabled.value;
+  if (particleEnabled.value) {
+    alive = true;
+    start();
+  } else {
+    alive = false;
+    if (animationId) cancelAnimationFrame(animationId);
+    if (particle.value) particle.value.style.opacity = "0";
+  }
+}
 
 function lerpColor(a: string, b: string, t: number): string {
   const ar = parseInt(a.slice(1, 3), 16),
@@ -198,6 +211,14 @@ onUnmounted(() => {
           ></path>
         </svg>
       </button>
+      <label class="particle-toggle">
+        <input
+          type="checkbox"
+          :checked="particleEnabled"
+          @change="toggleParticle"
+        />
+        show particle
+      </label>
     </div>
     <div class="about-content" ref="aboutContent">
       <div ref="particle" class="particle" />
@@ -285,6 +306,16 @@ onUnmounted(() => {
   height: 56px;
   position: sticky;
   top: 0;
+}
+
+.particle-toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .sidebar-toggle {
