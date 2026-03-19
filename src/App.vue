@@ -22,7 +22,7 @@ watchEffect(() => {
 });
 
 window.addEventListener("hashchange", () => {
-  currentSlug.value = window.location.hash.slice(1);
+  currentSlug.value = window.location.hash.slice(1) || DEFAULT_SLUG;
 });
 
 const currentConversation = computed(() =>
