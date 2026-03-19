@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import contactIcon from "../assets/contact.svg";
+import codeIcon from "../assets/code.svg";
 import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
   sidebarCollapsed: boolean;
 }>();
 
-const emit = defineEmits<{ toggleSidebar: [] }>();
+const emit = defineEmits<{ toggleSidebar: []; navigate: [slug: string] }>();
 
 const aboutContent = ref<HTMLElement | null>(null);
 const highlightLang = ref("");
@@ -425,6 +426,17 @@ onUnmounted(() => {
           >spent a good amount of time contributing to this project too ↗</a
         >.
       </p>
+      <p>
+        For more, see
+        <SidebarButton
+          :icon="codeIcon"
+          label="Notable OSS Contributions"
+          :collapsed="false"
+          class="inline-oss-btn"
+          @click="emit('navigate', 'oss')"
+        />
+        !
+      </p>
     </div>
   </div>
 </template>
@@ -615,7 +627,8 @@ onUnmounted(() => {
   padding-bottom: 1px;
 }
 
-.inline-contact-btn {
+.inline-contact-btn,
+.inline-oss-btn {
   display: inline-flex !important;
   width: auto !important;
   vertical-align: middle;

@@ -43,6 +43,7 @@ const currentConversation = computed(() =>
       v-if="currentSlug === 'about'"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+      @navigate="currentSlug = $event"
     />
     <OSSContributions
       v-else-if="currentSlug === 'oss'"
