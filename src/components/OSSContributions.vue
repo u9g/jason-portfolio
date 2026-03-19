@@ -409,6 +409,7 @@ onMounted(fetchRepoInfo);
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .top-bar {

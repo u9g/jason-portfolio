@@ -126,11 +126,11 @@ aside {
 }
 
 .sidebar-inner {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  bottom: 0;
   width: 260px;
-  height: 100vh;
   border-right: 1px solid var(--border-color);
   overflow: hidden;
   background: var(--bg-base);
@@ -170,7 +170,7 @@ aside {
   .sidebar-inner {
     position: static;
     min-width: 260px;
-    height: 100vh;
+    height: 100%;
     z-index: auto;
   }
 
@@ -220,6 +220,8 @@ button {
   flex-direction: column;
   padding: 8px 8px 0;
   gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .recent-heading {

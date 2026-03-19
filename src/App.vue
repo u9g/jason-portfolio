@@ -91,12 +91,15 @@ body,
   color: var(--text-bright);
   font-family: "Lora", serif;
 }
+
 </style>
 
 <style lang="css" scoped>
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .not-found {
