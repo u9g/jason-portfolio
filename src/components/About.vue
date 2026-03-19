@@ -11,15 +11,24 @@ const aboutContent = ref<HTMLElement | null>(null);
 const particle = ref<HTMLElement | null>(null);
 
 function lerpColor(a: string, b: string, t: number): string {
-  const ar = parseInt(a.slice(1, 3), 16), ag = parseInt(a.slice(3, 5), 16), ab = parseInt(a.slice(5, 7), 16);
-  const br = parseInt(b.slice(1, 3), 16), bg = parseInt(b.slice(3, 5), 16), bb = parseInt(b.slice(5, 7), 16);
+  const ar = parseInt(a.slice(1, 3), 16),
+    ag = parseInt(a.slice(3, 5), 16),
+    ab = parseInt(a.slice(5, 7), 16);
+  const br = parseInt(b.slice(1, 3), 16),
+    bg = parseInt(b.slice(3, 5), 16),
+    bb = parseInt(b.slice(5, 7), 16);
   const r = Math.round(ar + (br - ar) * t);
   const g = Math.round(ag + (bg - ag) * t);
   const bl = Math.round(ab + (bb - ab) * t);
   return `rgb(${r},${g},${bl})`;
 }
 
-const colors = ["#f7df1e", "#ff6b4a", "#c77dff", "#58a6ff"];
+const colorMap: Record<string, string> = {
+  "lang-js": "#f7df1e",
+  "lang-rust": "#ff6b4a",
+  "lang-kotlin": "#c77dff",
+  "lang-ts": "#58a6ff",
+};
 let currentIndex = 0;
 let animationId: number | undefined;
 let alive = true;
@@ -46,9 +55,34 @@ function resumeParticle() {
   animationId = requestAnimationFrame(step);
 }
 
-function getLinks() {
+function getAllLinks() {
   if (!aboutContent.value) return [];
   return Array.from(aboutContent.value.querySelectorAll("a"));
+}
+
+function getSameLineLinks(): Element[] {
+  const all = getAllLinks();
+  if (all.length === 0) return [];
+  // Group links by their y position (within 5px tolerance)
+  const groups: Element[][] = [];
+  for (const link of all) {
+    const y = link.getBoundingClientRect().top;
+    const group = groups.find(
+      (g) => Math.abs(g[0].getBoundingClientRect().top - y) < 5,
+    );
+    if (group) group.push(link);
+    else groups.push([link]);
+  }
+  // Use the largest group (most links on one line)
+  groups.sort((a, b) => b.length - a.length);
+  return groups[0];
+}
+
+function getLinkColor(link: Element): string {
+  for (const cls of link.classList) {
+    if (colorMap[cls]) return colorMap[cls];
+  }
+  return "#faf9f5";
 }
 
 function getLinkCenter(link: Element) {
@@ -86,15 +120,16 @@ function step(now: number) {
 }
 
 function animateHop() {
-  const links = getLinks();
-  if (links.length === 0 || !particle.value || !alive || paused) return;
+  const links = getSameLineLinks();
+  if (links.length < 2 || !particle.value || !alive || paused) return;
 
+  currentIndex = currentIndex % links.length;
   const fromIndex = currentIndex;
   nextIndex = (currentIndex + 1) % links.length;
   hopFrom = getLinkCenter(links[fromIndex]);
   hopTo = getLinkCenter(links[nextIndex]);
-  hopStartColor = colors[fromIndex];
-  hopEndColor = colors[nextIndex];
+  hopStartColor = getLinkColor(links[fromIndex]);
+  hopEndColor = getLinkColor(links[nextIndex]);
   hopDuration = 1000;
   hopArcHeight = 25 + Math.random() * 40;
   hopStartTime = performance.now();
@@ -109,7 +144,7 @@ function animateHop() {
 
 onMounted(() => {
   animateHop();
-  const links = getLinks();
+  const links = getAllLinks();
   links.forEach((link) => {
     link.addEventListener("mouseenter", pauseParticle);
     link.addEventListener("mouseleave", resumeParticle);
@@ -125,15 +160,68 @@ onUnmounted(() => {
 <template>
   <div class="conversation">
     <div class="top-bar">
-      <button v-if="sidebarCollapsed" class="sidebar-toggle" @click="emit('toggleSidebar')">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16.5 4C17.3284 4 18 4.67157 18 5.5V14.5C18 15.3284 17.3284 16 16.5 16H3.5C2.67157 16 2 15.3284 2 14.5V5.5C2 4.67157 2.67157 4 3.5 4H16.5ZM7 15H16.5C16.7761 15 17 14.7761 17 14.5V5.5C17 5.22386 16.7761 5 16.5 5H7V15ZM3.5 5C3.22386 5 3 5.22386 3 5.5V14.5C3 14.7761 3.22386 15 3.5 15H6V5H3.5Z"></path></svg>
+      <button
+        v-if="sidebarCollapsed"
+        class="sidebar-toggle"
+        @click="emit('toggleSidebar')"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M16.5 4C17.3284 4 18 4.67157 18 5.5V14.5C18 15.3284 17.3284 16 16.5 16H3.5C2.67157 16 2 15.3284 2 14.5V5.5C2 4.67157 2.67157 4 3.5 4H16.5ZM7 15H16.5C16.7761 15 17 14.7761 17 14.5V5.5C17 5.22386 16.7761 5 16.5 5H7V15ZM3.5 5C3.22386 5 3 5.22386 3 5.5V14.5C3 14.7761 3.22386 15 3.5 15H6V5H3.5Z"
+          ></path>
+        </svg>
       </button>
     </div>
     <div class="about-content" ref="aboutContent">
       <div ref="particle" class="particle" />
-      <p>Hi, my name is Jason and I have programmed for a while. Along that journey I have programmed in many different programming languages such as <a href="https://github.com/PrismarineJS/mineflayer/commits?author=u9g" target="_blank" rel="noopener noreferrer" class="lang-js">Javascript ↗</a>, <a href="https://github.com/obi1kenobi/trustfall/commits?author=u9g" target="_blank" rel="noopener noreferrer" class="lang-rust">Rust ↗</a>, <a href="https://github.com/u9g/Utils" target="_blank" rel="noopener noreferrer" class="lang-kotlin">Kotlin ↗</a>, and <a href="https://github.com/u9g/competingmarkets" target="_blank" rel="noopener noreferrer" class="lang-ts">Typescript ↗</a>.</p>
+      <p>
+        Hi, my name is Jason and I have programmed for a while. Since way back
+        in senior year of highschool, when I decided I would learn Javascript to
+        <a
+          href="https://github.com/PrismarineJS/mineflayer"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-js"
+          >make a minecraft bot ↗</a
+        >. Along that journey I have programmed in many
+        different programming languages such as
+        <a
+          href="https://github.com/PrismarineJS/mineflayer/commits?author=u9g"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-js"
+          >Javascript ↗</a
+        >,
+        <a
+          href="https://github.com/obi1kenobi/trustfall/commits?author=u9g"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-rust"
+          >Rust ↗</a
+        >,
+        <a
+          href="https://github.com/u9g/Utils"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-kotlin"
+          >Kotlin ↗</a
+        >, and
+        <a
+          href="https://github.com/u9g/competingmarkets"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-ts"
+          >Typescript ↗</a
+        >.
+      </p>
     </div>
-
   </div>
 </template>
 
@@ -199,8 +287,16 @@ onUnmounted(() => {
   margin-top: -3px;
 }
 
-.lang-js { color: #f7df1e; }
-.lang-rust { color: #ff6b4a; }
-.lang-kotlin { color: #c77dff; }
-.lang-ts { color: #58a6ff; }
+.lang-js {
+  color: #f7df1e;
+}
+.lang-rust {
+  color: #ff6b4a;
+}
+.lang-kotlin {
+  color: #c77dff;
+}
+.lang-ts {
+  color: #58a6ff;
+}
 </style>
