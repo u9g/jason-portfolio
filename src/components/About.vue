@@ -34,13 +34,21 @@ let animationId: number | undefined;
 let alive = true;
 let paused = false;
 let pauseTime = 0;
-let hopStartTime = 0;
-let hopDuration = 0;
-let hopArcHeight = 0;
-let hopFrom = { x: 0, y: 0 };
-let hopTo = { x: 0, y: 0 };
-let hopStartColor = "";
-let hopEndColor = "";
+let lastTime = 0;
+
+// Physics state
+let px = 0;
+let py = 0;
+let startX = 0;
+let startY = 0;
+let vx = 0;
+let vy = 0;
+const gravity = 300; // px/s²
+let targetIndex = -1;
+let flightTime = 0;
+let elapsed = 0;
+let fromColor = "";
+let toColor = "";
 
 function pauseParticle() {
   paused = true;
@@ -50,32 +58,13 @@ function pauseParticle() {
 
 function resumeParticle() {
   paused = false;
-  const elapsed = performance.now() - pauseTime;
-  hopStartTime += elapsed;
+  lastTime = performance.now();
   animationId = requestAnimationFrame(step);
 }
 
 function getAllLinks() {
   if (!aboutContent.value) return [];
   return Array.from(aboutContent.value.querySelectorAll("a"));
-}
-
-function getSameLineLinks(): Element[] {
-  const all = getAllLinks();
-  if (all.length === 0) return [];
-  // Group links by their y position (within 5px tolerance)
-  const groups: Element[][] = [];
-  for (const link of all) {
-    const y = link.getBoundingClientRect().top;
-    const group = groups.find(
-      (g) => Math.abs(g[0].getBoundingClientRect().top - y) < 5,
-    );
-    if (group) group.push(link);
-    else groups.push([link]);
-  }
-  // Use the largest group (most links on one line)
-  groups.sort((a, b) => b.length - a.length);
-  return groups[0];
 }
 
 function getLinkColor(link: Element): string {
@@ -90,60 +79,90 @@ function getLinkCenter(link: Element) {
   const parentRect = aboutContent.value!.getBoundingClientRect();
   return {
     x: rect.left + rect.width / 2 - parentRect.left,
-    y: rect.top - parentRect.top,
+    y: rect.top + rect.height / 2 - parentRect.top,
   };
 }
 
-let nextIndex = 0;
+function launchToRandom() {
+  const links = getAllLinks();
+  if (links.length < 2) return;
+
+  const fromIndex = currentIndex % links.length;
+  let next: number;
+  do {
+    next = Math.floor(Math.random() * links.length);
+  } while (next === fromIndex);
+  targetIndex = next;
+
+  const target = getLinkCenter(links[targetIndex]);
+  flightTime = 0.8 + Math.random() * 0.4; // 0.8–1.2s
+  elapsed = 0;
+
+  // Solve for initial velocity to land at target in flightTime
+  // x: target.x = px + vx * T  →  vx = (target.x - px) / T
+  // y: target.y = py + vy * T + 0.5 * g * T²  →  vy = (target.y - py - 0.5 * g * T²) / T
+  startX = px;
+  startY = py;
+  vx = (target.x - px) / flightTime;
+  vy = (target.y - py - 0.5 * gravity * flightTime * flightTime) / flightTime;
+
+  fromColor = getLinkColor(links[fromIndex]);
+  toColor = getLinkColor(links[targetIndex]);
+}
 
 function step(now: number) {
   if (!alive || paused) return;
   const el = particle.value;
   if (!el) return;
 
-  const t = Math.min((now - hopStartTime) / hopDuration, 1);
+  const dt = Math.min((now - lastTime) / 1000, 0.05); // cap dt to avoid jumps
+  lastTime = now;
+  elapsed += dt;
 
-  const x = hopFrom.x + (hopTo.x - hopFrom.x) * t;
-  const midY = (hopFrom.y + hopTo.y) / 2;
-  const y = midY - hopArcHeight * Math.sin(Math.PI * t);
+  // Exact kinematic position
+  px = startX + vx * elapsed;
+  py = startY + vy * elapsed + 0.5 * gravity * elapsed * elapsed;
 
-  el.style.transform = `translate(${x}px, ${y}px)`;
-  el.style.background = lerpColor(hopStartColor, hopEndColor, t);
-  el.style.boxShadow = `0 0 6px ${lerpColor(hopStartColor, hopEndColor, t)}`;
+  const t = Math.min(elapsed / flightTime, 1);
+  const color = lerpColor(fromColor, toColor, t);
 
-  if (t < 1) {
-    animationId = requestAnimationFrame(step);
-  } else {
-    currentIndex = nextIndex;
-    animateHop();
+  el.style.transform = `translate(${px}px, ${py}px)`;
+  el.style.background = color;
+  el.style.boxShadow = `0 0 6px ${color}`;
+
+  if (elapsed >= flightTime) {
+    // Snap to target to avoid drift, then launch again
+    const links = getAllLinks();
+    if (links.length >= 2) {
+      const target = getLinkCenter(links[targetIndex]);
+      px = target.x;
+      py = target.y;
+    }
+    currentIndex = targetIndex;
+    launchToRandom();
   }
-}
-
-function animateHop() {
-  const links = getSameLineLinks();
-  if (links.length < 2 || !particle.value || !alive || paused) return;
-
-  currentIndex = currentIndex % links.length;
-  const fromIndex = currentIndex;
-  nextIndex = (currentIndex + 1) % links.length;
-  hopFrom = getLinkCenter(links[fromIndex]);
-  hopTo = getLinkCenter(links[nextIndex]);
-  hopStartColor = getLinkColor(links[fromIndex]);
-  hopEndColor = getLinkColor(links[nextIndex]);
-  hopDuration = 1000;
-  hopArcHeight = 25 + Math.random() * 40;
-  hopStartTime = performance.now();
-
-  const el = particle.value;
-  el.style.opacity = "1";
-  el.style.background = hopStartColor;
-  el.style.boxShadow = `0 0 6px ${hopStartColor}`;
 
   animationId = requestAnimationFrame(step);
 }
 
+function start() {
+  const links = getAllLinks();
+  if (links.length < 2 || !particle.value) return;
+
+  const first = getLinkCenter(links[0]);
+  px = first.x;
+  py = first.y;
+  lastTime = performance.now();
+
+  const el = particle.value;
+  el.style.opacity = "1";
+
+  launchToRandom();
+  animationId = requestAnimationFrame(step);
+}
+
 onMounted(() => {
-  animateHop();
+  start();
   const links = getAllLinks();
   links.forEach((link) => {
     link.addEventListener("mouseenter", pauseParticle);
@@ -278,6 +297,8 @@ onUnmounted(() => {
 
 .particle {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 6px;
   height: 6px;
   border-radius: 50%;
