@@ -1,5 +1,19 @@
-# Vue 3 + TypeScript + Vite
+# Jason's Portfolio
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A conversation-style portfolio site built with Vue 3 + TypeScript + Vite, inspired by Anthropic's Claude UI.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Features
+
+- Hash-based routing with conversation-style content display
+- Collapsible sidebar with navigation and job experience links
+- Notable OSS contributions page with live GitHub star counts
+- Dark theme with custom scrollbar styling
+- Responsive layout with overlay sidebar on mobile
+
+## Development
+
+```bash
+npm run dev       # Start development server (Vite HMR)
+npm run build     # Type-check with vue-tsc, then build production bundle
+npm run preview   # Preview production build locally
+```
