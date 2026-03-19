@@ -427,6 +427,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
   font-size: 0.8rem;
   color: var(--text-muted);
   cursor: pointer;
