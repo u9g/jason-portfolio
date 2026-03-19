@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 
 const hasText = ref(false);
 const isListening = ref(false);
 const showModal = ref(false);
 const promptInput = ref<HTMLElement | null>(null);
+const confirmLink = ref<HTMLAnchorElement | null>(null);
 
 const SpeechRecognition =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -52,6 +53,53 @@ function toggleListening() {
   }
 }
 
+function onModalKeydown(e: KeyboardEvent) {
+  if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    e.preventDefault();
+    confirmLink.value?.click();
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    showModal.value = false;
+  }
+}
+
+watch(showModal, (open) => {
+  if (open) {
+    requestAnimationFrame(() => {
+      window.addEventListener("keydown", onModalKeydown);
+    });
+  } else {
+    window.removeEventListener("keydown", onModalKeydown);
+  }
+});
+
+const isMobile = ref(false);
+
+function checkMobile() {
+  isMobile.value = window.matchMedia("(max-width: 768px)").matches;
+}
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", onModalKeydown);
+  window.removeEventListener("resize", checkMobile);
+});
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === "Enter" && showModal.value) {
+    e.preventDefault();
+    return;
+  }
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && hasText.value && !isListening.value) {
+    e.preventDefault();
+    showModal.value = true;
+  }
+}
+
 function onInput(e: Event) {
   const el = e.target as HTMLElement;
   if (el.innerText.trim() === "") {
@@ -75,6 +123,7 @@ function onInput(e: Event) {
         aria-label="Write your prompt"
         data-placeholder="Reply to Jason..."
         @input="onInput"
+        @keydown="onKeydown"
       ></div>
       <div class="prompt-actions">
         <button class="prompt-icon-btn" aria-label="Attach">
@@ -171,15 +220,16 @@ function onInput(e: Event) {
         </div>
         <div class="modal-actions">
           <button class="modal-btn modal-cancel" @click="showModal = false">
-            Cancel
+            Cancel <kbd v-if="!isMobile" class="key-hint cancel-hint">esc</kbd>
           </button>
           <a
+            ref="confirmLink"
             class="modal-btn modal-confirm"
             href="https://www.linkedin.com/in/jason-lernerman/"
             target="_blank"
             rel="noopener noreferrer"
             @click="showModal = false"
-            >Open link</a
+            >Open link <kbd v-if="!isMobile" class="key-hint confirm-hint">↵</kbd></a
           >
         </div>
       </div>
@@ -442,9 +492,11 @@ function onInput(e: Event) {
 }
 
 .modal-cancel {
+  position: relative;
   background: transparent;
   border: 0.5px solid var(--border-color);
   color: var(--text-bright);
+  min-width: 8rem;
   transition: background 100ms ease;
 }
 
@@ -453,9 +505,11 @@ function onInput(e: Event) {
 }
 
 .modal-confirm {
+  position: relative;
   background: #c66140;
   border: none;
   color: var(--text-bright);
+  min-width: 8rem;
   transition: transform 150ms cubic-bezier(0.165, 0.85, 0.45, 1);
 }
 
@@ -466,5 +520,22 @@ function onInput(e: Event) {
 
 .modal-confirm:active {
   transform: scale(0.985);
+}
+
+.key-hint {
+  position: absolute;
+  right: 8px;
+  font-family: inherit;
+  font-size: 0.7rem;
+  border: none;
+  line-height: 1;
+}
+
+.confirm-hint {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cancel-hint {
+  color: var(--text-dim);
 }
 </style>
