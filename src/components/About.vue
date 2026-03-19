@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
+import contactIcon from "../assets/contact.svg";
+import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
   sidebarCollapsed: boolean;
@@ -227,8 +229,15 @@ onUnmounted(() => {
         rel="noopener noreferrer"
         class="lang-psu"
         >Penn State ↗</a
-      >
-      and am looking for an exciting place to work! If my experience sounds like something you are hiring for or know someone who is hiring for, please [insert contact Jason button here].
+      >! If my experience sounds like something you are hiring for or know
+      someone who is hiring for, please
+      <SidebarButton
+        :icon="contactIcon"
+        label="Contact Jason"
+        href="https://www.linkedin.com/in/jason-lernerman/"
+        :collapsed="false"
+        class="inline-contact-btn"
+      />.
     </p>
     <div
       class="about-content"
@@ -423,7 +432,16 @@ onUnmounted(() => {
         Later, I took my rust knowledge on the road when I got interested in
         learning about linters and a brand new project at that time, OXC, which
         describes itself as,
-        <em>"A collection of high-performance JavaScript tools."</em>.
+        <em>"A collection of high-performance JavaScript tools."</em>. I found
+        this premise interesting, and I also found Rust to be a great language
+        for new contributors to a project so I
+        <a
+          href="https://github.com/oxc-project/oxc/commits?author=u9g"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-rust"
+          >spent a good amount of time contributing to this project too ↗</a
+        >.
       </p>
     </div>
   </div>
@@ -611,6 +629,14 @@ onUnmounted(() => {
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   padding-bottom: 1px;
+}
+
+.inline-contact-btn {
+  display: inline-flex !important;
+  width: auto !important;
+  vertical-align: middle;
+  border: 0.5px solid var(--text-dim) !important;
+  border-radius: 8px !important;
 }
 
 .about-content a {
