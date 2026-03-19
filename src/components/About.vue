@@ -212,6 +212,7 @@ onUnmounted(() => {
           ></path>
         </svg>
       </button>
+      About Jason
       <label class="particle-toggle">
         <input
           type="checkbox"
@@ -319,6 +320,8 @@ onUnmounted(() => {
   height: 56px;
   position: sticky;
   top: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .particle-toggle {
