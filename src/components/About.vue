@@ -218,16 +218,108 @@ onUnmounted(() => {
       About Jason
       <button class="share-btn">Share</button>
     </div>
-    <div class="about-content" ref="aboutContent" :class="{ 'highlight-active': lockedLang || highlightLang }" :data-highlight="lockedLang || highlightLang">
+    <p class="intro-line">
+      I've worked on a lot of fun and interesting projects, as you will see if
+      you read on, and have now graduated from
+      <a
+        href="https://www.psu.edu"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="lang-psu"
+        >Penn State ↗</a
+      >
+      and am looking for an exciting place to work! If my experience sounds like something you are hiring for or know someone who is hiring for, please [insert contact Jason button here].
+    </p>
+    <div
+      class="about-content"
+      ref="aboutContent"
+      :class="{ 'highlight-active': lockedLang || highlightLang }"
+      :data-highlight="lockedLang || highlightLang"
+    >
       <div class="color-index-row">
         <div class="color-index">
-          <span :class="['color-swatch', 'lang-js', { 'active-swatch': (lockedLang || highlightLang) === 'lang-js' }]" @mouseenter="highlightLang = 'lang-js'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-js' ? '' : 'lang-js'">JavaScript</span>
-          <span :class="['color-swatch', 'lang-ts', { 'active-swatch': (lockedLang || highlightLang) === 'lang-ts' }]" @mouseenter="highlightLang = 'lang-ts'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-ts' ? '' : 'lang-ts'">TypeScript</span>
-          <span :class="['color-swatch', 'lang-java', { 'active-swatch': (lockedLang || highlightLang) === 'lang-java' }]" @mouseenter="highlightLang = 'lang-java'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-java' ? '' : 'lang-java'">Java</span>
-          <span :class="['color-swatch', 'lang-kotlin', { 'active-swatch': (lockedLang || highlightLang) === 'lang-kotlin' }]" @mouseenter="highlightLang = 'lang-kotlin'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-kotlin' ? '' : 'lang-kotlin'">Kotlin</span>
-          <span :class="['color-swatch', 'lang-rust', { 'active-swatch': (lockedLang || highlightLang) === 'lang-rust' }]" @mouseenter="highlightLang = 'lang-rust'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-rust' ? '' : 'lang-rust'">Rust</span>
-          <span :class="['color-swatch', 'lang-gleam', { 'active-swatch': (lockedLang || highlightLang) === 'lang-gleam' }]" @mouseenter="highlightLang = 'lang-gleam'" @mouseleave="highlightLang = ''" @click="lockedLang = lockedLang === 'lang-gleam' ? '' : 'lang-gleam'">Gleam</span>
-          <button v-if="lockedLang" class="clear-btn" @click="lockedLang = ''">✕</button>
+          <span
+            :class="[
+              'color-swatch',
+              'lang-js',
+              { 'active-swatch': (lockedLang || highlightLang) === 'lang-js' },
+            ]"
+            @mouseenter="highlightLang = 'lang-js'"
+            @mouseleave="highlightLang = ''"
+            @click="lockedLang = lockedLang === 'lang-js' ? '' : 'lang-js'"
+            >JavaScript</span
+          >
+          <span
+            :class="[
+              'color-swatch',
+              'lang-ts',
+              { 'active-swatch': (lockedLang || highlightLang) === 'lang-ts' },
+            ]"
+            @mouseenter="highlightLang = 'lang-ts'"
+            @mouseleave="highlightLang = ''"
+            @click="lockedLang = lockedLang === 'lang-ts' ? '' : 'lang-ts'"
+            >TypeScript</span
+          >
+          <span
+            :class="[
+              'color-swatch',
+              'lang-java',
+              {
+                'active-swatch': (lockedLang || highlightLang) === 'lang-java',
+              },
+            ]"
+            @mouseenter="highlightLang = 'lang-java'"
+            @mouseleave="highlightLang = ''"
+            @click="lockedLang = lockedLang === 'lang-java' ? '' : 'lang-java'"
+            >Java</span
+          >
+          <span
+            :class="[
+              'color-swatch',
+              'lang-kotlin',
+              {
+                'active-swatch':
+                  (lockedLang || highlightLang) === 'lang-kotlin',
+              },
+            ]"
+            @mouseenter="highlightLang = 'lang-kotlin'"
+            @mouseleave="highlightLang = ''"
+            @click="
+              lockedLang = lockedLang === 'lang-kotlin' ? '' : 'lang-kotlin'
+            "
+            >Kotlin</span
+          >
+          <span
+            :class="[
+              'color-swatch',
+              'lang-rust',
+              {
+                'active-swatch': (lockedLang || highlightLang) === 'lang-rust',
+              },
+            ]"
+            @mouseenter="highlightLang = 'lang-rust'"
+            @mouseleave="highlightLang = ''"
+            @click="lockedLang = lockedLang === 'lang-rust' ? '' : 'lang-rust'"
+            >Rust</span
+          >
+          <span
+            :class="[
+              'color-swatch',
+              'lang-gleam',
+              {
+                'active-swatch': (lockedLang || highlightLang) === 'lang-gleam',
+              },
+            ]"
+            @mouseenter="highlightLang = 'lang-gleam'"
+            @mouseleave="highlightLang = ''"
+            @click="
+              lockedLang = lockedLang === 'lang-gleam' ? '' : 'lang-gleam'
+            "
+            >Gleam</span
+          >
+          <button v-if="lockedLang" class="clear-btn" @click="lockedLang = ''">
+            ✕
+          </button>
         </div>
         <label class="particle-toggle">
           <input
@@ -291,57 +383,47 @@ onUnmounted(() => {
           class="lang-kotlin"
           >minecraft plugins ↗</a
         >. Around this time, I took a look around the programming landscape and
-        made some
+        tried out Gleam, which is a growing programming language that compiles
+        to Erlang, or in my use case JavaScript, for
         <a
           href="https://github.com/u9g/thatgleammod"
           target="_blank"
           rel="noopener noreferrer"
           class="lang-gleam"
-          >minecraft mods in Gleam ↗</a
-        >, which is a growing programming language that compiles to Erlang, or in my use case JavaScript.
+          >more minecraft mods ↗</a
+        >.
       </p>
       <p>
-        Along that journey I have programmed in many different programming
-        languages such as
+        After that, I started looking into other things which I found
+        interesting, like data presentation formats and databases and stumbled
+        upon Trustfall. Trustfall is, according to the github README,
+        <em
+          >"A query engine for any combination of data sources. Query your files
+          and APIs as if they were databases!"</em
+        >. And that's what I did for a while, until I wanted to expand the
+        project even more, being a programmer myself, I created a
         <a
-          href="https://github.com/PrismarineJS/mineflayer/commits?author=u9g"
+          href="https://github.com/u9g/github_adapter"
           target="_blank"
           rel="noopener noreferrer"
-          class="lang-js"
-          >JavaScript ↗</a
-        >,
+          class="lang-rust"
+          >github adapter ↗</a
+        >
+        and
         <a
           href="https://github.com/obi1kenobi/trustfall/commits?author=u9g"
           target="_blank"
           rel="noopener noreferrer"
           class="lang-rust"
-          >Rust ↗</a
-        >,
-        <a
-          href="https://github.com/u9g/Utils"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="lang-kotlin"
-          >Kotlin ↗</a
-        >, and
-        <a
-          href="https://github.com/u9g/competingmarkets"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="lang-ts"
-          >TypeScript ↗</a
-        >.
+          >contributed back to the original project ↗</a
+        >
+        under the guidance of the extremely patient and helpful maintainer.
       </p>
       <p>
-        Since then, I've graduated
-        <a
-          href="https://www.psu.edu"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="lang-psu"
-          >Penn State ↗</a
-        >
-        and am looking for an exciting place to work!
+        Later, I took my rust knowledge on the road when I got interested in
+        learning about linters and a brand new project at that time, OXC, which
+        describes itself as,
+        <em>"A collection of high-performance JavaScript tools."</em>.
       </p>
     </div>
   </div>
@@ -513,6 +595,24 @@ onUnmounted(() => {
   position: relative;
 }
 
+.about-content em {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  color: var(--text-bright);
+}
+
+.intro-line {
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.intro-line a {
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
 .about-content a {
   text-decoration: none;
   border-bottom: 1px solid currentColor;
@@ -524,13 +624,27 @@ onUnmounted(() => {
   color: #666 !important;
 }
 
-.highlight-active[data-highlight="lang-js"] a.lang-js { color: #f7df1e !important; }
-.highlight-active[data-highlight="lang-ts"] a.lang-ts { color: #58a6ff !important; }
-.highlight-active[data-highlight="lang-java"] a.lang-java { color: #f89820 !important; }
-.highlight-active[data-highlight="lang-kotlin"] a.lang-kotlin { color: #c77dff !important; }
-.highlight-active[data-highlight="lang-rust"] a.lang-rust { color: #ff6b4a !important; }
-.highlight-active[data-highlight="lang-gleam"] a.lang-gleam { color: #ffaff3 !important; }
-.highlight-active[data-highlight="lang-psu"] a.lang-psu { color: #1e6cb6 !important; }
+.highlight-active[data-highlight="lang-js"] a.lang-js {
+  color: #f7df1e !important;
+}
+.highlight-active[data-highlight="lang-ts"] a.lang-ts {
+  color: #58a6ff !important;
+}
+.highlight-active[data-highlight="lang-java"] a.lang-java {
+  color: #f89820 !important;
+}
+.highlight-active[data-highlight="lang-kotlin"] a.lang-kotlin {
+  color: #c77dff !important;
+}
+.highlight-active[data-highlight="lang-rust"] a.lang-rust {
+  color: #ff6b4a !important;
+}
+.highlight-active[data-highlight="lang-gleam"] a.lang-gleam {
+  color: #ffaff3 !important;
+}
+.highlight-active[data-highlight="lang-psu"] a.lang-psu {
+  color: #1e6cb6 !important;
+}
 
 .particle {
   position: absolute;
