@@ -505,12 +505,12 @@ onUnmounted(() => {
 
 .color-swatch {
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
   user-select: none;
 }
 
-.highlight-active .color-swatch {
-  opacity: 0.3;
+.highlight-active .color-swatch:not(.active-swatch) {
+  color: #666;
 }
 
 .highlight-active .color-swatch.active-swatch {
