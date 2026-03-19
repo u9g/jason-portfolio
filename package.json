@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bore": "bore local 5173 --to bore.pub"
   },
   "dependencies": {
     "vue": "^3.5.30"

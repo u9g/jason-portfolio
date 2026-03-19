@@ -154,6 +154,8 @@ aside {
   right: 0;
   bottom: 0;
   z-index: 5;
+  touch-action: none;
+  overflow: hidden;
 }
 
 /* Inline mode (screens wider than iPad) */
