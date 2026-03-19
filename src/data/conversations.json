@@ -108,15 +108,15 @@
           "role": "assistant",
           "message": "Cerium is an AI chat application I worked on to learn AI model API's and the data structure of a typical AI chat app."
         },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "The frontend was a SwiftUI iOS native app. The backend was a TypeScript API through Convex (a serverless function provider similar to AWS Lambda or Cloudflare Workers). The database was Convex's builtin document store (like MongoDB)."
+        },
         { "role": "user", "message": "What did you do there?" },
         {
           "role": "assistant",
           "message": "I designed and implemented a SwiftUI mobile app similar to the ChatGPT mobile app."
-        },
-        { "role": "user", "message": "What was the tech stack used?" },
-        {
-          "role": "assistant",
-          "message": "The frontend was a SwiftUI iOS native app. The backend was a TypeScript API through Convex (a serverless function provider similar to AWS Lambda or Cloudflare Workers). The database was Convex's builtin document store (like MongoDB)."
         },
         { "role": "user", "message": "Can I see it on the iOS App Store?" },
         {

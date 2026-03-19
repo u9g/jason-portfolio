@@ -371,7 +371,7 @@ onMounted(fetchRepoInfo);
             rel="noopener noreferrer"
             class="repo-link"
           >
-            <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} ↗</span>
+            <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} <span class="arrow">↗</span></span>
           </a>
           <span class="lang-label" :style="{ color: repo.color }">{{ repo.lang }}</span>
           <span v-if="repoGHInfo[repo.name]?.stars" class="star-count">
@@ -393,7 +393,7 @@ onMounted(fetchRepoInfo);
                   target="_blank"
                   rel="noopener noreferrer"
                   class="pr-link"
-                >{{ pr.description }} ↗</a>
+                >{{ pr.description }} <span class="arrow">↗</span></a>
               </td>
             </tr>
           </tbody>
@@ -569,11 +569,6 @@ onMounted(fetchRepoInfo);
 .pr-table td {
   padding: 5px 8px;
   color: var(--text-muted);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.pr-table tr:last-child td {
-  border-bottom: none;
 }
 
 .pr-table tr:hover td {
@@ -598,8 +593,16 @@ onMounted(fetchRepoInfo);
 .pr-link {
   color: var(--text-muted);
   text-decoration: none;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1px;
+}
+
+.pr-link .arrow,
+.repo-link .arrow {
+  opacity: 0;
+}
+
+.pr-link:hover .arrow,
+.repo-link:hover .arrow {
+  opacity: 1;
 }
 
 .pr-link:hover {
