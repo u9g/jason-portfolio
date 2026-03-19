@@ -42,6 +42,9 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  max-width: 724px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .top-bar {

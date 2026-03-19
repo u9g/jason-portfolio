@@ -253,9 +253,6 @@ function onInput(e: Event) {
   border-radius: 20px;
   border: 0.5px solid var(--border-color);
   background: var(--bg-raised);
-  max-width: 724px;
-  margin: 0 auto;
-  width: 100%;
   box-shadow:
     0 0.25rem 1.25rem rgba(0, 0, 0, 0.035),
     0 0 0 0.5px rgba(66, 65, 61, 0.15);
