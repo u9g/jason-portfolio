@@ -356,7 +356,7 @@ onMounted(fetchRepoInfo);
             rel="noopener noreferrer"
             class="repo-link"
           >
-            {{ repo.name }} ↗
+            <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} ↗</span>
           </a>
           <span class="lang-label" :style="{ color: repo.color }">{{ repo.lang }}</span>
           <span v-if="repoGHInfo[repo.name]?.stars" class="star-count">
@@ -472,6 +472,8 @@ onMounted(fetchRepoInfo);
   flex-direction: column;
   gap: 1.5rem;
   padding: 0 1rem 2rem;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .repo-section {
@@ -484,6 +486,7 @@ onMounted(fetchRepoInfo);
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .lang-dot {
@@ -498,6 +501,34 @@ onMounted(fetchRepoInfo);
   font-weight: 500;
   color: var(--text-bright);
   text-decoration: none;
+  display: flex;
+  min-width: 0;
+}
+
+.repo-org-group {
+  display: flex;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.repo-org {
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.repo-sep {
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.repo-name {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .repo-link:hover {
@@ -533,6 +564,7 @@ onMounted(fetchRepoInfo);
   border-collapse: collapse;
   font-size: 0.78rem;
   font-weight: 300;
+  table-layout: fixed;
 }
 
 .pr-table td {
@@ -577,5 +609,8 @@ onMounted(fetchRepoInfo);
 
 .pr-desc {
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
