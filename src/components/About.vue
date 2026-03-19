@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import contactIcon from "../assets/contact.svg";
 import codeIcon from "../assets/code.svg";
 import SidebarButton from "./SidebarButton.vue";
+import ShareButton from "./ShareButton.vue";
 
 defineProps<{
   sidebarCollapsed: boolean;
@@ -226,7 +227,7 @@ onUnmounted(() => {
         </svg>
       </button>
       About Jason
-      <button class="share-btn">Share</button>
+      <ShareButton />
     </div>
     <p class="intro-line">
       I've worked on a lot of fun and interesting projects, as you will see if
@@ -482,6 +483,8 @@ onUnmounted(() => {
   top: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+  background: var(--bg-base);
+  z-index: 1;
 }
 
 .color-index-row {
@@ -604,23 +607,6 @@ onUnmounted(() => {
   background: var(--bg-hover);
 }
 
-.share-btn {
-  margin-left: auto;
-  background: transparent;
-  border: 0.5px solid var(--text-dim);
-  border-radius: 8px;
-  color: var(--text-bright);
-  cursor: pointer;
-  width: 64px;
-  height: 32px;
-  margin-right: 12px;
-  font-family: inherit;
-  font-size: 0.8rem;
-}
-
-.share-btn:hover {
-  background: #000;
-}
 
 @media (min-width: 1025px) {
   .sidebar-toggle {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import ShareButton from "./ShareButton.vue";
 
 defineProps<{
   sidebarCollapsed: boolean;
@@ -344,7 +345,7 @@ onMounted(fetchRepoInfo);
         </svg>
       </button>
       Notable OSS Contributions
-      <button class="share-btn">Share</button>
+      <ShareButton />
     </div>
     <div class="oss-content">
       <div v-for="repo in sortedRepos" :key="repo.name" class="repo-section">
@@ -450,23 +451,6 @@ onMounted(fetchRepoInfo);
   }
 }
 
-.share-btn {
-  margin-left: auto;
-  background: transparent;
-  border: 0.5px solid var(--text-dim);
-  border-radius: 8px;
-  color: var(--text-bright);
-  cursor: pointer;
-  width: 64px;
-  height: 32px;
-  margin-right: 12px;
-  font-family: inherit;
-  font-size: 0.8rem;
-}
-
-.share-btn:hover {
-  background: #000;
-}
 
 .oss-content {
   display: flex;
