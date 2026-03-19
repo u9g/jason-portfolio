@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PromptBar from "./PromptBar.vue";
 import ShareButton from "./ShareButton.vue";
+import { techColors } from "../data/tech-colors";
 
 defineProps<{
   title: string;
@@ -9,24 +10,8 @@ defineProps<{
   sidebarCollapsed: boolean;
 }>();
 
-const langColors: Record<string, string> = {
-  JavaScript: "#f7df1e",
-  TypeScript: "#58a6ff",
-  typescript: "#58a6ff",
-  Java: "#f89820",
-  Kotlin: "#c77dff",
-  Rust: "#ff6b4a",
-  Gleam: "#ffaff3",
-  Python: "#4584b6",
-  SwiftUI: "#f05138",
-  React: "#61dafb",
-  "React Native": "#61dafb",
-  MongoDB: "#00ed64",
-  PostHog: "#f54e00",
-};
-
 const langPattern = new RegExp(
-  `\\b(${Object.keys(langColors)
+  `\\b(${Object.keys(techColors)
     .sort((a, b) => b.length - a.length)
     .join("|")})\\b`,
   "g",
@@ -40,7 +25,7 @@ function formatMessage(text: string): string {
   );
   // Colorize language names (only outside of HTML tags)
   result = result.replace(langPattern, (match) => {
-    const color = langColors[match];
+    const color = techColors[match];
     return `<span style="color: ${color}">${match}</span>`;
   });
   return result;

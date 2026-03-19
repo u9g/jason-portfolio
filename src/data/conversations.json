@@ -12,7 +12,7 @@
         { "role": "user", "message": "What was the tech stack?" },
         {
           "role": "assistant",
-          "message": "The stack was a large (50K LOC+) Kotlin and Java project that stored data in a MongoDB database and eventually PostHog."
+          "message": "The tech stack was a large (50K LOC+) Kotlin and Java project that stored data in a MongoDB database and eventually PostHog."
         },
         { "role": "user", "message": "What did you do there?" },
         {
@@ -26,7 +26,7 @@
         },
         {
           "role": "user",
-          "message": "So what did you do about the lack of analytics?"
+          "message": "What did you do about the lack of analytics?"
         },
         {
           "role": "assistant",
@@ -41,17 +41,33 @@
         { "role": "user", "message": "What's Dataset AI?" },
         {
           "role": "assistant",
-          "message": "Dataset AI is a company where I worked as a Software Engineer from January to May 2025."
+          "message": "Dataset AI is a small company (3 engineers) where I worked as a Software Engineer from January to May 2025."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "The tech stack was a (5K LOC+) React frontend, a (10K LOC+) Python backend and data stored within Google Cloud's Firebase database."
         },
         { "role": "user", "message": "What did you do there?" },
         {
           "role": "assistant",
-          "message": "I collaborated with a team of 3 to build a web app which supported an excel-like editor for fine-tuning data for training future AI models, using React and Google Cloud, which led to increased AI response coherency for users of the team lead's AI model."
+          "message": "I collaborated with a team of 3 to build a web app which supported an excel-like editor which allowed for the user to speak to multiple AI model conversations in parallel. The main use case for this was comparing a fine-tuned model with a base model across many different prompts at once."
         },
-        { "role": "user", "message": "What else?" },
+        {
+          "role": "user",
+          "message": "Anything else you would like to mention?"
+        },
         {
           "role": "assistant",
-          "message": "I optimized a React app that had gotten slow using industry tools like react-scan, resulting in a much faster experience on average. I also assisted a team of 3 with feature development on a large (10K LOC+) React Native project that talks to a Python backend with about 1 million monthly active users."
+          "message": "Yeah, I also learned how and then optimized a React app that had gotten slow using industry tools like react-scan, resulting in bringing the experience back to usable for the webapp."
+        },
+        {
+          "role": "user",
+          "message": "Is that the only project you worked on?"
+        },
+        {
+          "role": "assistant",
+          "message": "No, later into this position I was reassigned to work on a different team within the parent company which maintained a (10K LOC+) React Native AI chat bot supporting Web, iOS, and Android for about 1 million monthly active users"
         }
       ]
     },
@@ -62,12 +78,22 @@
         { "role": "user", "message": "What's Vue Technology LLC?" },
         {
           "role": "assistant",
-          "message": "Vue Technology LLC is where I did a Software Engineer Internship from December 2022 to January 2023."
+          "message": "Vue Technology LLC is the company that sponsors Vue development (and works closely with ByteDance, the company which owns TikTok) where I did a Software Engineer Internship from December 2022 to January 2023."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "The tech stack that I worked on was an open source Rust project."
         },
         { "role": "user", "message": "What did you do there?" },
         {
           "role": "assistant",
-          "message": "I implemented improvements to an application that saves significant bandwidth when communicating between website and client code. These improvements were contributed to a Rust application that has 609,000 weekly downloads on npm — it's called oxlint."
+          "message": "I implemented an algorithm called a call-flow graph to an open source project called oxc which enabled saving significant bandwidth when communicating between website and client code. These improvements were contributed to a Rust application that has 2 million weekly downloads on npm, it's called [oxlint](https://www.npmjs.com/package/oxlint)."
+        },
+        { "role": "user", "message": "Was the work open source?" },
+        {
+          "role": "assistant",
+          "message": "Yeah it was, you can take a look at some of the work in the PR [here](https://github.com/oxc-project/oxc/pull/1805), the work was later merged within [this PR](https://github.com/oxc-project/oxc/pull/2019)."
         }
       ]
     }
