@@ -501,6 +501,7 @@ onMounted(fetchRepoInfo);
   color: var(--text-bright);
   text-decoration: none;
   display: flex;
+  align-items: baseline;
   min-width: 0;
 }
 
