@@ -1,12 +1,31 @@
+<script setup lang="ts">
+import { ref } from "vue";
+
+const hasText = ref(false);
+
+function onInput(e: Event) {
+  const el = e.target as HTMLElement;
+  if (el.innerText.trim() === "") {
+    el.innerHTML = "";
+    hasText.value = false;
+  } else {
+    hasText.value = true;
+  }
+}
+</script>
+
 <template>
   <div class="prompt-bar-wrapper">
     <div class="prompt-bar">
-      <div class="prompt-input" contenteditable="true" role="textbox" aria-label="Write your prompt" data-placeholder="Reply to Jason..."></div>
+      <div class="prompt-input" contenteditable="true" role="textbox" aria-label="Write your prompt" data-placeholder="Reply to Jason..." @input="onInput"></div>
       <div class="prompt-actions">
         <button class="prompt-icon-btn" aria-label="Attach">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10 3a.5.5 0 0 1 .5.5v6h6l.1.01a.5.5 0 0 1 0 .98l-.1.01h-6v6a.5.5 0 0 1-1 0v-6h-6a.5.5 0 0 1 0-1h6v-6A.5.5 0 0 1 10 3"></path></svg>
         </button>
-        <button class="prompt-send-btn" aria-label="Send">
+        <button v-if="hasText" class="prompt-send-btn send-active" aria-label="Send message">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
+        </button>
+        <button v-else class="prompt-send-btn" aria-label="Send">
           <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="7.5" height="6" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="4" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="8" y="2.5" height="16" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="12" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="16" y="2.5" height="16" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="20" y="7.5" height="6" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect></svg>
         </button>
       </div>
@@ -91,6 +110,17 @@
 .prompt-icon-btn:hover,
 .prompt-send-btn:hover {
   background: var(--bg-hover-light);
+  color: var(--text-bright);
+}
+
+.send-active {
+  background: #c66140;
+  color: var(--text-bright);
+  border-radius: 10px;
+}
+
+.send-active:hover {
+  background: #d97857;
   color: var(--text-bright);
 }
 </style>
