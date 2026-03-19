@@ -4,6 +4,7 @@ defineProps<{
   label: string;
   href?: string;
   collapsed: boolean;
+  active?: boolean;
 }>();
 </script>
 
@@ -13,7 +14,7 @@ defineProps<{
     :href="href"
     target="_blank"
     rel="noopener noreferrer"
-    class="sidebar-btn"
+    :class="['sidebar-btn', { active }]"
   >
     <span class="icon-circle">
       <img :src="icon" style="flex-shrink: 0" />
@@ -45,7 +46,7 @@ defineProps<{
       />
     </svg>
   </a>
-  <button v-else class="sidebar-btn" @click="$emit('click')">
+  <button v-else :class="['sidebar-btn', { active }]" @click="$emit('click')">
     <span class="icon-circle">
       <img :src="icon" style="flex-shrink: 0" />
     </span>
@@ -72,7 +73,8 @@ defineProps<{
   text-decoration: none;
 }
 
-.sidebar-btn:hover {
+.sidebar-btn:hover,
+.sidebar-btn.active {
   background: var(--bg-hover);
   color: var(--text-bright);
 }

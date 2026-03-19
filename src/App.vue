@@ -36,7 +36,7 @@ const currentConversation = computed(() =>
       :conversations="conversations"
       :current-slug="currentSlug"
       :collapsed="sidebarCollapsed"
-      @navigate="currentSlug = $event"
+      @navigate="currentSlug = $event; if (isOverlay) sidebarCollapsed = true"
       @toggle="sidebarCollapsed = !sidebarCollapsed"
     />
     <About

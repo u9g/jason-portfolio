@@ -50,12 +50,14 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
           :icon="bookIcon"
           label="About Jason"
           :collapsed="collapsed"
+          :active="currentSlug === 'about'"
           @click="emit('navigate', 'about')"
         />
         <SidebarButton
           :icon="codeIcon"
           label="Notable OSS Contributions"
           :collapsed="collapsed"
+          :active="currentSlug === 'oss'"
           @click="emit('navigate', 'oss')"
         />
         <SidebarButton
