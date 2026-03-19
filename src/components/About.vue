@@ -643,10 +643,26 @@ onUnmounted(() => {
 .inline-oss-btn {
   display: inline-flex !important;
   width: auto !important;
-  vertical-align: middle;
+  vertical-align: -2px;
   border: 0.5px solid var(--text-dim) !important;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   margin-top: 4px;
+  height: 24px !important;
+  font-size: 0.75rem !important;
+  padding: 2px 8px 2px 4px !important;
+  gap: 0.35rem !important;
+}
+
+.inline-contact-btn :deep(.icon-circle),
+.inline-oss-btn :deep(.icon-circle) {
+  width: 16px;
+  height: 16px;
+}
+
+.inline-contact-btn :deep(.icon-circle img),
+.inline-oss-btn :deep(.icon-circle img) {
+  width: 10px;
+  height: 10px;
 }
 
 .about-content a {
