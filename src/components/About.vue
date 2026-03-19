@@ -237,7 +237,8 @@ onUnmounted(() => {
         href="https://www.linkedin.com/in/jason-lernerman/"
         :collapsed="false"
         class="inline-contact-btn"
-      />.
+      />
+      !
     </p>
     <div
       class="about-content"
@@ -434,7 +435,7 @@ onUnmounted(() => {
         describes itself as,
         <em>"A collection of high-performance JavaScript tools."</em>. I found
         this premise interesting, and I also found Rust to be a great language
-        for new contributors to a project so I
+        for new contributors to a project, so I
         <a
           href="https://github.com/oxc-project/oxc/commits?author=u9g"
           target="_blank"
