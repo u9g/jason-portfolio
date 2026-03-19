@@ -2,6 +2,7 @@
 import bookIcon from "../assets/book.svg";
 import codeIcon from "../assets/code.svg";
 import contactIcon from "../assets/contact.svg";
+import githubIcon from "../assets/github.svg";
 import SidebarButton from "./SidebarButton.vue";
 
 defineProps<{
@@ -17,20 +18,57 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
   <aside :class="{ collapsed: collapsed }">
     <div class="sidebar-inner">
       <div class="row top-row">
-        <a v-if="!collapsed" class="title-block" href="#" @click.prevent="emit('navigate', 'about')">
+        <a
+          v-if="!collapsed"
+          class="title-block"
+          href="#"
+          @click.prevent="emit('navigate', 'about')"
+        >
           <span>Jason Lernerman</span>
           <span class="subtitle">is looking for a job.</span>
         </a>
 
         <button @click="emit('toggle')" class="icon-btn">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16.5 4C17.3284 4 18 4.67157 18 5.5V14.5C18 15.3284 17.3284 16 16.5 16H3.5C2.67157 16 2 15.3284 2 14.5V5.5C2 4.67157 2.67157 4 3.5 4H16.5ZM7 15H16.5C16.7761 15 17 14.7761 17 14.5V5.5C17 5.22386 16.7761 5 16.5 5H7V15ZM3.5 5C3.22386 5 3 5.22386 3 5.5V14.5C3 14.7761 3.22386 15 3.5 15H6V5H3.5Z"></path></svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M16.5 4C17.3284 4 18 4.67157 18 5.5V14.5C18 15.3284 17.3284 16 16.5 16H3.5C2.67157 16 2 15.3284 2 14.5V5.5C2 4.67157 2.67157 4 3.5 4H16.5ZM7 15H16.5C16.7761 15 17 14.7761 17 14.5V5.5C17 5.22386 16.7761 5 16.5 5H7V15ZM3.5 5C3.22386 5 3 5.22386 3 5.5V14.5C3 14.7761 3.22386 15 3.5 15H6V5H3.5Z"
+            ></path>
+          </svg>
         </button>
       </div>
 
       <div class="new-chat-row">
-        <SidebarButton :icon="bookIcon" label="About Jason" :collapsed="collapsed" @click="emit('navigate', 'about')" />
-        <SidebarButton :icon="codeIcon" label="Notable OSS Contributions" :collapsed="collapsed" @click="emit('navigate', 'oss')" />
-        <SidebarButton :icon="contactIcon" label="Contact Jason" href="https://www.linkedin.com/in/jason-lernerman/" :collapsed="collapsed" />
+        <SidebarButton
+          :icon="bookIcon"
+          label="About Jason"
+          :collapsed="collapsed"
+          @click="emit('navigate', 'about')"
+        />
+        <SidebarButton
+          :icon="codeIcon"
+          label="Notable OSS Contributions"
+          :collapsed="collapsed"
+          @click="emit('navigate', 'oss')"
+        />
+        <SidebarButton
+          :icon="githubIcon"
+          label="Jason's Github"
+          href="https://github.com/u9g"
+          :collapsed="collapsed"
+        />
+        <SidebarButton
+          :icon="contactIcon"
+          label="Contact Jason"
+          href="https://www.linkedin.com/in/jason-lernerman/"
+          :collapsed="collapsed"
+        />
       </div>
 
       <div v-if="!collapsed" class="recent-section">
@@ -46,11 +84,7 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
         </button>
       </div>
     </div>
-    <div
-      v-if="!collapsed"
-      class="overlay-backdrop"
-      @click="emit('toggle')"
-    />
+    <div v-if="!collapsed" class="overlay-backdrop" @click="emit('toggle')" />
   </aside>
 </template>
 
@@ -171,8 +205,6 @@ button {
 .new-chat-row {
   padding: 0 8px;
 }
-
-
 
 .recent-section {
   display: flex;
