@@ -253,19 +253,24 @@ function onInput(e: Event) {
   border-radius: 20px;
   border: 0.5px solid var(--border-color);
   background: var(--bg-raised);
+  max-width: 724px;
+  margin: 0 auto;
+  width: 100%;
   box-shadow:
     0 0.25rem 1.25rem rgba(0, 0, 0, 0.035),
     0 0 0 0.5px rgba(66, 65, 61, 0.15);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.15s ease;
 }
 
 .prompt-bar:hover {
+  border-color: #555450;
   box-shadow:
     0 0.25rem 1.25rem rgba(0, 0, 0, 0.035),
     0 0 0 0.5px rgba(66, 65, 61, 0.3);
 }
 
 .prompt-bar:focus-within {
+  border-color: #555450;
   box-shadow:
     0 0.25rem 1.25rem rgba(0, 0, 0, 0.075),
     0 0 0 0.5px rgba(66, 65, 61, 0.3);
@@ -410,11 +415,17 @@ function onInput(e: Event) {
   border-radius: 16px;
   padding: 16px;
   width: 100%;
-  max-width: 28rem;
+  max-width: 724px;
   min-width: 0;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   animation: modal-zoom 250ms ease-out forwards;
+  transition: border-color 0.15s ease;
 }
+
+.modal-dialog:hover {
+  border-color: #555450;
+}
+
 
 @media (min-width: 768px) {
   .modal-backdrop {
