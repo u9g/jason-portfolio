@@ -90,7 +90,7 @@
         { "role": "user", "message": "What was the tech stack used?" },
         {
           "role": "assistant",
-          "message": "The frontend was a SwiftUI iOS native app. The backend was a typescript API through Convex (a serverless function provider similar to AWS Lambda or Cloudflare Workers). The database was Convex's builtin document store (like MongoDB)."
+          "message": "The frontend was a SwiftUI iOS native app. The backend was a TypeScript API through Convex (a serverless function provider similar to AWS Lambda or Cloudflare Workers). The database was Convex's builtin document store (like MongoDB)."
         },
         { "role": "user", "message": "Can I see it on the iOS App Store?" },
         {

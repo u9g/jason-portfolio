@@ -441,7 +441,7 @@ onUnmounted(() => {
         under the guidance of the extremely patient and helpful maintainer.
       </p>
       <p>
-        Later, I took my rust knowledge on the road when I got interested in
+        Later, I took my Rust knowledge on the road when I got interested in
         learning about linters and a brand new project at that time, OXC, which
         describes itself as,
         <em>"A collection of high-performance JavaScript tools."</em>. I found

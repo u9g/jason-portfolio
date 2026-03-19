@@ -9,11 +9,41 @@ defineProps<{
   sidebarCollapsed: boolean;
 }>();
 
-function linkify(text: string): string {
-  return text.replace(
+const langColors: Record<string, string> = {
+  JavaScript: "#f7df1e",
+  TypeScript: "#58a6ff",
+  typescript: "#58a6ff",
+  Java: "#f89820",
+  Kotlin: "#c77dff",
+  Rust: "#ff6b4a",
+  Gleam: "#ffaff3",
+  Python: "#4584b6",
+  SwiftUI: "#f05138",
+  React: "#61dafb",
+  "React Native": "#61dafb",
+  MongoDB: "#00ed64",
+  PostHog: "#f54e00",
+};
+
+const langPattern = new RegExp(
+  `\\b(${Object.keys(langColors)
+    .sort((a, b) => b.length - a.length)
+    .join("|")})\\b`,
+  "g",
+);
+
+function formatMessage(text: string): string {
+  // Links first
+  let result = text.replace(
     /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
   );
+  // Colorize language names (only outside of HTML tags)
+  result = result.replace(langPattern, (match) => {
+    const color = langColors[match];
+    return `<span style="color: ${color}">${match}</span>`;
+  });
+  return result;
 }
 
 const emit = defineEmits<{ toggleSidebar: [] }>();
@@ -34,7 +64,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
         :key="i"
         :class="['message', msg.role]"
       >
-        <span v-html="linkify(msg.message)"></span>
+        <span v-html="formatMessage(msg.message)"></span>
       </div>
     </div>
 
