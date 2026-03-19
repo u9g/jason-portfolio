@@ -107,7 +107,10 @@ function onInput(e: Event) {
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.prompt-icon-btn:hover,
+.prompt-icon-btn {
+  cursor: not-allowed;
+}
+
 .prompt-send-btn:hover {
   background: var(--bg-hover-light);
   color: var(--text-bright);
