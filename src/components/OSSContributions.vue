@@ -542,7 +542,7 @@ onMounted(fetchRepoInfo);
 
 .star-count {
   font-size: 0.7rem;
-  color: var(--text-dim);
+  color: var(--text-bright);
   margin-left: auto;
 }
 
