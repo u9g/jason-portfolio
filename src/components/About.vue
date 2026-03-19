@@ -23,6 +23,28 @@ const colors = ["#f7df1e", "#ff6b4a", "#c77dff", "#58a6ff"];
 let currentIndex = 0;
 let animationId: number | undefined;
 let alive = true;
+let paused = false;
+let pauseTime = 0;
+let hopStartTime = 0;
+let hopDuration = 0;
+let hopArcHeight = 0;
+let hopFrom = { x: 0, y: 0 };
+let hopTo = { x: 0, y: 0 };
+let hopStartColor = "";
+let hopEndColor = "";
+
+function pauseParticle() {
+  paused = true;
+  pauseTime = performance.now();
+  if (animationId) cancelAnimationFrame(animationId);
+}
+
+function resumeParticle() {
+  paused = false;
+  const elapsed = performance.now() - pauseTime;
+  hopStartTime += elapsed;
+  animationId = requestAnimationFrame(step);
+}
 
 function getLinks() {
   if (!aboutContent.value) return [];
@@ -38,52 +60,60 @@ function getLinkCenter(link: Element) {
   };
 }
 
+let nextIndex = 0;
+
+function step(now: number) {
+  if (!alive || paused) return;
+  const el = particle.value;
+  if (!el) return;
+
+  const t = Math.min((now - hopStartTime) / hopDuration, 1);
+
+  const x = hopFrom.x + (hopTo.x - hopFrom.x) * t;
+  const midY = (hopFrom.y + hopTo.y) / 2;
+  const y = midY - hopArcHeight * Math.sin(Math.PI * t);
+
+  el.style.transform = `translate(${x}px, ${y}px)`;
+  el.style.background = lerpColor(hopStartColor, hopEndColor, t);
+  el.style.boxShadow = `0 0 6px ${lerpColor(hopStartColor, hopEndColor, t)}`;
+
+  if (t < 1) {
+    animationId = requestAnimationFrame(step);
+  } else {
+    currentIndex = nextIndex;
+    animateHop();
+  }
+}
+
 function animateHop() {
   const links = getLinks();
-  if (links.length === 0 || !particle.value || !alive) return;
+  if (links.length === 0 || !particle.value || !alive || paused) return;
 
   const fromIndex = currentIndex;
-  const toIndex = (currentIndex + 1) % links.length;
-  const from = getLinkCenter(links[fromIndex]);
-  const to = getLinkCenter(links[toIndex]);
-  const startColor = colors[fromIndex];
-  const endColor = colors[toIndex];
+  nextIndex = (currentIndex + 1) % links.length;
+  hopFrom = getLinkCenter(links[fromIndex]);
+  hopTo = getLinkCenter(links[nextIndex]);
+  hopStartColor = colors[fromIndex];
+  hopEndColor = colors[nextIndex];
+  hopDuration = 1000;
+  hopArcHeight = 25 + Math.random() * 40;
+  hopStartTime = performance.now();
 
   const el = particle.value;
   el.style.opacity = "1";
-  el.style.background = startColor;
-  el.style.boxShadow = `0 0 6px ${startColor}`;
-
-  const duration = 1000;
-  const startTime = performance.now();
-
-  function step(now: number) {
-    if (!alive) return;
-    const t = Math.min((now - startTime) / duration, 1);
-
-    const x = from.x + (to.x - from.x) * t;
-    const midY = (from.y + to.y) / 2;
-    const arcHeight = 40;
-    const y = midY - arcHeight * Math.sin(Math.PI * t);
-
-    el.style.transform = `translate(${x}px, ${y}px)`;
-
-    el.style.background = lerpColor(startColor, endColor, t);
-    el.style.boxShadow = `0 0 6px ${lerpColor(startColor, endColor, t)}`;
-
-    if (t < 1) {
-      animationId = requestAnimationFrame(step);
-    } else {
-      currentIndex = toIndex;
-      animateHop();
-    }
-  }
+  el.style.background = hopStartColor;
+  el.style.boxShadow = `0 0 6px ${hopStartColor}`;
 
   animationId = requestAnimationFrame(step);
 }
 
 onMounted(() => {
   animateHop();
+  const links = getLinks();
+  links.forEach((link) => {
+    link.addEventListener("mouseenter", pauseParticle);
+    link.addEventListener("mouseleave", resumeParticle);
+  });
 });
 
 onUnmounted(() => {
