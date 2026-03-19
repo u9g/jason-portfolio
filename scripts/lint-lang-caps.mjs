@@ -128,7 +128,7 @@ if (fix) {
   process.exit(0);
 } else if (violations > 0) {
   console.log(
-    `\n${violations} capitalization violation(s) found. Run with --fix to auto-fix.`
+    `\n${violations} capitalization violation(s) found. Run \`npm run lint:caps:fix\` to auto-fix.`
   );
   process.exit(1);
 } else {
