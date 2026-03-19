@@ -318,6 +318,33 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+.particle-toggle input[type="checkbox"] {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--text-muted);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.particle-toggle input[type="checkbox"]:checked {
+  background: var(--text-muted);
+}
+
+.particle-toggle input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 3.5px;
+  top: 1px;
+  width: 4px;
+  height: 7px;
+  border: solid var(--bg-base);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
 .sidebar-toggle {
   background: transparent;
   border: none;
