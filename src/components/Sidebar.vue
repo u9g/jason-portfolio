@@ -2,6 +2,7 @@
 import bookIcon from "../assets/book.svg";
 import codeIcon from "../assets/code.svg";
 import contactIcon from "../assets/contact.svg";
+import claudeIcon from "../assets/claude.svg";
 import githubIcon from "../assets/github.svg";
 import SidebarButton from "./SidebarButton.vue";
 
@@ -83,6 +84,12 @@ const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
           {{ conv.title }}
         </button>
       </div>
+
+      <p v-if="!collapsed" class="attribution">
+        This website's theme and design were heavily inspired by<br />
+        <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="attribution-link">Anthropic's
+        Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /> ↗</a>
+      </p>
     </div>
     <div v-if="!collapsed" class="overlay-backdrop" @click="emit('toggle')" />
   </aside>
@@ -130,6 +137,8 @@ aside {
   z-index: 10;
   transform: translateX(0);
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .collapsed .sidebar-inner {
@@ -161,7 +170,7 @@ aside {
   .sidebar-inner {
     position: static;
     min-width: 260px;
-    height: auto;
+    height: 100vh;
     z-index: auto;
   }
 
@@ -239,5 +248,33 @@ button {
 .recent-item.active {
   background: var(--bg-hover);
   color: var(--text-bright);
+}
+
+.attribution {
+  margin-top: auto;
+  padding: 16px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.attribution-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--text-muted);
+  padding-bottom: 1px;
+}
+
+.attribution-link:hover {
+  color: var(--text-bright);
+  border-bottom-color: var(--text-bright);
+}
+
+.claude-logo {
+  width: 0.75rem;
+  height: 0.75rem;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 </style>
