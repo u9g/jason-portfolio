@@ -2,6 +2,54 @@
 import { ref } from "vue";
 
 const hasText = ref(false);
+const isListening = ref(false);
+const promptInput = ref<HTMLElement | null>(null);
+
+const SpeechRecognition =
+  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+const speechSupported = !!SpeechRecognition;
+let recognition: any = null;
+
+if (speechSupported) {
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = "en-US";
+
+  recognition.onresult = (event: any) => {
+    const el = promptInput.value;
+    if (!el) return;
+
+    let final = "";
+    let interim = "";
+    for (let i = 0; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        final += transcript;
+      } else {
+        interim += transcript;
+      }
+    }
+
+    el.innerText = final + interim;
+    hasText.value = el.innerText.trim() !== "";
+  };
+
+  recognition.onend = () => {
+    isListening.value = false;
+  };
+}
+
+function toggleListening() {
+  if (!recognition) return;
+  if (isListening.value) {
+    recognition.stop();
+    isListening.value = false;
+  } else {
+    recognition.start();
+    isListening.value = true;
+  }
+}
 
 function onInput(e: Event) {
   const el = e.target as HTMLElement;
@@ -17,16 +65,20 @@ function onInput(e: Event) {
 <template>
   <div class="prompt-bar-wrapper">
     <div class="prompt-bar">
-      <div class="prompt-input" contenteditable="true" role="textbox" aria-label="Write your prompt" data-placeholder="Reply to Jason..." @input="onInput"></div>
+      <div ref="promptInput" class="prompt-input" :class="{ 'input-disabled': isListening }" :contenteditable="!isListening" role="textbox" aria-label="Write your prompt" data-placeholder="Reply to Jason..." @input="onInput"></div>
       <div class="prompt-actions">
         <button class="prompt-icon-btn" aria-label="Attach">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10 3a.5.5 0 0 1 .5.5v6h6l.1.01a.5.5 0 0 1 0 .98l-.1.01h-6v6a.5.5 0 0 1-1 0v-6h-6a.5.5 0 0 1 0-1h6v-6A.5.5 0 0 1 10 3"></path></svg>
         </button>
-        <button v-if="hasText" class="prompt-send-btn send-active" aria-label="Send message">
+        <button v-if="hasText && !isListening" class="prompt-send-btn send-active" aria-label="Send message">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
         </button>
-        <button v-else class="prompt-send-btn" aria-label="Send">
-          <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="7.5" height="6" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="4" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="8" y="2.5" height="16" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="12" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="16" y="2.5" height="16" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect><rect x="20" y="7.5" height="6" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect></svg>
+        <button v-else class="prompt-send-btn" :class="{ listening: isListening }" aria-label="Voice input" :disabled="!speechSupported" @click="toggleListening">
+          <svg class="audio-waves" width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect class="wave wave-1" x="4" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect>
+            <rect class="wave wave-2" x="10" y="3.5" height="14" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect>
+            <rect class="wave wave-3" x="16" y="5.5" height="10" fill="currentColor" width="1" rx="0.5" ry="0.5"></rect>
+          </svg>
         </button>
       </div>
     </div>
@@ -114,6 +166,28 @@ function onInput(e: Event) {
 .prompt-send-btn:hover {
   background: var(--bg-hover-light);
   color: var(--text-bright);
+}
+
+.input-disabled {
+  cursor: not-allowed;
+}
+
+.listening {
+  color: #c66140;
+}
+
+.listening .wave {
+  animation: wave-bounce 0.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.listening .wave-1 { animation-delay: 0s; }
+.listening .wave-2 { animation-delay: 0.15s; }
+.listening .wave-3 { animation-delay: 0.3s; }
+
+@keyframes wave-bounce {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.2); }
 }
 
 .send-active {
