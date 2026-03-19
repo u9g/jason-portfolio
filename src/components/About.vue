@@ -52,7 +52,6 @@ const colorMap: Record<string, string> = {
 let currentIndex = 0;
 let animationId: number | undefined;
 let alive = true;
-let paused = false;
 let lastTime = 0;
 
 // Physics state
@@ -68,18 +67,6 @@ let flightTime = 0;
 let elapsed = 0;
 let fromColor = "";
 let toColor = "";
-
-function pauseParticle() {
-  paused = true;
-  pauseTime = performance.now();
-  if (animationId) cancelAnimationFrame(animationId);
-}
-
-function resumeParticle() {
-  paused = false;
-  lastTime = performance.now();
-  animationId = requestAnimationFrame(step);
-}
 
 function getAllLinks() {
   if (!aboutContent.value) return [];
@@ -130,7 +117,7 @@ function launchToRandom() {
 }
 
 function step(now: number) {
-  if (!alive || paused) return;
+  if (!alive) return;
   const el = particle.value;
   if (!el) return;
 
@@ -182,11 +169,6 @@ function start() {
 
 onMounted(() => {
   start();
-  const links = getAllLinks();
-  links.forEach((link) => {
-    link.addEventListener("mouseenter", pauseParticle);
-    link.addEventListener("mouseleave", resumeParticle);
-  });
 });
 
 onUnmounted(() => {
