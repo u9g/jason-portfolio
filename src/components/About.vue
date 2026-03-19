@@ -43,6 +43,7 @@ const colorMap: Record<string, string> = {
   "lang-ts": "#58a6ff",
   "lang-java": "#f89820",
   "lang-psu": "#1e6cb6",
+  "lang-gleam": "#ffaff3",
 };
 let currentIndex = 0;
 let animationId: number | undefined;
@@ -223,18 +224,26 @@ onUnmounted(() => {
       </label>
     </div>
     <div class="about-content" ref="aboutContent">
+      <div class="color-index">
+        <span class="color-swatch lang-js">JavaScript</span>
+        <span class="color-swatch lang-ts">TypeScript</span>
+        <span class="color-swatch lang-java">Java</span>
+        <span class="color-swatch lang-kotlin">Kotlin</span>
+        <span class="color-swatch lang-rust">Rust</span>
+        <span class="color-swatch lang-gleam">Gleam</span>
+      </div>
       <div ref="particle" class="particle" />
       <p>
         Hi, my name is Jason and I have been programming for a while. Since way
         back in senior year of highschool, when I decided I would learn
-        Javascript to
+        JavaScript to
         <a
           href="https://github.com/PrismarineJS/mineflayer"
           target="_blank"
           rel="noopener noreferrer"
           class="lang-js"
           >make a minecraft bot ↗</a
-        >. Then I learned Typescript so I could
+        >. Then I learned TypeScript so I could
         <a
           href="https://github.com/u9g/minecraft-proxy-handler/commit/6caa09e3fbcbcf3b0e5d96054e4ff46561d4233f"
           target="_blank"
@@ -259,14 +268,41 @@ onUnmounted(() => {
           class="lang-java"
           >contributing to Java tools↗</a
         >
-        for Javascript minecraft bots. Along that journey I have programmed in
-        many different programming languages such as
+        for JavaScript minecraft bots. Since then, I learned Kotlin, which is
+        the TypeScript to JavaScript in the Java world, and continued making
+        <a
+          href="https://github.com/u9g/cosmicsky-client"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-kotlin"
+          >minecraft mods ↗</a
+        >
+        and
+        <a
+          href="https://github.com/u9g/Minigames"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-kotlin"
+          >minecraft plugins ↗</a
+        >. Around this time, I took a look around the programming landscape and
+        made some
+        <a
+          href="https://github.com/u9g/thatgleammod"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lang-gleam"
+          >minecraft mods in Gleam ↗</a
+        >, which is a growing programming language that compiles to Erlang, or in my use case JavaScript.
+      </p>
+      <p>
+        Along that journey I have programmed in many different programming
+        languages such as
         <a
           href="https://github.com/PrismarineJS/mineflayer/commits?author=u9g"
           target="_blank"
           rel="noopener noreferrer"
           class="lang-js"
-          >Javascript ↗</a
+          >JavaScript ↗</a
         >,
         <a
           href="https://github.com/obi1kenobi/trustfall/commits?author=u9g"
@@ -287,7 +323,7 @@ onUnmounted(() => {
           target="_blank"
           rel="noopener noreferrer"
           class="lang-ts"
-          >Typescript ↗</a
+          >TypeScript ↗</a
         >.
       </p>
       <p>
@@ -322,6 +358,29 @@ onUnmounted(() => {
   top: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.color-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.7rem;
+}
+
+.color-swatch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-swatch::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 1px;
+  background: currentColor;
+  flex-shrink: 0;
 }
 
 .particle-toggle {
@@ -431,5 +490,8 @@ onUnmounted(() => {
 }
 .lang-psu {
   color: #1e6cb6;
+}
+.lang-gleam {
+  color: #ffaff3;
 }
 </style>
