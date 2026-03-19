@@ -96,6 +96,11 @@ function getAllLinks() {
 }
 
 function getLinkColor(link: Element): string {
+  const active = activeLangs.value;
+  if (active.size > 0) {
+    const isHighlighted = [...active].some(lang => link.classList.contains(lang));
+    if (!isHighlighted) return "#666666";
+  }
   for (const cls of link.classList) {
     if (colorMap[cls]) return colorMap[cls];
   }
