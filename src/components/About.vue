@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import contactIcon from "../assets/contact.svg";
 import codeIcon from "../assets/code.svg";
 import SidebarButton from "./SidebarButton.vue";
@@ -12,15 +12,27 @@ const emit = defineEmits<{ toggleSidebar: []; navigate: [slug: string] }>();
 
 const aboutContent = ref<HTMLElement | null>(null);
 const highlightLang = ref("");
-const lockedLang = ref("");
+const lockedLangs = ref<Set<string>>(new Set());
+
+const activeLangs = computed<Set<string>>(() => {
+  if (lockedLangs.value.size > 0) return lockedLangs.value;
+  if (highlightLang.value) return new Set([highlightLang.value]);
+  return new Set();
+});
+
+function isActive(lang: string): boolean {
+  return activeLangs.value.has(lang);
+}
 
 function toggleLock(lang: string) {
-  if (lockedLang.value === lang) {
-    lockedLang.value = "";
+  const s = new Set(lockedLangs.value);
+  if (s.has(lang)) {
+    s.delete(lang);
     highlightLang.value = "";
   } else {
-    lockedLang.value = lang;
+    s.add(lang);
   }
+  lockedLangs.value = s;
 }
 const particle = ref<HTMLElement | null>(null);
 const particleEnabled = ref(true);
@@ -234,8 +246,8 @@ onUnmounted(() => {
     <div
       class="about-content"
       ref="aboutContent"
-      :class="{ 'highlight-active': lockedLang || highlightLang }"
-      :data-highlight="lockedLang || highlightLang"
+      :class="{ 'highlight-active': activeLangs.size > 0 }"
+      :data-highlight="[...activeLangs].join(' ')"
     >
       <div class="color-index-row">
         <div class="color-index">
@@ -243,7 +255,7 @@ onUnmounted(() => {
             :class="[
               'color-swatch',
               'lang-js',
-              { 'active-swatch': (lockedLang || highlightLang) === 'lang-js' },
+              { 'active-swatch': isActive('lang-js') },
             ]"
             @mouseenter="highlightLang = 'lang-js'"
             @mouseleave="highlightLang = ''"
@@ -254,7 +266,7 @@ onUnmounted(() => {
             :class="[
               'color-swatch',
               'lang-ts',
-              { 'active-swatch': (lockedLang || highlightLang) === 'lang-ts' },
+              { 'active-swatch': isActive('lang-ts') },
             ]"
             @mouseenter="highlightLang = 'lang-ts'"
             @mouseleave="highlightLang = ''"
@@ -266,7 +278,7 @@ onUnmounted(() => {
               'color-swatch',
               'lang-java',
               {
-                'active-swatch': (lockedLang || highlightLang) === 'lang-java',
+                'active-swatch': isActive('lang-java'),
               },
             ]"
             @mouseenter="highlightLang = 'lang-java'"
@@ -279,8 +291,7 @@ onUnmounted(() => {
               'color-swatch',
               'lang-kotlin',
               {
-                'active-swatch':
-                  (lockedLang || highlightLang) === 'lang-kotlin',
+                'active-swatch': isActive('lang-kotlin'),
               },
             ]"
             @mouseenter="highlightLang = 'lang-kotlin'"
@@ -293,7 +304,7 @@ onUnmounted(() => {
               'color-swatch',
               'lang-rust',
               {
-                'active-swatch': (lockedLang || highlightLang) === 'lang-rust',
+                'active-swatch': isActive('lang-rust'),
               },
             ]"
             @mouseenter="highlightLang = 'lang-rust'"
@@ -306,7 +317,7 @@ onUnmounted(() => {
               'color-swatch',
               'lang-gleam',
               {
-                'active-swatch': (lockedLang || highlightLang) === 'lang-gleam',
+                'active-swatch': isActive('lang-gleam'),
               },
             ]"
             @mouseenter="highlightLang = 'lang-gleam'"
@@ -314,9 +325,10 @@ onUnmounted(() => {
             @click="toggleLock('lang-gleam')"
             >Gleam</span
           >
-          <button v-if="lockedLang" class="clear-btn" @click="lockedLang = ''">
+          <button v-if="lockedLangs.size > 0" class="clear-btn" @click="lockedLangs = new Set()">
             ✕
           </button>
+          <span class="color-hint">(hover and click the colors!)</span>
         </div>
         <label class="particle-toggle">
           <input
@@ -514,6 +526,12 @@ onUnmounted(() => {
   color: var(--text-bright);
 }
 
+.color-hint {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  user-select: none;
+}
+
 .color-swatch::before {
   content: "";
   display: inline-block;
@@ -653,25 +671,25 @@ onUnmounted(() => {
   color: #666 !important;
 }
 
-.highlight-active[data-highlight="lang-js"] a.lang-js {
+.highlight-active[data-highlight~="lang-js"] a.lang-js {
   color: #f7df1e !important;
 }
-.highlight-active[data-highlight="lang-ts"] a.lang-ts {
+.highlight-active[data-highlight~="lang-ts"] a.lang-ts {
   color: #58a6ff !important;
 }
-.highlight-active[data-highlight="lang-java"] a.lang-java {
+.highlight-active[data-highlight~="lang-java"] a.lang-java {
   color: #f89820 !important;
 }
-.highlight-active[data-highlight="lang-kotlin"] a.lang-kotlin {
+.highlight-active[data-highlight~="lang-kotlin"] a.lang-kotlin {
   color: #c77dff !important;
 }
-.highlight-active[data-highlight="lang-rust"] a.lang-rust {
+.highlight-active[data-highlight~="lang-rust"] a.lang-rust {
   color: #ff6b4a !important;
 }
-.highlight-active[data-highlight="lang-gleam"] a.lang-gleam {
+.highlight-active[data-highlight~="lang-gleam"] a.lang-gleam {
   color: #ffaff3 !important;
 }
-.highlight-active[data-highlight="lang-psu"] a.lang-psu {
+.highlight-active[data-highlight~="lang-psu"] a.lang-psu {
   color: #1e6cb6 !important;
 }
 
