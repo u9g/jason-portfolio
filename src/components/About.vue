@@ -376,6 +376,12 @@ onUnmounted(() => {
   background: var(--bg-hover);
 }
 
+@media (min-width: 1025px) {
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
 .about-content {
   display: flex;
   flex-direction: column;

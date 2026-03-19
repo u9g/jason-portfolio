@@ -71,6 +71,12 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   background: var(--bg-hover);
 }
 
+@media (min-width: 1025px) {
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
 .share-btn {
   margin-left: auto;
   background: transparent;
