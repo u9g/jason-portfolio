@@ -36,10 +36,11 @@ function toggleLock(lang: string) {
   lockedLangs.value = s;
 }
 const particle = ref<HTMLElement | null>(null);
-const particleEnabled = ref(true);
+const particleEnabled = ref(localStorage.getItem("particle-enabled") !== "false");
 
 function toggleParticle() {
   particleEnabled.value = !particleEnabled.value;
+  localStorage.setItem("particle-enabled", String(particleEnabled.value));
   if (particleEnabled.value) {
     alive = true;
     start();
@@ -198,7 +199,11 @@ function start() {
 }
 
 onMounted(() => {
-  start();
+  if (particleEnabled.value) {
+    start();
+  } else {
+    alive = false;
+  }
 });
 
 onUnmounted(() => {
