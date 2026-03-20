@@ -36,7 +36,7 @@ const expandedRepos = ref<Set<string>>(new Set());
 const activeSection = ref("about");
 
 function copyAnchor(id: string) {
-  window.location.hash = `readme-${id}`;
+  window.location.hash = id;
 }
 
 let observer: IntersectionObserver | null = null;
@@ -45,7 +45,7 @@ onMounted(async () => {
   fetchRepoInfo();
   await nextTick();
   const hash = window.location.hash;
-  if (hash.startsWith("#readme-")) {
+  if (hash.length > 1) {
     const target = document.getElementById(hash.slice(1));
     if (target) target.scrollIntoView({ behavior: "smooth" });
   }
@@ -55,7 +55,7 @@ onMounted(async () => {
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          activeSection.value = entry.target.id.replace("readme-", "");
+          activeSection.value = entry.target.id;
         }
       }
     },
@@ -63,7 +63,7 @@ onMounted(async () => {
   );
 
   for (const entry of tocEntries) {
-    const el = document.getElementById(`readme-${entry.id}`);
+    const el = document.getElementById(entry.id);
     if (el) observer.observe(el);
   }
 });
@@ -76,14 +76,14 @@ onUnmounted(() => {
 <template>
   <div id="readme-view" class="readme-view">
     <div class="readme-banner">
-      <a href="#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
+      <a href="/claude#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
     </div>
 
     <nav class="toc">
       <h2>Table of Contents</h2>
       <ul>
         <li v-for="entry in tocEntries" :key="entry.id">
-          <a :href="`#readme-${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
+          <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
         </li>
       </ul>
     </nav>
@@ -93,7 +93,7 @@ onUnmounted(() => {
 
       <!-- About -->
       <h2
-        :id="'readme-about'"
+        id="about"
         class="section-header"
         @click="copyAnchor('about')"
       >
@@ -214,7 +214,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Job Experience -->
-      <h2 id="readme-jobs" class="section-header" @click="copyAnchor('jobs')">
+      <h2 id="jobs" class="section-header" @click="copyAnchor('jobs')">
         <span class="anchor-icon">#</span> Job Experience
       </h2>
       <div
@@ -223,7 +223,7 @@ onUnmounted(() => {
         class="section-content"
       >
         <h3
-          :id="`readme-${job.slug}`"
+          :id="job.slug"
           class="sub-header"
           @click="copyAnchor(job.slug)"
         >
@@ -241,7 +241,7 @@ onUnmounted(() => {
 
       <!-- Personal Projects -->
       <h2
-        id="readme-projects"
+        id="projects"
         class="section-header"
         @click="copyAnchor('projects')"
       >
@@ -253,7 +253,7 @@ onUnmounted(() => {
         class="section-content"
       >
         <h3
-          :id="`readme-${project.slug}`"
+          :id="project.slug"
           class="sub-header"
           @click="copyAnchor(project.slug)"
         >
@@ -270,13 +270,13 @@ onUnmounted(() => {
       </div>
 
       <!-- OSS Contributions -->
-      <h2 id="readme-oss" class="section-header" @click="copyAnchor('oss')">
+      <h2 id="oss" class="section-header" @click="copyAnchor('oss')">
         <span class="anchor-icon">#</span> Notable OSS Contributions
       </h2>
       <div class="section-content">
         <div v-for="repo in sortedRepos" :key="repo.name" class="oss-repo">
           <h3
-            :id="`readme-oss-${repo.name.replace('/', '-')}`"
+            :id="`oss-${repo.name.replace('/', '-')}`"
             class="repo-header"
             @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
           >

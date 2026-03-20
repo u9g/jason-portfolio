@@ -40,12 +40,12 @@ function toggleTheme(e: MouseEvent) {
   }
 }
 
-const DEFAULT_SLUG = "readme";
+const isReadmeMode = window.location.pathname === "/" || window.location.pathname === "/index.html";
+
+const DEFAULT_SLUG = "about";
 
 function slugFromHash(hash: string): string {
-  const raw = hash.slice(1) || DEFAULT_SLUG;
-  if (raw === "readme" || raw.startsWith("readme-")) return "readme";
-  return raw;
+  return hash.slice(1) || DEFAULT_SLUG;
 }
 
 const currentSlug = ref(slugFromHash(window.location.hash));
@@ -54,10 +54,12 @@ const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
 
 watchEffect(() => {
-  if (currentSlug.value === DEFAULT_SLUG) {
-    history.replaceState(null, "", window.location.pathname);
-  } else {
-    window.location.hash = currentSlug.value;
+  if (!isReadmeMode) {
+    if (currentSlug.value === DEFAULT_SLUG) {
+      history.replaceState(null, "", window.location.pathname);
+    } else {
+      window.location.hash = currentSlug.value;
+    }
   }
 });
 
@@ -74,10 +76,10 @@ const currentConversation = computed(() =>
 
 <template>
   <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
-  <ReadmeView v-if="currentSlug === 'readme'" />
+  <ReadmeView v-if="isReadmeMode" />
   <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
-      <a href="#readme">View as document</a>
+      <a href="/">View as document</a>
       <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
     </div>
     <div class="layout">
@@ -115,7 +117,7 @@ const currentConversation = computed(() =>
     <p>
       There's many pages of info about Jason here, but this isn't one of them.
     </p>
-    <button class="white-btn" @click="currentSlug = DEFAULT_SLUG">Go back home</button>
+    <a class="white-btn" href="/">Go back home</a>
   </div>
 </template>
 
