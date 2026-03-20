@@ -4,14 +4,14 @@ import { ref, computed } from "vue";
 const open = ref(false);
 const copied = ref(false);
 
-const currentUrl = computed(() => window.location.href);
+const currentUrl = computed(() => import.meta.env.SSR ? "" : window.location.href);
 
 const urlDomain = computed(() => {
-  return window.location.origin;
+  return import.meta.env.SSR ? "" : window.location.origin;
 });
 
 const urlPath = computed(() => {
-  return window.location.pathname;
+  return import.meta.env.SSR ? "" : window.location.pathname;
 });
 
 function copyLink() {

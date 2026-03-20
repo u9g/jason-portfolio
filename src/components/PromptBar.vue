@@ -7,8 +7,9 @@ const showModal = ref(false);
 const promptInput = ref<HTMLElement | null>(null);
 const confirmLink = ref<HTMLAnchorElement | null>(null);
 
-const SpeechRecognition =
-  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+const SpeechRecognition = import.meta.env.SSR
+  ? null
+  : (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 const speechSupported = !!SpeechRecognition;
 let recognition: any = null;
 

@@ -36,7 +36,9 @@ function toggleLock(lang: string) {
   lockedLangs.value = s;
 }
 const particle = ref<HTMLElement | null>(null);
-const particleEnabled = ref(localStorage.getItem("particle-enabled") !== "false");
+const particleEnabled = ref(
+  import.meta.env.SSR ? true : localStorage.getItem("particle-enabled") !== "false",
+);
 
 function toggleParticle() {
   particleEnabled.value = !particleEnabled.value;

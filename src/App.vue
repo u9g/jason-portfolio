@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, inject, ref } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
@@ -7,11 +7,14 @@ import OSSContributions from "./components/OSSContributions.vue";
 import ReadmeView from "./components/ReadmeView.vue";
 import conversations from "./data/conversations.json";
 
+const isSSR = import.meta.env.SSR;
+
 const bannerDismissed = ref(false);
 
-const theme = ref(localStorage.getItem("theme") || "dark");
+const theme = ref(isSSR ? "dark" : (localStorage.getItem("theme") || "dark"));
 
 function applyTheme(t: string) {
+  if (isSSR) return;
   document.documentElement.setAttribute("data-theme", t);
   localStorage.setItem("theme", t);
 }
@@ -40,7 +43,8 @@ function toggleTheme(e: MouseEvent) {
   }
 }
 
-const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+const initialPath = inject<string>("initialPath", "/");
+const pathname = initialPath.replace(/\/+$/, "") || "/";
 const isReadmeMode = pathname === "/" || pathname === "/index.html";
 
 const DEFAULT_SLUG = "about";
@@ -52,7 +56,7 @@ function slugFromPath(path: string): string {
 
 const currentSlug = ref(slugFromPath(pathname));
 
-const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
+const isOverlay = isSSR ? true : !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
 
 function navigateTo(slug: string) {
@@ -61,9 +65,11 @@ function navigateTo(slug: string) {
   history.pushState(null, "", url);
 }
 
-window.addEventListener("popstate", () => {
-  currentSlug.value = slugFromPath(window.location.pathname);
-});
+if (!isSSR) {
+  window.addEventListener("popstate", () => {
+    currentSlug.value = slugFromPath(window.location.pathname);
+  });
+}
 
 const allConversations = [...conversations.jobs, ...conversations.projects];
 
