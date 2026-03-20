@@ -76,7 +76,7 @@ onUnmounted(() => {
 <template>
   <div id="readme-view" class="readme-view">
     <div class="readme-banner">
-      <a href="/claude#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
+      <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
     </div>
 
     <nav class="toc">

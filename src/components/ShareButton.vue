@@ -7,18 +7,11 @@ const copied = ref(false);
 const currentUrl = computed(() => window.location.href);
 
 const urlDomain = computed(() => {
-  const i = currentUrl.value.indexOf("#");
-  if (i === -1) return currentUrl.value;
-  // Strip trailing slash before hash so it moves to the path side
-  const before = currentUrl.value.slice(0, i);
-  return before.endsWith("/") ? before.slice(0, -1) : before;
+  return window.location.origin;
 });
 
 const urlPath = computed(() => {
-  const i = currentUrl.value.indexOf("#");
-  if (i === -1) return "";
-  const before = currentUrl.value.slice(0, i);
-  return (before.endsWith("/") ? "/" : "") + currentUrl.value.slice(i);
+  return window.location.pathname;
 });
 
 function copyLink() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
@@ -40,31 +40,29 @@ function toggleTheme(e: MouseEvent) {
   }
 }
 
-const isReadmeMode = window.location.pathname === "/" || window.location.pathname === "/index.html";
+const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+const isReadmeMode = pathname === "/" || pathname === "/index.html";
 
 const DEFAULT_SLUG = "about";
 
-function slugFromHash(hash: string): string {
-  return hash.slice(1) || DEFAULT_SLUG;
+function slugFromPath(path: string): string {
+  const match = path.match(/^\/claude\/(.+)/);
+  return match ? match[1] : DEFAULT_SLUG;
 }
 
-const currentSlug = ref(slugFromHash(window.location.hash));
+const currentSlug = ref(slugFromPath(pathname));
 
 const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
 
-watchEffect(() => {
-  if (!isReadmeMode) {
-    if (currentSlug.value === DEFAULT_SLUG) {
-      history.replaceState(null, "", window.location.pathname);
-    } else {
-      window.location.hash = currentSlug.value;
-    }
-  }
-});
+function navigateTo(slug: string) {
+  currentSlug.value = slug;
+  const url = slug === DEFAULT_SLUG ? "/claude" : `/claude/${slug}`;
+  history.pushState(null, "", url);
+}
 
-window.addEventListener("hashchange", () => {
-  currentSlug.value = slugFromHash(window.location.hash);
+window.addEventListener("popstate", () => {
+  currentSlug.value = slugFromPath(window.location.pathname);
 });
 
 const allConversations = [...conversations.jobs, ...conversations.projects];
@@ -88,14 +86,14 @@ const currentConversation = computed(() =>
       :projects="conversations.projects"
       :current-slug="currentSlug"
       :collapsed="sidebarCollapsed"
-      @navigate="currentSlug = $event; if (isOverlay) sidebarCollapsed = true"
+      @navigate="navigateTo($event); if (isOverlay) sidebarCollapsed = true"
       @toggle="sidebarCollapsed = !sidebarCollapsed"
     />
     <About
       v-if="currentSlug === 'about'"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-      @navigate="currentSlug = $event"
+      @navigate="navigateTo($event)"
     />
     <OSSContributions
       v-else-if="currentSlug === 'oss'"
