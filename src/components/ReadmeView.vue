@@ -287,7 +287,7 @@ onUnmounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               @click.stop
-              >{{ repo.name }} ↗</a
+              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} ↗</a
             >
             <button
               class="expand-btn"
@@ -367,6 +367,8 @@ onUnmounted(() => {
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
 }
 
 .readme-body h1 {
@@ -376,7 +378,7 @@ onUnmounted(() => {
 }
 
 .toc {
-  margin: 0 1rem 2rem;
+  margin: 1rem 1rem 2rem;
   padding: 1rem;
   background: var(--bg-raised);
   border-radius: 8px;
