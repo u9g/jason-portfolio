@@ -8,6 +8,10 @@
   margin: 8px 0;
 }
 
+#readme-view::-webkit-scrollbar-track {
+  margin: 0 !important;
+}
+
 *::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 3px;

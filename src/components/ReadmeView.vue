@@ -50,7 +50,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="readme-view">
+  <div id="readme-view" class="readme-view">
     <div class="readme-banner">
       <a href="#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
     </div>
@@ -303,8 +303,11 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
 }
+
 
 .readme-banner {
   display: flex;
