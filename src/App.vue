@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, ref } from "vue";
+import { computed, inject, ref, watchEffect } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
@@ -76,6 +76,25 @@ const allConversations = [...conversations.jobs, ...conversations.projects];
 const currentConversation = computed(() =>
   allConversations.find((x) => x.slug === currentSlug.value),
 );
+
+const SITE_NAME = "Jason";
+
+const pageTitle = computed(() => {
+  if (isReadmeMode) return `${SITE_NAME}'s Portfolio`;
+  if (currentSlug.value === "about") return `About | ${SITE_NAME}`;
+  if (currentSlug.value === "oss") return `OSS | ${SITE_NAME}`;
+  if (currentConversation.value) {
+    const name = currentConversation.value.title.split(",")[0];
+    return `${name} | ${SITE_NAME}`;
+  }
+  return `${SITE_NAME}'s Portfolio`;
+});
+
+if (!isSSR) {
+  watchEffect(() => {
+    document.title = pageTitle.value;
+  });
+}
 </script>
 
 <template>
