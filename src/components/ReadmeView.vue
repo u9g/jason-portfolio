@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import conversations from "../data/conversations.json";
 import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
@@ -33,10 +33,13 @@ const tocEntries = [
 ];
 
 const expandedRepos = ref<Set<string>>(new Set());
+const activeSection = ref("about");
 
 function copyAnchor(id: string) {
   window.location.hash = `readme-${id}`;
 }
+
+let observer: IntersectionObserver | null = null;
 
 onMounted(async () => {
   fetchRepoInfo();
@@ -46,6 +49,27 @@ onMounted(async () => {
     const target = document.getElementById(hash.slice(1));
     if (target) target.scrollIntoView({ behavior: "smooth" });
   }
+
+  const scrollRoot = document.getElementById("readme-view");
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          activeSection.value = entry.target.id.replace("readme-", "");
+        }
+      }
+    },
+    { root: scrollRoot, rootMargin: "0px 0px -60% 0px", threshold: 0 },
+  );
+
+  for (const entry of tocEntries) {
+    const el = document.getElementById(`readme-${entry.id}`);
+    if (el) observer.observe(el);
+  }
+});
+
+onUnmounted(() => {
+  observer?.disconnect();
 });
 </script>
 
@@ -55,17 +79,17 @@ onMounted(async () => {
       <a href="#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
     </div>
 
+    <nav class="toc">
+      <h2>Table of Contents</h2>
+      <ul>
+        <li v-for="entry in tocEntries" :key="entry.id">
+          <a :href="`#readme-${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
+        </li>
+      </ul>
+    </nav>
+
     <div class="readme-body">
       <h1>Jason Lernerman's Portfolio</h1>
-
-      <nav class="toc">
-        <h2>Table of Contents</h2>
-        <ul>
-          <li v-for="entry in tocEntries" :key="entry.id">
-            <a :href="`#readme-${entry.id}`">{{ entry.title }}</a>
-          </li>
-        </ul>
-      </nav>
 
       <!-- About -->
       <h2
@@ -352,11 +376,23 @@ onMounted(async () => {
 }
 
 .toc {
-  margin-bottom: 2rem;
+  margin: 0 1rem 2rem;
   padding: 1rem;
   background: var(--bg-raised);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+}
+
+@media (min-width: 1025px) {
+  .toc {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 24px;
+    width: 200px;
+    margin: 0;
+    z-index: 1;
+  }
 }
 
 .toc h2 {
@@ -384,6 +420,12 @@ onMounted(async () => {
 .toc a:hover {
   color: var(--text-bright);
   text-decoration: underline;
+}
+
+.toc a.toc-active {
+  color: var(--text-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .toc ul ul {
