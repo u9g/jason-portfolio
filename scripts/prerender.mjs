@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = resolve(__dirname, "../dist");
@@ -32,7 +33,7 @@ function getMeta(url) {
     return {
       title: `About | ${SITE_NAME}`,
       description:
-        "About Jason Lernerman - software engineer with experience in Rust, TypeScript, Kotlin, Java, and more.",
+        "Jason Lernerman, a software engineer with experience in Javascript, TypeScript, Kotlin, Java, Rust, and more.",
     };
   }
   if (slug === "oss") {
@@ -56,6 +57,11 @@ function getMeta(url) {
     description: "Jason Lernerman's software engineering portfolio.",
   };
 }
+
+// Convert favicon SVG to PNG for OG image
+const svgPath = resolve(__dirname, "../public/favicon.svg");
+await sharp(svgPath).resize(512, 512).png().toFile(resolve(distDir, "og-image.png"));
+console.log("Generated og-image.png from favicon.svg");
 
 const routes = [
   "/",
@@ -81,6 +87,7 @@ for (const url of routes) {
     `<meta property="og:url" content="${canonicalUrl}">`,
     `<meta property="og:type" content="website">`,
     `<meta property="og:site_name" content="${FULL_NAME}'s Portfolio">`,
+    `<meta property="og:image" content="${SITE}/og-image.png">`,
   ].join("\n    ");
 
   const page = template
