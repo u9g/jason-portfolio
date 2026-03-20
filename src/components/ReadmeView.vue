@@ -51,7 +51,7 @@ onMounted(async () => {
 <template>
   <div class="readme-view">
     <div class="readme-banner">
-      <a href="#about">View as Claude</a>
+      <a href="#about">Make it look like Claude</a>
     </div>
 
     <div class="readme-body">
