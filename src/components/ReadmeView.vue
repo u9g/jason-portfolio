@@ -317,9 +317,6 @@ onMounted(async () => {
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.8rem;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 }
 
 .readme-banner a {
