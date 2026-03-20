@@ -60,9 +60,9 @@ function getMeta(url) {
 
 // Convert favicon SVG to OG image (1200x630 with centered icon, transparent bg)
 const svgPath = resolve(__dirname, "../public/favicon.svg");
-const icon = await sharp(svgPath).resize(280, 280).png().toBuffer();
+const icon = await sharp(svgPath).resize({ height: 630 }).png().toBuffer();
 await sharp({
-  create: { width: 1200, height: 630, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+  create: { width: 1200, height: 630, channels: 4, background: { r: 38, g: 38, b: 36, alpha: 255 } },
 })
   .composite([{ input: icon, gravity: "centre" }])
   .png()
