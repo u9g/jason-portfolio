@@ -250,6 +250,9 @@ onUnmounted(() => {
     >
       <div ref="particle" class="particle" />
       <p>
+        Hi, my name is Jason and I have been programming for a while.
+      </p>
+      <p>
         I've worked on a lot of fun and interesting projects, as you will see if
         you read on, and have now graduated from
         <a
@@ -270,8 +273,7 @@ onUnmounted(() => {
         !
       </p>
       <p>
-        Hi, my name is Jason and I have been programming for a while. Since way
-        back in senior year of highschool, when I decided I would learn
+        Since way back in senior year of highschool, when I decided I would learn
         JavaScript to
         <a
           href="https://github.com/PrismarineJS/mineflayer"

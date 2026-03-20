@@ -4,11 +4,20 @@ import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
 import OSSContributions from "./components/OSSContributions.vue";
+import ReadmeView from "./components/ReadmeView.vue";
 import conversations from "./data/conversations.json";
 
-const DEFAULT_SLUG = "about";
+const bannerDismissed = ref(false);
 
-const currentSlug = ref(window.location.hash.slice(1) || DEFAULT_SLUG);
+const DEFAULT_SLUG = "readme";
+
+function slugFromHash(hash: string): string {
+  const raw = hash.slice(1) || DEFAULT_SLUG;
+  if (raw === "readme" || raw.startsWith("readme-")) return "readme";
+  return raw;
+}
+
+const currentSlug = ref(slugFromHash(window.location.hash));
 
 const isOverlay = !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
@@ -22,7 +31,7 @@ watchEffect(() => {
 });
 
 window.addEventListener("hashchange", () => {
-  currentSlug.value = window.location.hash.slice(1) || DEFAULT_SLUG;
+  currentSlug.value = slugFromHash(window.location.hash);
 });
 
 const allConversations = [...conversations.jobs, ...conversations.projects];
@@ -33,7 +42,13 @@ const currentConversation = computed(() =>
 </script>
 
 <template>
-  <div class="layout" v-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
+  <ReadmeView v-if="currentSlug === 'readme'" />
+  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
+    <div v-if="!bannerDismissed" class="doc-banner">
+      <a href="#readme">View as document</a>
+      <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
+    </div>
+    <div class="layout">
     <Sidebar
       :jobs="conversations.jobs"
       :projects="conversations.projects"
@@ -61,6 +76,7 @@ const currentConversation = computed(() =>
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />
+    </div>
   </div>
   <div v-else class="not-found">
     <h1>Page not found</h1>
@@ -99,11 +115,55 @@ body,
 </style>
 
 <style lang="css" scoped>
-.layout {
+.layout-wrap {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.doc-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 16px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.doc-banner a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.doc-banner a:hover {
+  color: var(--text-bright);
+}
+
+.banner-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.banner-dismiss:hover {
+  color: var(--text-bright);
 }
 
 .not-found {
