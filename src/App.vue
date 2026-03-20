@@ -9,6 +9,37 @@ import conversations from "./data/conversations.json";
 
 const bannerDismissed = ref(false);
 
+const theme = ref(localStorage.getItem("theme") || "dark");
+
+function applyTheme(t: string) {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("theme", t);
+}
+applyTheme(theme.value);
+
+function toggleTheme(e: MouseEvent) {
+  const btn = e.currentTarget as HTMLElement;
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  document.documentElement.style.setProperty("--wave-cx", `${cx}px`);
+  document.documentElement.style.setProperty("--wave-cy", `${cy}px`);
+
+  const newTheme = theme.value === "dark" ? "light" : "dark";
+
+  // Use View Transitions API if available, fallback to instant
+  if (document.startViewTransition) {
+    document.startViewTransition(() => {
+      theme.value = newTheme;
+      applyTheme(newTheme);
+    });
+  } else {
+    theme.value = newTheme;
+    applyTheme(newTheme);
+  }
+}
+
 const DEFAULT_SLUG = "readme";
 
 function slugFromHash(hash: string): string {
@@ -42,6 +73,7 @@ const currentConversation = computed(() =>
 </script>
 
 <template>
+  <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
   <ReadmeView v-if="currentSlug === 'readme'" />
   <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
@@ -99,6 +131,38 @@ const currentConversation = computed(() =>
   --bg-icon: #383735;
   --bg-hover-light: #2a2a28;
   --border-color: #42413d;
+}
+
+[data-theme="light"] {
+  --text-bright: #2c2c2a;
+  --text-muted: #5c5c58;
+  --text-mid: #7a7a76;
+  --text-dim: #a3a39e;
+  --bg-base: #e8e7e2;
+  --bg-raised: #deddd8;
+  --bg-hover: #d1d0cb;
+  --bg-icon: #d6d5d0;
+  --bg-hover-light: #e3e2dd;
+  --border-color: #c2c1bc;
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: wave-reveal 600ms ease-out;
+  z-index: 2;
+}
+
+@keyframes wave-reveal {
+  from {
+    clip-path: circle(0% at var(--wave-cx) var(--wave-cy));
+  }
+  to {
+    clip-path: circle(150% at var(--wave-cx) var(--wave-cy));
+  }
 }
 
 html,
@@ -164,6 +228,30 @@ body,
 
 .banner-dismiss:hover {
   color: var(--text-bright);
+}
+
+.theme-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-fab:hover {
+  color: var(--text-bright);
+  border-color: var(--text-dim);
 }
 
 .not-found {
