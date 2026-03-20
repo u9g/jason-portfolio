@@ -58,10 +58,16 @@ function getMeta(url) {
   };
 }
 
-// Convert favicon SVG to PNG for OG image
+// Convert favicon SVG to OG image (1200x630 with centered icon, transparent bg)
 const svgPath = resolve(__dirname, "../public/favicon.svg");
-await sharp(svgPath).resize(512, 512).png().toFile(resolve(distDir, "og-image.png"));
-console.log("Generated og-image.png from favicon.svg");
+const icon = await sharp(svgPath).resize(280, 280).png().toBuffer();
+await sharp({
+  create: { width: 1200, height: 630, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+})
+  .composite([{ input: icon, gravity: "centre" }])
+  .png()
+  .toFile(resolve(distDir, "og-image.png"));
+console.log("Generated og-image.png (1200x630)");
 
 const routes = [
   "/",
