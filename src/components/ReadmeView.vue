@@ -4,6 +4,7 @@ import conversations from "../data/conversations.json";
 import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
+import claudeIcon from "../assets/claude.svg";
 
 const langPattern = new RegExp(
   `\\b(${Object.keys(techColors)
@@ -51,7 +52,7 @@ onMounted(async () => {
 <template>
   <div class="readme-view">
     <div class="readme-banner">
-      <a href="#about">Make it look like Claude</a>
+      <a href="#about">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
     </div>
 
     <div class="readme-body">
@@ -320,12 +321,21 @@ onMounted(async () => {
 
 .readme-banner a {
   color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--text-muted);
+  padding-bottom: 1px;
 }
 
 .readme-banner a:hover {
   color: var(--text-bright);
+  border-bottom-color: var(--text-bright);
+}
+
+.claude-logo {
+  width: 0.75rem;
+  height: 0.75rem;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 
 .readme-body {
