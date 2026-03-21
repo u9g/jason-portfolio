@@ -124,6 +124,32 @@
           "message": "Yeah absolutely, take a look at [it here on the App Store](https://apps.apple.com/us/app/cerium-modern-ai-chat/id6754980265)."
         }
       ]
+    },
+    {
+      "slug": "color-picker",
+      "title": "ColorPicker, macOS Menu Bar App",
+      "conversation": [
+        { "role": "user", "message": "What's ColorPicker?" },
+        {
+          "role": "assistant",
+          "message": "ColorPicker is a lightweight macOS menu bar app for picking colors from anywhere on your screen. Click the eyedropper icon, hover over any pixel, and click to copy the hex code to your clipboard."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "It's a native macOS app written entirely in Swift using AppKit and Core Graphics. It runs as a menu bar utility (LSUIElement) with no dock icon — just a small eyedropper in the status bar."
+        },
+        { "role": "user", "message": "Any interesting technical challenges?" },
+        {
+          "role": "assistant",
+          "message": "The main challenge was color accuracy. On modern Macs with Display P3 screens, the standard NSBitmapImageRep API returns colors in the wrong color space, producing incorrect hex values. I solved this by reading raw pixel data directly from the CGImage, bypassing the color management layer entirely to get accurate sRGB hex codes."
+        },
+        { "role": "user", "message": "Can I see the code?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/color-picker)."
+        }
+      ]
     }
   ]
 }
