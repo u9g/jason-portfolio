@@ -56,6 +56,7 @@ const tocEntries = computed<TocEntry[]>(() => [
 
 const expandedRepos = ref<Set<string>>(new Set());
 const activeSection = ref("about");
+const activeSubSection = ref("");
 
 function copyAnchor(id: string) {
   window.location.hash = id;
@@ -64,6 +65,19 @@ function copyAnchor(id: string) {
 let observer: IntersectionObserver | null = null;
 
 const topLevelIds = ["about", "jobs", "projects", "oss", "how-i-started"];
+
+// Map subheading IDs to their parent section ID
+const subToParent = computed(() => {
+  const map: Record<string, string> = {};
+  for (const entry of tocEntries.value) {
+    if (entry.children) {
+      for (const child of entry.children) {
+        map[child.id] = entry.id;
+      }
+    }
+  }
+  return map;
+});
 
 onMounted(async () => {
   fetchRepoInfo();
@@ -79,7 +93,15 @@ onMounted(async () => {
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          activeSection.value = entry.target.id;
+          const id = entry.target.id;
+          const parent = subToParent.value[id];
+          if (parent) {
+            activeSection.value = parent;
+            activeSubSection.value = id;
+          } else {
+            activeSection.value = id;
+            activeSubSection.value = "";
+          }
         }
       }
     },
@@ -87,6 +109,12 @@ onMounted(async () => {
   );
 
   for (const id of topLevelIds) {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  }
+
+  // Also observe all subheadings
+  for (const id of Object.keys(subToParent.value)) {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   }
@@ -110,7 +138,7 @@ onUnmounted(() => {
           <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
           <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
             <li v-for="child in entry.children" :key="child.id">
-              <a :href="`#${child.id}`">{{ child.title }}</a>
+              <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">{{ child.title }}</a>
             </li>
           </ul>
         </li>
@@ -160,7 +188,7 @@ onUnmounted(() => {
       >
         <h3
           :id="job.slug"
-          class="sub-header"
+          :class="['sub-header', { active: activeSubSection === job.slug }]"
           @click="copyAnchor(job.slug)"
         >
           <span class="anchor-icon">#</span> {{ job.title }}
@@ -190,7 +218,7 @@ onUnmounted(() => {
       >
         <h3
           :id="project.slug"
-          class="sub-header"
+          :class="['sub-header', { active: activeSubSection === project.slug }]"
           @click="copyAnchor(project.slug)"
         >
           <span class="anchor-icon">#</span> {{ project.title }}
@@ -213,7 +241,7 @@ onUnmounted(() => {
         <div v-for="repo in sortedRepos" :key="repo.name" class="oss-repo">
           <h3
             :id="`oss-${repo.name.replace('/', '-')}`"
-            class="repo-header"
+            :class="['repo-header', { active: activeSubSection === `oss-${repo.name.replace('/', '-')}` }]"
             @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
           >
             <span class="anchor-icon">#</span>
@@ -476,11 +504,17 @@ onUnmounted(() => {
 
 .toc-sub a {
   font-size: 0.78rem;
-  color: var(--text-dim);
+  color: var(--text-muted);
 }
 
 .toc-sub a:hover {
   color: var(--text-bright);
+}
+
+.toc-sub a.toc-active {
+  color: var(--text-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .section-header {
@@ -524,7 +558,8 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-.sub-header:hover .anchor-icon {
+.sub-header:hover .anchor-icon,
+.sub-header.active .anchor-icon {
   opacity: 1;
 }
 
@@ -586,7 +621,8 @@ onUnmounted(() => {
   color: var(--text-bright);
 }
 
-.repo-header:hover .anchor-icon {
+.repo-header:hover .anchor-icon,
+.repo-header.active .anchor-icon {
   opacity: 1;
 }
 
