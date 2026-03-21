@@ -275,6 +275,98 @@ onUnmounted(() => {
         !
       </p>
       <p>
+        For more of my open source contributions, see
+        <SidebarButton
+          :icon="codeIcon"
+          label="Jason's Notable OSS Contributions"
+          :collapsed="false"
+          class="inline-oss-btn"
+          @click="emit('navigate', 'oss')"
+        />
+        !
+      </p>
+    </div>
+    <div class="color-bar">
+      <div class="color-index">
+        <span
+          :class="[
+            'color-swatch',
+            'lang-js',
+            { 'active-swatch': isActive('lang-js') },
+          ]"
+          @mouseenter="highlightLang = 'lang-js'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-js')"
+          >JavaScript</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-ts',
+            { 'active-swatch': isActive('lang-ts') },
+          ]"
+          @mouseenter="highlightLang = 'lang-ts'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-ts')"
+          >TypeScript</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-java',
+            { 'active-swatch': isActive('lang-java') },
+          ]"
+          @mouseenter="highlightLang = 'lang-java'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-java')"
+          >Java</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-kotlin',
+            { 'active-swatch': isActive('lang-kotlin') },
+          ]"
+          @mouseenter="highlightLang = 'lang-kotlin'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-kotlin')"
+          >Kotlin</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-rust',
+            { 'active-swatch': isActive('lang-rust') },
+          ]"
+          @mouseenter="highlightLang = 'lang-rust'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-rust')"
+          >Rust</span
+        >
+        <span
+          :class="[
+            'color-swatch',
+            'lang-gleam',
+            { 'active-swatch': isActive('lang-gleam') },
+          ]"
+          @mouseenter="highlightLang = 'lang-gleam'"
+          @mouseleave="highlightLang = ''"
+          @click="toggleLock('lang-gleam')"
+          >Gleam</span
+        >
+        <button
+          v-if="lockedLangs.size > 0"
+          class="clear-btn"
+          @click="lockedLangs = new Set()"
+        >
+          ✕
+        </button>
+        <span class="color-hint">(hover and click the colors!)</span>
+      </div>
+    </div>
+    <div class="section-header">How I Started Programming</div>
+    <div class="about-content">
+      <p>
         Since way back in senior year of highschool, when I decided I would learn
         JavaScript to
         <a
@@ -376,95 +468,6 @@ onUnmounted(() => {
           >spent a good amount of time contributing to this project too ↗</a
         >.
       </p>
-      <p>
-        For more of my open source contributions, see
-        <SidebarButton
-          :icon="codeIcon"
-          label="Jason's Notable OSS Contributions"
-          :collapsed="false"
-          class="inline-oss-btn"
-          @click="emit('navigate', 'oss')"
-        />
-        !
-      </p>
-    </div>
-    <div class="color-bar">
-      <div class="color-index">
-        <span
-          :class="[
-            'color-swatch',
-            'lang-js',
-            { 'active-swatch': isActive('lang-js') },
-          ]"
-          @mouseenter="highlightLang = 'lang-js'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-js')"
-          >JavaScript</span
-        >
-        <span
-          :class="[
-            'color-swatch',
-            'lang-ts',
-            { 'active-swatch': isActive('lang-ts') },
-          ]"
-          @mouseenter="highlightLang = 'lang-ts'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-ts')"
-          >TypeScript</span
-        >
-        <span
-          :class="[
-            'color-swatch',
-            'lang-java',
-            { 'active-swatch': isActive('lang-java') },
-          ]"
-          @mouseenter="highlightLang = 'lang-java'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-java')"
-          >Java</span
-        >
-        <span
-          :class="[
-            'color-swatch',
-            'lang-kotlin',
-            { 'active-swatch': isActive('lang-kotlin') },
-          ]"
-          @mouseenter="highlightLang = 'lang-kotlin'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-kotlin')"
-          >Kotlin</span
-        >
-        <span
-          :class="[
-            'color-swatch',
-            'lang-rust',
-            { 'active-swatch': isActive('lang-rust') },
-          ]"
-          @mouseenter="highlightLang = 'lang-rust'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-rust')"
-          >Rust</span
-        >
-        <span
-          :class="[
-            'color-swatch',
-            'lang-gleam',
-            { 'active-swatch': isActive('lang-gleam') },
-          ]"
-          @mouseenter="highlightLang = 'lang-gleam'"
-          @mouseleave="highlightLang = ''"
-          @click="toggleLock('lang-gleam')"
-          >Gleam</span
-        >
-        <button
-          v-if="lockedLangs.size > 0"
-          class="clear-btn"
-          @click="lockedLangs = new Set()"
-        >
-          ✕
-        </button>
-        <span class="color-hint">(hover and click the colors!)</span>
-      </div>
     </div>
   </div>
 </template>
@@ -620,6 +623,12 @@ onUnmounted(() => {
   .sidebar-toggle {
     display: none;
   }
+}
+
+.section-header {
+  padding: 12px 16px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .about-content p {

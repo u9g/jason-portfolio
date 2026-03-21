@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import conversations from "../data/conversations.json";
 import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
@@ -25,12 +25,34 @@ function formatMessage(text: string): string {
   return result;
 }
 
-const tocEntries = [
+interface TocEntry {
+  id: string;
+  title: string;
+  children?: { id: string; title: string }[];
+}
+
+const tocEntries = computed<TocEntry[]>(() => [
   { id: "about", title: "About Me" },
-  { id: "jobs", title: "Job Experience" },
-  { id: "projects", title: "Personal Projects" },
-  { id: "oss", title: "Notable OSS Contributions" },
-];
+  {
+    id: "jobs",
+    title: "Job Experience",
+    children: conversations.jobs.map((j) => ({ id: j.slug, title: j.title })),
+  },
+  {
+    id: "projects",
+    title: "Personal Projects",
+    children: conversations.projects.map((p) => ({ id: p.slug, title: p.title })),
+  },
+  {
+    id: "oss",
+    title: "Notable OSS Contributions",
+    children: sortedRepos.value.map((r) => ({
+      id: `oss-${r.name.replace("/", "-")}`,
+      title: r.name.split("/")[1],
+    })),
+  },
+  { id: "how-i-started", title: "How I Started Programming" },
+]);
 
 const expandedRepos = ref<Set<string>>(new Set());
 const activeSection = ref("about");
@@ -40,6 +62,8 @@ function copyAnchor(id: string) {
 }
 
 let observer: IntersectionObserver | null = null;
+
+const topLevelIds = ["about", "jobs", "projects", "oss", "how-i-started"];
 
 onMounted(async () => {
   fetchRepoInfo();
@@ -62,8 +86,8 @@ onMounted(async () => {
     { root: scrollRoot, rootMargin: "0px 0px -60% 0px", threshold: 0 },
   );
 
-  for (const entry of tocEntries) {
-    const el = document.getElementById(entry.id);
+  for (const id of topLevelIds) {
+    const el = document.getElementById(id);
     if (el) observer.observe(el);
   }
 });
@@ -84,6 +108,11 @@ onUnmounted(() => {
       <ul>
         <li v-for="entry in tocEntries" :key="entry.id">
           <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
+          <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
+            <li v-for="child in entry.children" :key="child.id">
+              <a :href="`#${child.id}`">{{ child.title }}</a>
+            </li>
+          </ul>
         </li>
       </ul>
     </nav>
@@ -94,7 +123,7 @@ onUnmounted(() => {
       <!-- About -->
       <h2
         id="about"
-        class="section-header"
+        :class="['section-header', { active: activeSection === 'about' }]"
         @click="copyAnchor('about')"
       >
         <span class="anchor-icon">#</span> About Me
@@ -118,6 +147,117 @@ onUnmounted(() => {
             >contact Jason ↗</a
           >!
         </p>
+      </div>
+
+      <!-- Job Experience -->
+      <h2 id="jobs" :class="['section-header', { active: activeSection === 'jobs' }]" @click="copyAnchor('jobs')">
+        <span class="anchor-icon">#</span> Job Experience
+      </h2>
+      <div
+        v-for="job in conversations.jobs"
+        :key="job.slug"
+        class="section-content"
+      >
+        <h3
+          :id="job.slug"
+          class="sub-header"
+          @click="copyAnchor(job.slug)"
+        >
+          <span class="anchor-icon">#</span> {{ job.title }}
+        </h3>
+        <div
+          v-for="(msg, i) in job.conversation"
+          :key="i"
+          :class="['qa-pair', msg.role]"
+        >
+          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
+          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
+        </div>
+      </div>
+
+      <!-- Personal Projects -->
+      <h2
+        id="projects"
+        :class="['section-header', { active: activeSection === 'projects' }]"
+        @click="copyAnchor('projects')"
+      >
+        <span class="anchor-icon">#</span> Personal Projects
+      </h2>
+      <div
+        v-for="project in conversations.projects"
+        :key="project.slug"
+        class="section-content"
+      >
+        <h3
+          :id="project.slug"
+          class="sub-header"
+          @click="copyAnchor(project.slug)"
+        >
+          <span class="anchor-icon">#</span> {{ project.title }}
+        </h3>
+        <div
+          v-for="(msg, i) in project.conversation"
+          :key="i"
+          :class="['qa-pair', msg.role]"
+        >
+          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
+          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
+        </div>
+      </div>
+
+      <!-- OSS Contributions -->
+      <h2 id="oss" :class="['section-header', { active: activeSection === 'oss' }]" @click="copyAnchor('oss')">
+        <span class="anchor-icon">#</span> Notable OSS Contributions
+      </h2>
+      <div class="section-content">
+        <div v-for="repo in sortedRepos" :key="repo.name" class="oss-repo">
+          <h3
+            :id="`oss-${repo.name.replace('/', '-')}`"
+            class="repo-header"
+            @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
+          >
+            <span class="anchor-icon">#</span>
+            <span class="lang-dot" :style="{ background: repo.color }"></span>
+            <a
+              :href="`https://github.com/${repo.name}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click.stop
+              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} ↗</a
+            >
+            <button
+              class="expand-btn"
+              @click.stop="
+                expandedRepos.has(repo.name)
+                  ? expandedRepos.delete(repo.name)
+                  : expandedRepos.add(repo.name)
+              "
+            >
+              {{ expandedRepos.has(repo.name) ? "−" : "+" }}
+            </button>
+            <span class="lang-label" :style="{ color: repo.color }">{{
+              repo.lang
+            }}</span>
+          </h3>
+          <ul v-if="expandedRepos.has(repo.name)" class="pr-list">
+            <li v-for="pr in repo.prs" :key="pr.id">
+              <a
+                :href="prUrl(repo.name, pr.id)"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click.stop
+                >{{ pr.description }} ↗</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- How I Started Programming -->
+      <h2 id="how-i-started" :class="['section-header', { active: activeSection === 'how-i-started' }]" @click="copyAnchor('how-i-started')">
+        <span class="anchor-icon">#</span> How I Started Programming
+      </h2>
+      <div class="section-content about-prose">
         <p>
           Since way back in senior year of highschool, when I decided I would
           learn JavaScript to
@@ -211,110 +351,6 @@ onUnmounted(() => {
             >spent a good amount of time contributing to this project too ↗</a
           >.
         </p>
-      </div>
-
-      <!-- Job Experience -->
-      <h2 id="jobs" class="section-header" @click="copyAnchor('jobs')">
-        <span class="anchor-icon">#</span> Job Experience
-      </h2>
-      <div
-        v-for="job in conversations.jobs"
-        :key="job.slug"
-        class="section-content"
-      >
-        <h3
-          :id="job.slug"
-          class="sub-header"
-          @click="copyAnchor(job.slug)"
-        >
-          <span class="anchor-icon">#</span> {{ job.title }}
-        </h3>
-        <div
-          v-for="(msg, i) in job.conversation"
-          :key="i"
-          :class="['qa-pair', msg.role]"
-        >
-          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
-        </div>
-      </div>
-
-      <!-- Personal Projects -->
-      <h2
-        id="projects"
-        class="section-header"
-        @click="copyAnchor('projects')"
-      >
-        <span class="anchor-icon">#</span> Personal Projects
-      </h2>
-      <div
-        v-for="project in conversations.projects"
-        :key="project.slug"
-        class="section-content"
-      >
-        <h3
-          :id="project.slug"
-          class="sub-header"
-          @click="copyAnchor(project.slug)"
-        >
-          <span class="anchor-icon">#</span> {{ project.title }}
-        </h3>
-        <div
-          v-for="(msg, i) in project.conversation"
-          :key="i"
-          :class="['qa-pair', msg.role]"
-        >
-          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
-        </div>
-      </div>
-
-      <!-- OSS Contributions -->
-      <h2 id="oss" class="section-header" @click="copyAnchor('oss')">
-        <span class="anchor-icon">#</span> Notable OSS Contributions
-      </h2>
-      <div class="section-content">
-        <div v-for="repo in sortedRepos" :key="repo.name" class="oss-repo">
-          <h3
-            :id="`oss-${repo.name.replace('/', '-')}`"
-            class="repo-header"
-            @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
-          >
-            <span class="anchor-icon">#</span>
-            <span class="lang-dot" :style="{ background: repo.color }"></span>
-            <a
-              :href="`https://github.com/${repo.name}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              @click.stop
-              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} ↗</a
-            >
-            <button
-              class="expand-btn"
-              @click.stop="
-                expandedRepos.has(repo.name)
-                  ? expandedRepos.delete(repo.name)
-                  : expandedRepos.add(repo.name)
-              "
-            >
-              {{ expandedRepos.has(repo.name) ? "−" : "+" }}
-            </button>
-            <span class="lang-label" :style="{ color: repo.color }">{{
-              repo.lang
-            }}</span>
-          </h3>
-          <ul v-if="expandedRepos.has(repo.name)" class="pr-list">
-            <li v-for="pr in repo.prs" :key="pr.id">
-              <a
-                :href="prUrl(repo.name, pr.id)"
-                target="_blank"
-                rel="noopener noreferrer"
-                @click.stop
-                >{{ pr.description }} ↗</a
-              >
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
   </div>
@@ -434,6 +470,19 @@ onUnmounted(() => {
   margin-top: 0.3rem;
 }
 
+.toc-sub {
+  padding-left: 0.75rem;
+}
+
+.toc-sub a {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.toc-sub a:hover {
+  color: var(--text-bright);
+}
+
 .section-header {
   font-size: 1.3rem;
   margin: 2.5rem 0 0.75rem;
@@ -446,7 +495,8 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-.section-header:hover .anchor-icon {
+.section-header:hover .anchor-icon,
+.section-header.active .anchor-icon {
   opacity: 1;
 }
 
