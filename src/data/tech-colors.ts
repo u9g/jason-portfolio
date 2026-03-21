@@ -10,6 +10,7 @@ export const techColors: Record<string, string> = {
   Rust: "#ff6b4a",
   Gleam: "#ffaff3",
   Python: "#4584b6",
+  Swift: "#f05138",
   SwiftUI: "#f05138",
   React: "#61dafb",
   "React Native": "#61dafb",
