@@ -43,14 +43,7 @@ const tocEntries = computed<TocEntry[]>(() => [
     title: "Personal Projects",
     children: conversations.projects.map((p) => ({ id: p.slug, title: p.title })),
   },
-  {
-    id: "oss",
-    title: "Notable OSS Contributions",
-    children: sortedRepos.value.map((r) => ({
-      id: `oss-${r.name.replace("/", "-")}`,
-      title: r.name.split("/")[1],
-    })),
-  },
+  { id: "oss", title: "Notable OSS Contributions" },
   { id: "how-i-started", title: "How I Started Programming" },
 ]);
 
