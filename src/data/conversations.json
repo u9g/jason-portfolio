@@ -131,6 +131,32 @@
       ]
     },
     {
+      "slug": "portfolio",
+      "title": "Portfolio Website, Vue App",
+      "conversation": [
+        { "role": "user", "message": "What's this?" },
+        {
+          "role": "assistant",
+          "message": "It's the website you're looking at right now — [jasonlernerman.com](https://jasonlernerman.com). A portfolio site with a conversation-style UI that presents my work experience and projects as Q&A threads."
+        },
+        { "role": "user", "message": "When did you make it?" },
+        {
+          "role": "assistant",
+          "message": "I built it in March 2026."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "Vue 3 with TypeScript and Vite. It uses hash-based routing, a collapsible sidebar, and all the content is driven by a single JSON data file. Styling is a custom dark theme with the Lora serif font."
+        },
+        { "role": "user", "message": "Can I see the code?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/jason-portfolio)."
+        }
+      ]
+    },
+    {
       "slug": "cerium",
       "title": "Cerium, SwiftUI App",
       "conversation": [
