@@ -100,6 +100,37 @@
   ],
   "projects": [
     {
+      "slug": "reactive-layout",
+      "title": "reactive-layout, npm Package",
+      "conversation": [
+        { "role": "user", "message": "What's reactive-layout?" },
+        {
+          "role": "assistant",
+          "message": "reactive-layout is a Vue 3 layout engine for building split-pane, tabbed interfaces with drag-and-drop. Think VS Code's panel system — resizable splits, draggable tabs, and drop-to-split — as a reusable package. It's published on [npm](https://www.npmjs.com/package/reactive-layout)."
+        },
+        { "role": "user", "message": "When did you make it?" },
+        {
+          "role": "assistant",
+          "message": "I built it in March 2026. I extracted it from LearnTensors, a coding practice platform I was building, when I realized the layout engine was general-purpose enough to be its own package."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "Pure Vue 3 with TypeScript — zero dependencies beyond Vue itself. It uses Vue's reactivity system for the layout tree, provide/inject for extensibility, and the HTML5 Drag and Drop API for tab movement."
+        },
+        { "role": "user", "message": "What features does it have?" },
+        {
+          "role": "assistant",
+          "message": "Recursive split panes that nest as deep as you want, drag tabs between panels or reorder within a panel, drop on panel edges to split horizontally or vertically, resizable panes with minimum size constraints, optional localStorage persistence, and SSR safety. The consumer provides their own panel content and tab icons via provide/inject, so the layout engine stays fully generic."
+        },
+        { "role": "user", "message": "Can I try it?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, there's a [live demo](https://u9g.github.io/reactive-layout/) and the code is on [GitHub](https://github.com/u9g/reactive-layout)."
+        }
+      ]
+    },
+    {
       "slug": "color-picker",
       "title": "ColorPicker, macOS Menu Bar App",
       "conversation": [
@@ -179,37 +210,6 @@
         {
           "role": "assistant",
           "message": "Yeah absolutely, take a look at [it here on the App Store](https://apps.apple.com/us/app/cerium-modern-ai-chat/id6754980265)."
-        }
-      ]
-    },
-    {
-      "slug": "reactive-layout",
-      "title": "reactive-layout, npm Package",
-      "conversation": [
-        { "role": "user", "message": "What's reactive-layout?" },
-        {
-          "role": "assistant",
-          "message": "reactive-layout is a Vue 3 layout engine for building split-pane, tabbed interfaces with drag-and-drop. Think VS Code's panel system — resizable splits, draggable tabs, and drop-to-split — as a reusable package. It's published on [npm](https://www.npmjs.com/package/reactive-layout)."
-        },
-        { "role": "user", "message": "When did you make it?" },
-        {
-          "role": "assistant",
-          "message": "I built it in March 2026. I extracted it from LearnTensors, a coding practice platform I was building, when I realized the layout engine was general-purpose enough to be its own package."
-        },
-        { "role": "user", "message": "What was the tech stack?" },
-        {
-          "role": "assistant",
-          "message": "Pure Vue 3 with TypeScript — zero dependencies beyond Vue itself. It uses Vue's reactivity system for the layout tree, provide/inject for extensibility, and the HTML5 Drag and Drop API for tab movement."
-        },
-        { "role": "user", "message": "What features does it have?" },
-        {
-          "role": "assistant",
-          "message": "Recursive split panes that nest as deep as you want, drag tabs between panels or reorder within a panel, drop on panel edges to split horizontally or vertically, resizable panes with minimum size constraints, optional localStorage persistence, and SSR safety. The consumer provides their own panel content and tab icons via provide/inject, so the layout engine stays fully generic."
-        },
-        { "role": "user", "message": "Can I try it?" },
-        {
-          "role": "assistant",
-          "message": "Yeah, there's a [live demo](https://u9g.github.io/reactive-layout/) and the code is on [GitHub](https://github.com/u9g/reactive-layout)."
         }
       ]
     }
