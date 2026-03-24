@@ -51,6 +51,7 @@ const tocEntries = computed<TocEntry[]>(() => [
 ]);
 
 const expandedRepos = ref<Set<string>>(new Set());
+const showAllRepos = ref(false);
 const activeSection = ref("about");
 const activeSubSection = ref("");
 
@@ -234,7 +235,7 @@ onUnmounted(() => {
         <span class="anchor-icon">#</span> Notable OSS Contributions
       </h2>
       <div class="section-content">
-        <div v-for="repo in sortedRepos" :key="repo.name" class="oss-repo">
+        <div v-for="repo in (showAllRepos ? sortedRepos : sortedRepos.slice(0, 5))" :key="repo.name" class="oss-repo">
           <h3
             :id="`oss-${repo.name.replace('/', '-')}`"
             :class="['repo-header', { active: activeSubSection === `oss-${repo.name.replace('/', '-')}` }]"
@@ -275,6 +276,12 @@ onUnmounted(() => {
             </li>
           </ul>
         </div>
+        <button v-if="!showAllRepos && sortedRepos.length > 5" class="show-all-btn" @click="showAllRepos = true">
+          Show {{ sortedRepos.length - 5 }} more repos
+        </button>
+        <button v-else-if="showAllRepos && sortedRepos.length > 5" class="show-all-btn" @click="showAllRepos = false">
+          Show less
+        </button>
       </div>
 
       <!-- Essays -->
@@ -611,6 +618,20 @@ onUnmounted(() => {
 }
 
 .expand-btn:hover {
+  color: var(--text-bright);
+}
+
+.show-all-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 8px 40px;
+}
+
+.show-all-btn:hover {
   color: var(--text-bright);
 }
 </style>
