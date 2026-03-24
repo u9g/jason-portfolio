@@ -101,7 +101,7 @@ const buildDate = __BUILD_DATE__;
           :class="{ active: essay.slug === currentSlug }"
           @click="emit('navigate', essay.slug)"
         >
-          {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
+          {{ essay.title }}
         </button>
       </div>
 
@@ -310,12 +310,6 @@ button {
   color: var(--text-bright);
 }
 
-.essay-date {
-  font-size: 0.65rem;
-  color: var(--text-dim);
-  margin-left: auto;
-  flex-shrink: 0;
-}
 
 .attribution {
   margin-top: auto;
