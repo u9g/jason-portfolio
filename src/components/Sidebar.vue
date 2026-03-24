@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import bookIcon from "../assets/book.svg";
 import codeIcon from "../assets/code.svg";
-import essayIcon from "../assets/essay.svg";
 import contactIcon from "../assets/contact.svg";
 import claudeIcon from "../assets/claude.svg";
 import githubIcon from "../assets/github.svg";
 import sourceIcon from "../assets/source.svg";
 import SidebarButton from "./SidebarButton.vue";
+import { essays } from "../data/essays";
 
 defineProps<{
   jobs: { slug: string; title: string }[];
@@ -95,18 +95,13 @@ const buildDate = __BUILD_DATE__;
       <div v-if="!collapsed" class="recent-section">
         <span class="recent-heading">Essays</span>
         <button
+          v-for="essay in essays"
+          :key="essay.slug"
           class="recent-item"
-          :class="{ active: currentSlug === 'essays' }"
-          @click="emit('navigate', 'essays')"
+          :class="{ active: essay.slug === currentSlug }"
+          @click="emit('navigate', essay.slug)"
         >
-           <span class="essay-date">March 22, 2026</span>
-        </button>
-        <button
-          class="recent-item"
-          :class="{ active: currentSlug === 'essays' }"
-          @click="emit('navigate', 'essays')"
-        >
-          How I Started Programming <span class="essay-date">March 19, 2026</span>
+          {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
         </button>
       </div>
 

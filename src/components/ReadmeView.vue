@@ -5,6 +5,7 @@ import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
+import { essays } from "../data/essays";
 
 const langPattern = new RegExp(
   `\\b(${Object.keys(techColors)
@@ -18,6 +19,7 @@ function formatMessage(text: string): string {
     /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
   );
+  result = result.replace(/\*([^*]+)\*/g, "<em>$1</em>");
   result = result.replace(langPattern, (match) => {
     const color = techColors[match];
     return `<span style="color: ${color}">${match}</span>`;
@@ -47,10 +49,7 @@ const tocEntries = computed<TocEntry[]>(() => [
   {
     id: "essays",
     title: "Essays",
-    children: [
-      { id: "", title: "" },
-      { id: "how-i-started", title: "How I Started Programming" },
-    ],
+    children: essays.map((e) => ({ id: e.slug, title: e.title })),
   },
 ]);
 
@@ -286,121 +285,16 @@ onUnmounted(() => {
         <span class="anchor-icon">#</span> Essays
       </h2>
       <div class="section-content about-prose">
-        <h3
-          id=""
-          :class="['sub-header', { active: activeSubSection === '' }]"
-          @click="copyAnchor('')"
-        >
-          <span class="anchor-icon">#</span>  <span class="essay-date">March 22, 2026</span>
-        </h3>
-        <p>One of the largest value creation events has been Claude code's popularization of the $20 / $100 / $200 per month subscriptions for an almost endless supply of staff software engineer level contributions to a codebase, available on tap. To act as if that isn't true is to act as if the creation of software wasn't bottlenecked by the pipe size. I don't believe this to be true because for the longest time, the actual largest barrier on the widespread creation of software has been how quickly can idea guys get their ideas down on paper before the idea fades. To say this isn't so is to act as though execution speed is not directly proportional to opportunity test speed.</p>
-        <p>Yes, your existing enterprise applications of code are indeed bottlenecked by the slow death of scattered task requirements split amongst non-easily-accessable tools which are of course not machine-interactable. However, I am not talking about the enterprise use case when I make this statement. I am talking to the multitude of people that are now happily using coding tools to build every idea that pops into their mind for no reason other than that it is now possible. And in my eyes, that is beautiful.</p>
-        <p>For a while, I wasn't a believer. I'd seen many different AI models come and go and had become fatigued by the seemingly endless barrage of "innovations" that amounted to nothing more than some numbers going up, numbers that meant zip to me. However, recently, I interviewed with a company, and one of their interview rounds they set me up with a codebase that they had prepared ahead of time with some bugs and a backlog of features, and told me that I had the next ninety minutes to fix up the app as much as I could, and to act as if there was a demo in 90 minutes of the application using AI tools, as their VP of engineering and a staff engineer would watch my performance.</p>
-        <p>The interviewer then spent the next 11 minutes trying to figure out how to send me a 1.5gb zip file, a problem that the VP of engineering had not thought of until that exact moment. I half-in-jest suggested that he just ask Claude, and he agreed and started that up. I then asked him if there were node_modules in that zip, an answer which I'm sure will shock noone, as he said there were.</p>
-        <p>Regardless, I finally got the project running on my machine and started up Claude Code and started firing on all cylinders. After those 90 minutes, I felt a feeling similar to when I would push myself to prepare for a class's final exam for the weekend before finals, that is, I felt as though I really enjoyed doing this, I just wish I had more time to. So even though I walked out of that interview without getting the job, I left with a new appreciation of Claude Code and how thoroughly capable it really was at this point in time.</p>
-        <p>The next thing I did was build my portfolio website, jasonlernerman.com in the design of Claude's web ui, having been inspired by various websites that clone Google's UIs for a different use case. While working on the site, I felt something I hadn't felt with programming in a while. I felt the possibility returning to my fingertips. Even though I had little to no CSS chops, that had no bearing on my ability to build a beautiful (in my eyes) website as soon as I could put the words down into Claude Code.</p>
-        <p>As a takeaway, I would say that I never would have known the ability of Claude Code without that interview, and I would liken this to many stories I've heard of people being pushed in the deep end and told that this was the only option, and them coming out of the experience with a newfound ability to perform that they hadn't known they had within them prior. I really do feel like doors are opening for the curious in the programming world, if you really go in open-minded.</p>
-        <p><em>And yes, I did write this (without AI) while waiting for a Claude Code prompt to complete.</em></p>
-        <h3
-          id="how-i-started"
-          :class="['sub-header', { active: activeSubSection === 'how-i-started' }]"
-          @click="copyAnchor('how-i-started')"
-        >
-          <span class="anchor-icon">#</span> How I Started Programming <span class="essay-date">March 19, 2026</span>
-        </h3>
-        <p>
-          Since way back in senior year of highschool, when I decided I would
-          learn JavaScript to
-          <a
-            href="https://github.com/PrismarineJS/mineflayer"
-            target="_blank"
-            rel="noopener noreferrer"
-            >make a minecraft bot ↗</a
-          >. Then I learned TypeScript so I could
-          <a
-            href="https://github.com/u9g/minecraft-proxy-handler/commit/6caa09e3fbcbcf3b0e5d96054e4ff46561d4233f"
-            target="_blank"
-            rel="noopener noreferrer"
-            >make APIs ↗</a
+        <template v-for="essay in essays" :key="essay.slug">
+          <h3
+            :id="essay.slug"
+            :class="['sub-header', { active: activeSubSection === essay.slug }]"
+            @click="copyAnchor(essay.slug)"
           >
-          for myself and others. Around the same time I also started learning
-          Java because if you're already making minecraft bots you may as well
-          start
-          <a
-            href="https://github.com/u9g/ReverseHopper/commit/36300a67a2ecb2400e9fd300634fc91b3e2434bd"
-            target="_blank"
-            rel="noopener noreferrer"
-            >making minecraft mods ↗</a
-          >
-          and
-          <a
-            href="https://github.com/u9g/McDataExtracting/commit/2e68722a6afb4366bd1fdb0f12fb8afa127f9fef"
-            target="_blank"
-            rel="noopener noreferrer"
-            >contributing to Java tools ↗</a
-          >
-          for JavaScript minecraft bots. Since then, I learned Kotlin, which is
-          the TypeScript to JavaScript in the Java world, and continued making
-          <a
-            href="https://github.com/u9g/cosmicsky-client"
-            target="_blank"
-            rel="noopener noreferrer"
-            >minecraft mods ↗</a
-          >
-          and
-          <a
-            href="https://github.com/u9g/Minigames"
-            target="_blank"
-            rel="noopener noreferrer"
-            >minecraft plugins ↗</a
-          >. Around this time, I took a look around the programming landscape
-          and tried out Gleam, which is a growing programming language that
-          compiles to Erlang, or in my use case JavaScript, for
-          <a
-            href="https://github.com/u9g/thatgleammod"
-            target="_blank"
-            rel="noopener noreferrer"
-            >more minecraft mods ↗</a
-          >.
-        </p>
-        <p>
-          After that, I started looking into other things which I found
-          interesting, like data presentation formats and databases and stumbled
-          upon Trustfall. Trustfall is, according to the github README,
-          <em
-            >"A query engine for any combination of data sources. Query your
-            files and APIs as if they were databases!"</em
-          >. And that's what I did for a while, until I wanted to expand the
-          project even more, being a programmer myself, I created a
-          <a
-            href="https://github.com/u9g/github_adapter"
-            target="_blank"
-            rel="noopener noreferrer"
-            >github adapter ↗</a
-          >
-          and
-          <a
-            href="https://github.com/obi1kenobi/trustfall/commits?author=u9g"
-            target="_blank"
-            rel="noopener noreferrer"
-            >contributed back to the original project ↗</a
-          >
-          under the guidance of the extremely patient and helpful maintainer.
-        </p>
-        <p>
-          Later, I took my Rust knowledge on the road when I got interested in
-          learning about linters and a brand new project at that time, OXC,
-          which describes itself as,
-          <em>"A collection of high-performance JavaScript tools."</em>. I found
-          this premise interesting, and I also found Rust to be a great language
-          for new contributors to a project, so I
-          <a
-            href="https://github.com/oxc-project/oxc/commits?author=u9g"
-            target="_blank"
-            rel="noopener noreferrer"
-            >spent a good amount of time contributing to this project too ↗</a
-          >.
-        </p>
+            <span class="anchor-icon">#</span> {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
+          </h3>
+          <p v-for="(para, i) in essay.paragraphs" :key="i" v-html="formatMessage(para)"></p>
+        </template>
       </div>
     </div>
   </div>
@@ -596,17 +490,20 @@ onUnmounted(() => {
   padding-left: 40px;
 }
 
-.about-prose a {
+.about-prose a,
+.about-prose :deep(a) {
   color: var(--text-bright);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.about-prose a:hover {
+.about-prose a:hover,
+.about-prose :deep(a:hover) {
   color: var(--text-muted);
 }
 
-.about-prose em {
+.about-prose em,
+.about-prose :deep(em) {
   font-family: "Playfair Display", serif;
   font-style: italic;
   color: var(--text-bright);

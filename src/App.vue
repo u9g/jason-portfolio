@@ -7,6 +7,7 @@ import OSSContributions from "./components/OSSContributions.vue";
 import Essays from "./components/Essays.vue";
 import ReadmeView from "./components/ReadmeView.vue";
 import conversations from "./data/conversations.json";
+import { essays, getEssay } from "./data/essays";
 
 const isSSR = import.meta.env.SSR;
 
@@ -72,6 +73,8 @@ if (!isSSR) {
   });
 }
 
+const essaySlugs = new Set(essays.map((e) => e.slug));
+
 const allConversations = [...conversations.jobs, ...conversations.projects];
 
 const currentConversation = computed(() =>
@@ -84,7 +87,8 @@ const pageTitle = computed(() => {
   if (isReadmeMode) return `${SITE_NAME}'s Portfolio`;
   if (currentSlug.value === "about") return `About | ${SITE_NAME}`;
   if (currentSlug.value === "oss") return `OSS | ${SITE_NAME}`;
-  if (currentSlug.value === "essays") return `Essays | ${SITE_NAME}`;
+  const essay = getEssay(currentSlug.value);
+  if (essay) return `${essay.title} | ${SITE_NAME}`;
   if (currentConversation.value) {
     const name = currentConversation.value.title.split(",")[0];
     return `${name} | ${SITE_NAME}`;
@@ -102,7 +106,7 @@ if (!isSSR) {
 <template>
   <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
   <ReadmeView v-if="isReadmeMode" />
-  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentSlug === 'essays' || currentConversation">
+  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || essaySlugs.has(currentSlug) || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
       <a href="/">View as document</a>
       <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
@@ -128,7 +132,8 @@ if (!isSSR) {
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />
     <Essays
-      v-else-if="currentSlug === 'essays'"
+      v-else-if="essaySlugs.has(currentSlug)"
+      :slug="currentSlug"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />
