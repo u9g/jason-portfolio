@@ -81,7 +81,7 @@ onMounted(async () => {
   const hash = window.location.hash;
   if (hash.length > 1) {
     const target = document.getElementById(hash.slice(1));
-    if (target) target.scrollIntoView({ behavior: "smooth" });
+    if (target) target.scrollIntoView({ behavior: "instant" });
   }
 
   const scrollRoot = document.getElementById("readme-view");
