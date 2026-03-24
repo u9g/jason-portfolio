@@ -1,10 +1,15 @@
 const modules = import.meta.glob("./essays/*.md", { eager: true, query: "?raw", import: "default" });
 
+export interface EssayBlock {
+  type: "p" | "li";
+  text: string;
+}
+
 export interface Essay {
   title: string;
   date: string;
   slug: string;
-  paragraphs: string[];
+  blocks: EssayBlock[];
 }
 
 function parseEssay(raw: string): Essay {
@@ -20,13 +25,23 @@ function parseEssay(raw: string): Essay {
   }
 
   const body = match[2].trim();
-  const paragraphs = body.split(/\n\n+/).filter(Boolean);
+  const blocks: EssayBlock[] = [];
+  for (const chunk of body.split(/\n\n+/).filter(Boolean)) {
+    const lines = chunk.split("\n");
+    if (lines.every((l) => l.startsWith("- "))) {
+      for (const line of lines) {
+        blocks.push({ type: "li", text: line.slice(2) });
+      }
+    } else {
+      blocks.push({ type: "p", text: chunk });
+    }
+  }
 
   return {
     title: frontmatter.title,
     date: frontmatter.date,
     slug: frontmatter.slug,
-    paragraphs,
+    blocks,
   };
 }
 

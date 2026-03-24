@@ -6,6 +6,7 @@ import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import { essays } from "../data/essays";
+import { renderMarkdown } from "../data/render-markdown";
 
 const langPattern = new RegExp(
   `\\b(${Object.keys(techColors)
@@ -15,11 +16,7 @@ const langPattern = new RegExp(
 );
 
 function formatMessage(text: string): string {
-  let result = text.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
-  );
-  result = result.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  let result = renderMarkdown(text);
   result = result.replace(langPattern, (match) => {
     const color = techColors[match];
     return `<span style="color: ${color}">${match}</span>`;
@@ -293,7 +290,10 @@ onUnmounted(() => {
           >
             <span class="anchor-icon">#</span> {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
           </h3>
-          <p v-for="(para, i) in essay.paragraphs" :key="i" v-html="formatMessage(para)"></p>
+          <template v-for="(block, i) in essay.blocks" :key="i">
+            <p v-if="block.type === 'p'" v-html="formatMessage(block.text)"></p>
+            <li v-else-if="block.type === 'li'" class="essay-li" v-html="formatMessage(block.text)"></li>
+          </template>
         </template>
       </div>
     </div>
@@ -483,6 +483,12 @@ onUnmounted(() => {
   font-size: 0.78rem;
   font-weight: 300;
   color: var(--text-dim);
+}
+
+.essay-li {
+  margin: 0 0 0.5rem;
+  padding-left: 40px;
+  list-style-position: inside;
 }
 
 .about-prose p {

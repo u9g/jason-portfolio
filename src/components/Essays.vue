@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import ShareButton from "./ShareButton.vue";
 import { getEssay } from "../data/essays";
+import { renderMarkdown } from "../data/render-markdown";
 
 const props = defineProps<{
   slug: string;
@@ -11,15 +12,6 @@ const props = defineProps<{
 const emit = defineEmits<{ toggleSidebar: [] }>();
 
 const essay = computed(() => getEssay(props.slug));
-
-function renderMarkdown(text: string): string {
-  let result = text.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
-  );
-  result = result.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-  return result;
-}
 </script>
 
 <template>
@@ -49,11 +41,10 @@ function renderMarkdown(text: string): string {
     <div v-if="essay" class="essays-content">
       <div class="essay">
         <h2 class="essay-title">{{ essay.title }} <span class="essay-date">{{ essay.date }}</span></h2>
-        <p
-          v-for="(para, i) in essay.paragraphs"
-          :key="i"
-          v-html="renderMarkdown(para)"
-        ></p>
+        <template v-for="(block, i) in essay.blocks" :key="i">
+          <p v-if="block.type === 'p'" v-html="renderMarkdown(block.text)"></p>
+          <li v-else-if="block.type === 'li'" v-html="renderMarkdown(block.text)"></li>
+        </template>
       </div>
     </div>
   </div>
@@ -148,6 +139,15 @@ function renderMarkdown(text: string): string {
 
 .essay :deep(a:hover) {
   color: var(--text-muted);
+}
+
+.essay li {
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  list-style-position: inside;
 }
 
 .essay :deep(em) {
