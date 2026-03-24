@@ -47,9 +47,11 @@ const tocEntries = computed<TocEntry[]>(() => [
   {
     id: "essays",
     title: "Essays",
-    children: [{ id: "", title: "" }],
+    children: [
+      { id: "", title: "" },
+      { id: "how-i-started", title: "How I Started Programming" },
+    ],
   },
-  { id: "how-i-started", title: "How I Started Programming" },
 ]);
 
 const expandedRepos = ref<Set<string>>(new Set());
@@ -62,7 +64,7 @@ function copyAnchor(id: string) {
 
 let observer: IntersectionObserver | null = null;
 
-const topLevelIds = ["about", "jobs", "projects", "oss", "essays", "how-i-started"];
+const topLevelIds = ["about", "jobs", "projects", "oss", "essays"];
 
 // Map subheading IDs to their parent section ID
 const subToParent = computed(() => {
@@ -299,13 +301,13 @@ onUnmounted(() => {
         <p>The next thing I did was build my portfolio website, jasonlernerman.com in the design of Claude's web ui, having been inspired by various websites that clone Google's UIs for a different use case. While working on the site, I felt something I hadn't felt with programming in a while. I felt the possibility returning to my fingertips. Even though I had little to no CSS chops, that had no bearing on my ability to build a beautiful (in my eyes) website as soon as I could put the words down into Claude Code.</p>
         <p>As a takeaway, I would say that I never would have known the ability of Claude Code without that interview, and I would liken this to many stories I've heard of people being pushed in the deep end and told that this was the only option, and them coming out of the experience with a newfound ability to perform that they hadn't known they had within them prior. I really do feel like doors are opening for the curious in the programming world, if you really go in open-minded.</p>
         <p><em>And yes, I did write this (without AI) while waiting for a Claude Code prompt to complete.</em></p>
-      </div>
-
-      <!-- How I Started Programming -->
-      <h2 id="how-i-started" :class="['section-header', { active: activeSection === 'how-i-started' }]" @click="copyAnchor('how-i-started')">
-        <span class="anchor-icon">#</span> How I Started Programming
-      </h2>
-      <div class="section-content about-prose">
+        <h3
+          id="how-i-started"
+          :class="['sub-header', { active: activeSubSection === 'how-i-started' }]"
+          @click="copyAnchor('how-i-started')"
+        >
+          <span class="anchor-icon">#</span> How I Started Programming <span class="essay-date">March 19, 2026</span>
+        </h3>
         <p>
           Since way back in senior year of highschool, when I decided I would
           learn JavaScript to

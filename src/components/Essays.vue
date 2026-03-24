@@ -44,6 +44,12 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
         <p>As a takeaway, I would say that I never would have known the ability of Claude Code without that interview, and I would liken this to many stories I've heard of people being pushed in the deep end and told that this was the only option, and them coming out of the experience with a newfound ability to perform that they hadn't known they had within them prior. I really do feel like doors are opening for the curious in the programming world, if you really go in open-minded.</p>
         <p class="essay-postscript">And yes, I did write this (without AI) while waiting for a Claude Code prompt to complete.</p>
       </div>
+      <div class="essay">
+        <h2 class="essay-title">How I Started Programming <span class="essay-date">March 19, 2026</span></h2>
+        <p>Since way back in senior year of highschool, when I decided I would learn JavaScript to <a href="https://github.com/PrismarineJS/mineflayer" target="_blank" rel="noopener noreferrer">make a minecraft bot ↗</a>. Then I learned TypeScript so I could <a href="https://github.com/u9g/minecraft-proxy-handler/commit/6caa09e3fbcbcf3b0e5d96054e4ff46561d4233f" target="_blank" rel="noopener noreferrer">make APIs ↗</a> for myself and others. Around the same time I also started learning Java because if you're already making minecraft bots you may as well start <a href="https://github.com/u9g/ReverseHopper/commit/36300a67a2ecb2400e9fd300634fc91b3e2434bd" target="_blank" rel="noopener noreferrer">making minecraft mods ↗</a> and <a href="https://github.com/u9g/McDataExtracting/commit/2e68722a6afb4366bd1fdb0f12fb8afa127f9fef" target="_blank" rel="noopener noreferrer">contributing to Java tools ↗</a> for JavaScript minecraft bots. Since then, I learned Kotlin, which is the TypeScript to JavaScript in the Java world, and continued making <a href="https://github.com/u9g/cosmicsky-client" target="_blank" rel="noopener noreferrer">minecraft mods ↗</a> and <a href="https://github.com/u9g/Minigames" target="_blank" rel="noopener noreferrer">minecraft plugins ↗</a>. Around this time, I took a look around the programming landscape and tried out Gleam, which is a growing programming language that compiles to Erlang, or in my use case JavaScript, for <a href="https://github.com/u9g/thatgleammod" target="_blank" rel="noopener noreferrer">more minecraft mods ↗</a>.</p>
+        <p>After that, I started looking into other things which I found interesting, like data presentation formats and databases and stumbled upon Trustfall. Trustfall is, according to the github README, <em>"A query engine for any combination of data sources. Query your files and APIs as if they were databases!"</em>. And that's what I did for a while, until I wanted to expand the project even more, being a programmer myself, I created a <a href="https://github.com/u9g/github_adapter" target="_blank" rel="noopener noreferrer">github adapter ↗</a> and <a href="https://github.com/obi1kenobi/trustfall/commits?author=u9g" target="_blank" rel="noopener noreferrer">contributed back to the original project ↗</a> under the guidance of the extremely patient and helpful maintainer.</p>
+        <p>Later, I took my Rust knowledge on the road when I got interested in learning about linters and a brand new project at that time, OXC, which describes itself as, <em>"A collection of high-performance JavaScript tools."</em>. I found this premise interesting, and I also found Rust to be a great language for new contributors to a project, so I <a href="https://github.com/oxc-project/oxc/commits?author=u9g" target="_blank" rel="noopener noreferrer">spent a good amount of time contributing to this project too ↗</a>.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -132,5 +138,21 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
 .essay-postscript {
   font-style: italic;
   color: var(--text-dim) !important;
+}
+
+.essay a {
+  color: var(--text-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.essay a:hover {
+  color: var(--text-muted);
+}
+
+.essay em {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  color: var(--text-bright);
 }
 </style>

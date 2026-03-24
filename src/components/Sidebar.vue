@@ -101,6 +101,13 @@ const buildDate = __BUILD_DATE__;
         >
            <span class="essay-date">March 22, 2026</span>
         </button>
+        <button
+          class="recent-item"
+          :class="{ active: currentSlug === 'essays' }"
+          @click="emit('navigate', 'essays')"
+        >
+          How I Started Programming <span class="essay-date">March 19, 2026</span>
+        </button>
       </div>
 
       <div v-if="!collapsed" class="recent-section">
