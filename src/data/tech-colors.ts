@@ -17,4 +17,5 @@ export const techColors: Record<string, string> = {
   MongoDB: "#00ed64",
   PostHog: "#f54e00",
   Firebase: "#ffca28",
+  Vue: "#4fc08d",
 };

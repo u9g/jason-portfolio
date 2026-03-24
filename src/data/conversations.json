@@ -72,7 +72,7 @@
       ]
     },
     {
-      "slug": "vue-technology",
+      "slug": "Vue-technology",
       "title": "Vue Technology LLC, SWE Intern",
       "conversation": [
         { "role": "user", "message": "What's Vue Technology LLC?" },
