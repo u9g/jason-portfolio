@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar.vue";
 import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
 import OSSContributions from "./components/OSSContributions.vue";
+import Essays from "./components/Essays.vue";
 import ReadmeView from "./components/ReadmeView.vue";
 import conversations from "./data/conversations.json";
 
@@ -83,6 +84,7 @@ const pageTitle = computed(() => {
   if (isReadmeMode) return `${SITE_NAME}'s Portfolio`;
   if (currentSlug.value === "about") return `About | ${SITE_NAME}`;
   if (currentSlug.value === "oss") return `OSS | ${SITE_NAME}`;
+  if (currentSlug.value === "essays") return `Essays | ${SITE_NAME}`;
   if (currentConversation.value) {
     const name = currentConversation.value.title.split(",")[0];
     return `${name} | ${SITE_NAME}`;
@@ -100,7 +102,7 @@ if (!isSSR) {
 <template>
   <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
   <ReadmeView v-if="isReadmeMode" />
-  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentConversation">
+  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || currentSlug === 'essays' || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
       <a href="/">View as document</a>
       <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
@@ -122,6 +124,11 @@ if (!isSSR) {
     />
     <OSSContributions
       v-else-if="currentSlug === 'oss'"
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+    />
+    <Essays
+      v-else-if="currentSlug === 'essays'"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
     />

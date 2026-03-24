@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import bookIcon from "../assets/book.svg";
 import codeIcon from "../assets/code.svg";
+import essayIcon from "../assets/essay.svg";
 import contactIcon from "../assets/contact.svg";
 import claudeIcon from "../assets/claude.svg";
 import githubIcon from "../assets/github.svg";
@@ -63,6 +64,13 @@ const buildDate = __BUILD_DATE__;
           :collapsed="collapsed"
           :active="currentSlug === 'oss'"
           @click="emit('navigate', 'oss')"
+        />
+        <SidebarButton
+          :icon="essayIcon"
+          label="Essays"
+          :collapsed="collapsed"
+          :active="currentSlug === 'essays'"
+          @click="emit('navigate', 'essays')"
         />
         <SidebarButton
           :icon="githubIcon"
