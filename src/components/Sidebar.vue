@@ -66,13 +66,6 @@ const buildDate = __BUILD_DATE__;
           @click="emit('navigate', 'oss')"
         />
         <SidebarButton
-          :icon="essayIcon"
-          label="Essays"
-          :collapsed="collapsed"
-          :active="currentSlug === 'essays'"
-          @click="emit('navigate', 'essays')"
-        />
-        <SidebarButton
           :icon="githubIcon"
           label="Jason's Github"
           href="https://github.com/u9g"
@@ -96,6 +89,17 @@ const buildDate = __BUILD_DATE__;
           @click="emit('navigate', conv.slug)"
         >
           {{ conv.title }}
+        </button>
+      </div>
+
+      <div v-if="!collapsed" class="recent-section">
+        <span class="recent-heading">Essays</span>
+        <button
+          class="recent-item"
+          :class="{ active: currentSlug === 'essays' }"
+          @click="emit('navigate', 'essays')"
+        >
+           <span class="essay-date">March 22, 2026</span>
         </button>
       </div>
 
@@ -302,6 +306,13 @@ button {
 .recent-item.active {
   background: var(--bg-hover);
   color: var(--text-bright);
+}
+
+.essay-date {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .attribution {

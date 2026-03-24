@@ -289,7 +289,7 @@ onUnmounted(() => {
           :class="['sub-header', { active: activeSubSection === '' }]"
           @click="copyAnchor('')"
         >
-          <span class="anchor-icon">#</span> 
+          <span class="anchor-icon">#</span>  <span class="essay-date">March 22, 2026</span>
         </h3>
         <p>One of the largest value creation events has been Claude code's popularization of the $20 / $100 / $200 per month subscriptions for an almost endless supply of staff software engineer level contributions to a codebase, available on tap. To act as if that isn't true is to act as if the creation of software wasn't bottlenecked by the pipe size. I don't believe this to be true because for the longest time, the actual largest barrier on the widespread creation of software has been how quickly can idea guys get their ideas down on paper before the idea fades. To say this isn't so is to act as though execution speed is not directly proportional to opportunity test speed.</p>
         <p>Yes, your existing enterprise applications of code are indeed bottlenecked by the slow death of scattered task requirements split amongst non-easily-accessable tools which are of course not machine-interactable. However, I am not talking about the enterprise use case when I make this statement. I am talking to the multitude of people that are now happily using coding tools to build every idea that pops into their mind for no reason other than that it is now possible. And in my eyes, that is beautiful.</p>
@@ -581,6 +581,12 @@ onUnmounted(() => {
 .sub-header:hover .anchor-icon,
 .sub-header.active .anchor-icon {
   opacity: 1;
+}
+
+.essay-date {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--text-dim);
 }
 
 .about-prose p {

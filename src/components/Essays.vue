@@ -34,7 +34,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
     </div>
     <div class="essays-content">
       <div class="essay">
-        <h2 class="essay-title"></h2>
+        <h2 class="essay-title"> <span class="essay-date">March 22, 2026</span></h2>
         <p>One of the largest value creation events has been Claude code's popularization of the $20 / $100 / $200 per month subscriptions for an almost endless supply of staff software engineer level contributions to a codebase, available on tap. To act as if that isn't true is to act as if the creation of software wasn't bottlenecked by the pipe size. I don't believe this to be true because for the longest time, the actual largest barrier on the widespread creation of software has been how quickly can idea guys get their ideas down on paper before the idea fades. To say this isn't so is to act as though execution speed is not directly proportional to opportunity test speed.</p>
         <p>Yes, your existing enterprise applications of code are indeed bottlenecked by the slow death of scattered task requirements split amongst non-easily-accessable tools which are of course not machine-interactable. However, I am not talking about the enterprise use case when I make this statement. I am talking to the multitude of people that are now happily using coding tools to build every idea that pops into their mind for no reason other than that it is now possible. And in my eyes, that is beautiful.</p>
         <p>For a while, I wasn't a believer. I'd seen many different AI models come and go and had become fatigued by the seemingly endless barrage of "innovations" that amounted to nothing more than some numbers going up, numbers that meant zip to me. However, recently, I interviewed with a company, and one of their interview rounds they set me up with a codebase that they had prepared ahead of time with some bugs and a backlog of features, and told me that I had the next ninety minutes to fix up the app as much as I could, and to act as if there was a demo in 90 minutes of the application using AI tools, as their VP of engineering and a staff engineer would watch my performance.</p>
@@ -113,6 +113,12 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   font-size: 1.3rem;
   color: var(--text-bright);
   margin: 0 0 1rem;
+}
+
+.essay-date {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--text-dim);
 }
 
 .essay p {
