@@ -104,6 +104,10 @@ defineProps<{
   transition: filter 0.2s ease;
 }
 
+:root[data-theme="light"] .icon-circle img {
+  filter: brightness(0) invert(0.35);
+}
+
 .label {
   flex: 1;
   text-align: left;
@@ -123,6 +127,10 @@ defineProps<{
 
   .sidebar-btn:hover .icon-circle img {
     filter: brightness(0) invert(1);
+  }
+
+  :root[data-theme="light"] .sidebar-btn:hover .icon-circle img {
+    filter: brightness(0) invert(0);
   }
 
   .sidebar-btn:hover .external-icon {

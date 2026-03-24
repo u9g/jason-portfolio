@@ -214,4 +214,8 @@ function goRandom() {
   height: 10px;
   filter: brightness(0) invert(0.75);
 }
+
+:root[data-theme="light"] .inline-btn .icon-circle img {
+  filter: brightness(0) invert(0.35);
+}
 </style>
