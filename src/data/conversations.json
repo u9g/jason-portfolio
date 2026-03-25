@@ -121,7 +121,7 @@
         { "role": "user", "message": "Any interesting technical challenges?" },
         {
           "role": "assistant",
-          "message": "Integrating ty as a WASM module to provide a full Python language server experience directly in the browser was the big one — it gives you real-time type errors, signature help, and semantic tokens without any backend round-trips. I also extracted the layout engine into its own npm package ([reactive-layout](https://www.npmjs.com/package/reactive-layout)) when I realized it was general-purpose enough to reuse."
+          "message": "Integrating ty as a WASM module to provide a full Python language server experience directly in the browser was the big one — it gives real-time type errors, signature help, and semantic tokens without any backend round-trips. I also extracted the layout engine into its own npm package ([reactive-layout](https://www.npmjs.com/package/reactive-layout)) when I realized it was general-purpose enough to reuse."
         },
         { "role": "user", "message": "Can I see the code?" },
         {
