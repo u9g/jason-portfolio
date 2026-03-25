@@ -100,6 +100,37 @@
   ],
   "projects": [
     {
+      "slug": "learntensors",
+      "title": "LearnTensors, Web App",
+      "conversation": [
+        { "role": "user", "message": "What's LearnTensors?" },
+        {
+          "role": "assistant",
+          "message": "LearnTensors is a web-based coding practice platform for tensor and matrix mathematics using Python and PyTorch. Think LeetCode but focused on tensor operations — you get a problem description, write your solution in a Monaco editor with real-time Python type checking, and run it against test cases. Try it at [learntensors.com](https://learntensors.com)."
+        },
+        { "role": "user", "message": "When did you make it?" },
+        {
+          "role": "assistant",
+          "message": "I built it in March 2026."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "Vue 3 with TypeScript, server-side rendered on Cloudflare Pages with a D1 (SQLite) database. The editor uses Monaco with a WASM-compiled Python type checker (ty from Astral's Ruff project) for real-time diagnostics, hover info, completions, and inlay hints. GitHub OAuth for authentication."
+        },
+        { "role": "user", "message": "Any interesting technical challenges?" },
+        {
+          "role": "assistant",
+          "message": "Integrating ty as a WASM module to provide a full Python language server experience directly in the browser was the big one — it gives you real-time type errors, signature help, and semantic tokens without any backend round-trips. I also extracted the layout engine into its own npm package ([reactive-layout](https://www.npmjs.com/package/reactive-layout)) when I realized it was general-purpose enough to reuse."
+        },
+        { "role": "user", "message": "Can I see the code?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/LearnTensors)."
+        }
+      ]
+    },
+    {
       "slug": "reactive-layout",
       "title": "reactive-layout, npm Package",
       "conversation": [
