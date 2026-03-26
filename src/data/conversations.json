@@ -188,7 +188,7 @@
         { "role": "user", "message": "Can I see the code?" },
         {
           "role": "assistant",
-          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/color-picker)."
+          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/color-picker) or download it on the [App Store](https://apps.apple.com/app/colorpeek/id6760949552)."
         }
       ]
     },
