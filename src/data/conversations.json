@@ -100,6 +100,42 @@
   ],
   "projects": [
     {
+      "slug": "unoroyale",
+      "title": "Uno Royale, Card Game",
+      "conversation": [
+        { "role": "user", "message": "What's Uno Royale?" },
+        {
+          "role": "assistant",
+          "message": "Uno Royale is a single-player UNO card game where you compete against three AI-controlled opponents. It implements UNO the way I like to play it, along with the standard UNO rules that everyone plays with."
+        },
+        { "role": "user", "message": "When did you make it?" },
+        {
+          "role": "assistant",
+          "message": "I built it in March 2026."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "Vue 3 with TypeScript and Vite for the web app, [Vitest](https://vitest.dev) for unit testing the game mechanics, and [Capacitor](https://capacitorjs.com) to wrap it as a native iOS app."
+        },
+        { "role": "user", "message": "Any interesting features?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, I added a \"Make Computer Players Instant\" toggle that makes the game feel fresh and like no other UNO game. In addition, I also built a screenshot pipeline using Playwright that automatically generates App Store screenshots across 5 device configurations (iPhone, iPad, and desktop in multiple orientations) by injecting crafted game states. The screenshots are regenerated on every commit via a pre-commit hook that also runs ESLint, Stylelint, Vitest, and ShellCheck all in parallel — so App Store screenshots are always in sync with the code, and if they change they get automatically staged into the commit."
+        },
+        { "role": "user", "message": "Can I see the code?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, check it out on [GitHub](https://github.com/u9g/unoroyale)."
+        },
+        { "role": "user", "message": "Is it on the App Store?" },
+        {
+          "role": "assistant",
+          "message": "Yeah, download it on the [App Store](https://apps.apple.com/us/app/uno-royale/id6761205942)."
+        }
+      ]
+    },
+    {
       "slug": "learntensors",
       "title": "LearnTensors, Web App",
       "conversation": [
