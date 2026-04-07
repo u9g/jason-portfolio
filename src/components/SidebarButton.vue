@@ -6,6 +6,8 @@ defineProps<{
   collapsed: boolean;
   active?: boolean;
 }>();
+
+defineEmits<{ click: [] }>();
 </script>
 
 <template>
