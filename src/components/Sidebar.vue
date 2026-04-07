@@ -8,6 +8,7 @@ import sourceIcon from "../assets/source.svg";
 import resumeIcon from "../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
 import { essays } from "../data/essays";
+import { entryLogos } from "../data/entry-logos";
 
 defineProps<{
   jobs: { slug: string; title: string }[];
@@ -96,7 +97,34 @@ const buildDate = __BUILD_DATE__;
           :class="{ active: conv.slug === currentSlug }"
           @click="emit('navigate', conv.slug)"
         >
-          {{ conv.title }}
+          <img
+            v-if="entryLogos[conv.slug]"
+            class="recent-item__logo"
+            :src="entryLogos[conv.slug]"
+            alt=""
+            aria-hidden="true"
+          />
+          <span class="recent-item__label">{{ conv.title }}</span>
+        </button>
+      </div>
+
+      <div v-if="!collapsed" class="recent-section">
+        <span class="recent-heading">Jason's Personal Projects</span>
+        <button
+          v-for="conv in projects"
+          :key="conv.slug"
+          class="recent-item"
+          :class="{ active: conv.slug === currentSlug }"
+          @click="emit('navigate', conv.slug)"
+        >
+          <img
+            v-if="entryLogos[conv.slug]"
+            class="recent-item__logo"
+            :src="entryLogos[conv.slug]"
+            alt=""
+            aria-hidden="true"
+          />
+          <span class="recent-item__label">{{ conv.title }}</span>
         </button>
       </div>
 
@@ -110,19 +138,6 @@ const buildDate = __BUILD_DATE__;
           @click="emit('navigate', essay.slug)"
         >
           {{ essay.title }}
-        </button>
-      </div>
-
-      <div v-if="!collapsed" class="recent-section">
-        <span class="recent-heading">Jason's Personal Projects</span>
-        <button
-          v-for="conv in projects"
-          :key="conv.slug"
-          class="recent-item"
-          :class="{ active: conv.slug === currentSlug }"
-          @click="emit('navigate', conv.slug)"
-        >
-          {{ conv.title }}
         </button>
       </div>
 
@@ -321,6 +336,24 @@ button {
   padding: 0 8px;
   height: 32px;
   text-align: left;
+  gap: 8px;
+}
+
+.recent-item__logo {
+  width: auto;
+  height: 16px;
+  max-width: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.recent-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .recent-item:hover {
