@@ -127,7 +127,7 @@
         { "role": "user", "message": "Where can I check it out?" },
         {
           "role": "assistant",
-          "message": "It's published as a Claude Code plugin. Inside Claude Code, run `/plugin marketplace add u9g/promptlog` and then `/plugin install promptlog@u9g`. Source is on [GitHub](https://github.com/u9g/promptlog)."
+          "message": "It's published as a Claude Code plugin. Inside Claude Code, run `/plugin marketplace add u9g/promptlog` and then `/plugin install promptlog@u9g`. The source is available on [GitHub](https://github.com/u9g/promptlog)."
         }
       ]
     },
