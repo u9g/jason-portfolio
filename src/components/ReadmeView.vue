@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import conversations from "../data/conversations.json";
 import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
@@ -122,6 +122,39 @@ onMounted(async () => {
   }
 });
 
+// Keep the active TOC entry in view as the user scrolls the page. We adjust
+// the TOC's own scrollTop manually instead of using scrollIntoView so that
+// only the TOC scrolls — never the document. The first/last links snap to
+// the absolute top/bottom so the "Table of Contents" heading and the toc's
+// trailing padding remain reachable.
+watch([activeSection, activeSubSection], () => {
+  const id = activeSubSection.value || activeSection.value;
+  if (!id) return;
+  const toc = document.querySelector(".toc") as HTMLElement | null;
+  if (!toc) return;
+  const links = Array.from(toc.querySelectorAll<HTMLElement>('a[href^="#"]'));
+  const idx = links.findIndex((a) => a.getAttribute("href") === `#${id}`);
+  if (idx === -1) return;
+  const max = toc.scrollHeight - toc.clientHeight;
+  if (idx === 0) {
+    toc.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  if (idx === links.length - 1) {
+    toc.scrollTo({ top: max, behavior: "smooth" });
+    return;
+  }
+  const link = links[idx];
+  const linkTop = link.offsetTop;
+  const linkBottom = linkTop + link.offsetHeight;
+  const pad = 12;
+  if (linkTop < toc.scrollTop + pad) {
+    toc.scrollTo({ top: Math.max(0, linkTop - pad), behavior: "smooth" });
+  } else if (linkBottom > toc.scrollTop + toc.clientHeight - pad) {
+    toc.scrollTo({ top: Math.min(max, linkBottom - toc.clientHeight + pad), behavior: "smooth" });
+  }
+});
+
 onUnmounted(() => {
   observer?.disconnect();
   window.removeEventListener("popstate", scrollToCurrentHash);
@@ -144,7 +177,7 @@ onUnmounted(() => {
         <ul>
           <li v-for="entry in tocEntries" :key="entry.id">
             <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
-            <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
+            <ul v-if="entry.children" class="toc-sub">
               <li v-for="child in entry.children" :key="child.id">
                 <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
                   <img
@@ -431,6 +464,8 @@ onUnmounted(() => {
   background: var(--bg-raised);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
 @media (min-width: 1025px) {
