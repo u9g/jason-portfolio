@@ -73,7 +73,7 @@
     },
     {
       "slug": "Vue-technology",
-      "title": "Vue Technology LLC, SWE Intern",
+      "title": "Vue Technology LLC, Software Engineer Intern",
       "conversation": [
         { "role": "user", "message": "What's Vue Technology LLC?" },
         {
@@ -133,7 +133,7 @@
     },
     {
       "slug": "unoroyale",
-      "title": "Uno Royale, Card Game",
+      "title": "Uno Royale, Web and iOS App",
       "conversation": [
         { "role": "user", "message": "What's Uno Royale?" },
         {
@@ -221,7 +221,7 @@
     },
     {
       "slug": "color-picker",
-      "title": "ColorPicker, macOS Menu Bar App",
+      "title": "ColorPicker, macOS App",
       "conversation": [
         { "role": "user", "message": "What's ColorPicker?" },
         {
@@ -278,7 +278,7 @@
     },
     {
       "slug": "cerium",
-      "title": "Cerium, SwiftUI App",
+      "title": "Cerium, iOS App",
       "conversation": [
         { "role": "user", "message": "What's Cerium?" },
         {
