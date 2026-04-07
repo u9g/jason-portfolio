@@ -5,28 +5,11 @@ import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
-import midnightSkyImg from "../assets/midnightskyimage.png";
-import vueLogo from "../assets/vue.svg";
-import ceriumImg from "../assets/ceriumlogoimage2.png";
 import { essays } from "../data/essays";
+import { entryLogos, halfSizeLogos } from "../data/entry-logos";
 import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
-
-const entryLogos: Record<string, string> = {
-  "midnight-sky": midnightSkyImg,
-  "dataset-ai": "https://raw.githubusercontent.com/brendanballon/sfsymbols-svg/master/symbols/pencil.and.outline.svg",
-  "Vue-technology": vueLogo,
-  unoroyale: "https://raw.githubusercontent.com/u9g/unoroyale/main/public/logo.svg",
-  learntensors: "https://raw.githubusercontent.com/u9g/learntensors/main/public/favicon.svg",
-  "color-picker": "https://raw.githubusercontent.com/u9g/color-picker/main/logo.svg",
-  cerium: ceriumImg,
-  portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
-};
-
-// Slugs whose logo should render at half the default size (e.g. simple
-// glyph icons that look overwhelming at the full project-logo width).
-const halfSizeLogos = new Set(["dataset-ai", "Vue-technology"]);
 
 interface TocEntry {
   id: string;
