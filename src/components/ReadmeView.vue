@@ -7,6 +7,7 @@ import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import midnightSkyImg from "../assets/midnightskyimage.png";
 import vueLogo from "../assets/vue.svg";
+import ceriumImg from "../assets/ceriumimage.webp";
 import { essays } from "../data/essays";
 import { renderMessage } from "../data/render-markdown";
 
@@ -19,6 +20,7 @@ const entryLogos: Record<string, string> = {
   unoroyale: "https://raw.githubusercontent.com/u9g/unoroyale/main/public/logo.svg",
   learntensors: "https://raw.githubusercontent.com/u9g/learntensors/main/public/favicon.svg",
   "color-picker": "https://raw.githubusercontent.com/u9g/color-picker/main/logo.svg",
+  cerium: ceriumImg,
   portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
 };
 
