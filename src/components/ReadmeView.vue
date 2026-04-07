@@ -37,6 +37,16 @@ const tocEntries = computed<TocEntry[]>(() => [
   },
 ]);
 
+// All TOC child entries that have a registered logo, in the order they appear
+// in the table of contents. Used to render the logo strip beside the page title.
+const tocLogoEntries = computed(() =>
+  tocEntries.value.flatMap((entry) =>
+    (entry.children ?? [])
+      .filter((child) => entryLogos[child.id])
+      .map((child) => ({ id: child.id, title: child.title, logo: entryLogos[child.id] })),
+  ),
+);
+
 const expandedRepos = ref<Set<string>>(new Set());
 const showAllRepos = ref(false);
 const activeSection = ref("about");
@@ -194,7 +204,25 @@ onUnmounted(() => {
         </ul>
       </nav>
 
-      <h1>Jason Lernerman's Portfolio</h1>
+      <div class="title-row">
+        <h1>Jason Lernerman's Portfolio</h1>
+        <div class="title-logos">
+          <a
+            v-for="item in tocLogoEntries"
+            :key="item.id"
+            :href="`#${item.id}`"
+            :title="item.title"
+            :aria-label="item.title"
+            class="title-logo"
+          >
+            <img
+              :src="item.logo"
+              :class="{ 'title-logo--dark-invert': darkInvertLogos.has(item.id) }"
+              :alt="item.title"
+            />
+          </a>
+        </div>
+      </div>
 
       <!-- About -->
       <h2
@@ -454,8 +482,53 @@ onUnmounted(() => {
 
 .readme-body h1 {
   font-size: 2rem;
-  margin: 0 0 1.5rem;
+  margin: 0;
   color: var(--text-bright);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.title-logos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.title-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+  opacity: 0.85;
+}
+
+.title-logo:hover {
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+.title-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+:root[data-theme="dark"] .title-logo img.title-logo--dark-invert {
+  filter: invert(1);
 }
 
 .toc {
