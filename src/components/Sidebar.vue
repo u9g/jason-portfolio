@@ -8,7 +8,7 @@ import sourceIcon from "../assets/source.svg";
 import resumeIcon from "../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
 import { essays } from "../data/essays";
-import { entryLogos } from "../data/entry-logos";
+import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 
 defineProps<{
   jobs: { slug: string; title: string }[];
@@ -99,7 +99,7 @@ const buildDate = __BUILD_DATE__;
         >
           <img
             v-if="entryLogos[conv.slug]"
-            class="recent-item__logo"
+            :class="['recent-item__logo', { 'recent-item__logo--dark-invert': darkInvertLogos.has(conv.slug) }]"
             :src="entryLogos[conv.slug]"
             alt=""
             aria-hidden="true"
@@ -119,7 +119,7 @@ const buildDate = __BUILD_DATE__;
         >
           <img
             v-if="entryLogos[conv.slug]"
-            class="recent-item__logo"
+            :class="['recent-item__logo', { 'recent-item__logo--dark-invert': darkInvertLogos.has(conv.slug) }]"
             :src="entryLogos[conv.slug]"
             alt=""
             aria-hidden="true"
@@ -347,6 +347,10 @@ button {
   flex-shrink: 0;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+:root[data-theme="dark"] .recent-item__logo--dark-invert {
+  filter: invert(1);
 }
 
 .recent-item__label {

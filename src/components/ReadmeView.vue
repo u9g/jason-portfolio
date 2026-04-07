@@ -6,7 +6,7 @@ import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import { essays } from "../data/essays";
-import { entryLogos, halfSizeLogos } from "../data/entry-logos";
+import { entryLogos, halfSizeLogos, darkInvertLogos } from "../data/entry-logos";
 import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
@@ -129,7 +129,7 @@ onUnmounted(() => {
               <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
                 <img
                   v-if="entryLogos[child.id]"
-                  class="toc-logo"
+                  :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
                   :src="entryLogos[child.id]"
                   alt=""
                   aria-hidden="true"
@@ -190,7 +190,7 @@ onUnmounted(() => {
           <span class="anchor-icon">#</span> {{ job.title }}
           <img
             v-if="entryLogos[job.slug]"
-            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(job.slug) }]"
+            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(job.slug), 'project-logo--dark-invert': darkInvertLogos.has(job.slug) }]"
             :src="entryLogos[job.slug]"
             :alt="`${job.title} logo`"
           />
@@ -226,7 +226,7 @@ onUnmounted(() => {
           <span class="anchor-icon">#</span> {{ project.title }}
           <img
             v-if="entryLogos[project.slug]"
-            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(project.slug) }]"
+            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(project.slug), 'project-logo--dark-invert': darkInvertLogos.has(project.slug) }]"
             :src="entryLogos[project.slug]"
             :alt="`${project.title} logo`"
           />
@@ -482,6 +482,11 @@ onUnmounted(() => {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+:root[data-theme="dark"] .toc-logo--dark-invert,
+:root[data-theme="dark"] .project-logo--dark-invert {
+  filter: invert(1);
 }
 
 .toc-sub a {
