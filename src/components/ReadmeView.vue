@@ -7,7 +7,7 @@ import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import midnightSkyImg from "../assets/midnightskyimage.png";
 import vueLogo from "../assets/vue.svg";
-import ceriumImg from "../assets/ceriumimage.webp";
+import ceriumImg from "../assets/ceriumlogoimage2.png";
 import { essays } from "../data/essays";
 import { renderMessage } from "../data/render-markdown";
 
