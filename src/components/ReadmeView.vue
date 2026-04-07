@@ -6,7 +6,7 @@ import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import { essays } from "../data/essays";
-import { entryLogos, halfSizeLogos, darkInvertLogos } from "../data/entry-logos";
+import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
@@ -209,7 +209,7 @@ onUnmounted(() => {
           <span class="anchor-icon">#</span> {{ job.title }}
           <img
             v-if="entryLogos[job.slug]"
-            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(job.slug), 'project-logo--dark-invert': darkInvertLogos.has(job.slug) }]"
+            :class="['project-logo', { 'project-logo--dark-invert': darkInvertLogos.has(job.slug) }]"
             :src="entryLogos[job.slug]"
             :alt="`${job.title} logo`"
           />
@@ -245,7 +245,7 @@ onUnmounted(() => {
           <span class="anchor-icon">#</span> {{ project.title }}
           <img
             v-if="entryLogos[project.slug]"
-            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(project.slug), 'project-logo--dark-invert': darkInvertLogos.has(project.slug) }]"
+            :class="['project-logo', { 'project-logo--dark-invert': darkInvertLogos.has(project.slug) }]"
             :src="entryLogos[project.slug]"
             :alt="`${project.title} logo`"
           />
@@ -573,15 +573,11 @@ onUnmounted(() => {
 .project-logo {
   margin-left: auto;
   width: auto;
-  height: 28px;
+  height: 14px;
   flex-shrink: 0;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
-}
-
-.project-logo--half {
-  height: 14px;
 }
 
 /* When the viewport is wide enough that the readme body has real margin
@@ -602,19 +598,11 @@ onUnmounted(() => {
     --logo-full-width: min(calc(50vw - 410px), 360px);
     position: absolute;
     top: 50%;
-    left: calc(100% + 24px);
-    margin-left: 0;
-    transform: translateY(-50%);
-    width: var(--logo-full-width);
-    height: auto;
-  }
-
-  /* Half-size logos stay horizontally centered within the same right-margin
-     range that a full-size logo would occupy. */
-  .project-logo--half {
-    width: calc(var(--logo-full-width) / 2);
     left: calc(100% + 24px + var(--logo-full-width) / 2);
+    margin-left: 0;
     transform: translate(-50%, -50%);
+    width: calc(var(--logo-full-width) / 2);
+    height: auto;
   }
 }
 

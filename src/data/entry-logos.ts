@@ -17,10 +17,6 @@ export const entryLogos: Record<string, string> = {
   portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
 };
 
-// Slugs whose logo should render at half the default size (e.g. simple
-// glyph icons that look overwhelming at the full project-logo width).
-export const halfSizeLogos = new Set(["dataset-ai", "Vue-technology"]);
-
 // Slugs whose logo is a black-on-transparent glyph and should be inverted
 // to white in dark mode for visibility.
 export const darkInvertLogos = new Set(["dataset-ai"]);
