@@ -7,6 +7,8 @@ import OSSContributions from "./components/OSSContributions.vue";
 import Essays from "./components/Essays.vue";
 import ReadmeView from "./components/ReadmeView.vue";
 import ResumePrint from "./components/ResumePrint.vue";
+import sunIcon from "./assets/sun.svg";
+import moonIcon from "./assets/moon.svg";
 import conversations from "./data/conversations.json";
 import { essays, getEssay } from "./data/essays";
 
@@ -108,7 +110,9 @@ if (!isSSR) {
 
 <template>
   <ResumePrint ref="resumePrint" />
-  <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
+  <button class="theme-fab" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme($event)">
+    <img :src="theme === 'dark' ? sunIcon : moonIcon" alt="" />
+  </button>
   <ReadmeView v-if="isReadmeMode" @print-resume="resumePrint?.printResume()" />
   <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || essaySlugs.has(currentSlug) || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
@@ -294,6 +298,25 @@ body,
 .theme-fab:hover {
   color: var(--text-bright);
   border-color: var(--text-dim);
+}
+
+.theme-fab img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(0.75);
+  transition: filter 0.2s ease;
+}
+
+:root[data-theme="light"] .theme-fab img {
+  filter: brightness(0) invert(0.35);
+}
+
+.theme-fab:hover img {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="light"] .theme-fab:hover img {
+  filter: brightness(0) invert(0);
 }
 
 .not-found {
