@@ -1,6 +1,7 @@
 import midnightSkyImg from "../assets/midnightskyimage.png";
 import vueLogo from "../assets/vue.svg";
 import ceriumImg from "../assets/ceriumlogoimage2.png";
+import reactiveLayoutLogo from "../assets/reactive-layout.svg";
 
 // Logo image to display next to a job/project entry, keyed by the entry's slug.
 export const entryLogos: Record<string, string> = {
@@ -10,7 +11,9 @@ export const entryLogos: Record<string, string> = {
   unoroyale: "https://raw.githubusercontent.com/u9g/unoroyale/main/public/logo.svg",
   learntensors: "https://raw.githubusercontent.com/u9g/learntensors/main/public/favicon.svg",
   "color-picker": "https://raw.githubusercontent.com/u9g/color-picker/main/logo.svg",
+  "reactive-layout": reactiveLayoutLogo,
   cerium: ceriumImg,
+  promptlog: "https://raw.githubusercontent.com/u9g/promptlog/master/logo.svg",
   portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
 };
 
