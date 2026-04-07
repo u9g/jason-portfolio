@@ -5,17 +5,26 @@ import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
+import midnightSkyImg from "../assets/midnightskyimage.png";
+import vueLogo from "../assets/vue.svg";
 import { essays } from "../data/essays";
 import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
 
-const projectLogos: Record<string, string> = {
+const entryLogos: Record<string, string> = {
+  "midnight-sky": midnightSkyImg,
+  "dataset-ai": "https://raw.githubusercontent.com/brendanballon/sfsymbols-svg/master/symbols/pencil.and.outline.svg",
+  "Vue-technology": vueLogo,
   unoroyale: "https://raw.githubusercontent.com/u9g/unoroyale/main/public/logo.svg",
   learntensors: "https://raw.githubusercontent.com/u9g/learntensors/main/public/favicon.svg",
   "color-picker": "https://raw.githubusercontent.com/u9g/color-picker/main/logo.svg",
   portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
 };
+
+// Slugs whose logo should render at half the default size (e.g. simple
+// glyph icons that look overwhelming at the full project-logo width).
+const halfSizeLogos = new Set(["dataset-ai", "Vue-technology"]);
 
 interface TocEntry {
   id: string;
@@ -186,6 +195,12 @@ onUnmounted(() => {
           @click="copyAnchor(job.slug)"
         >
           <span class="anchor-icon">#</span> {{ job.title }}
+          <img
+            v-if="entryLogos[job.slug]"
+            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(job.slug) }]"
+            :src="entryLogos[job.slug]"
+            :alt="`${job.title} logo`"
+          />
         </h3>
         <div
           v-for="(msg, i) in job.conversation"
@@ -217,9 +232,9 @@ onUnmounted(() => {
         >
           <span class="anchor-icon">#</span> {{ project.title }}
           <img
-            v-if="projectLogos[project.slug]"
-            class="project-logo"
-            :src="projectLogos[project.slug]"
+            v-if="entryLogos[project.slug]"
+            :class="['project-logo', { 'project-logo--half': halfSizeLogos.has(project.slug) }]"
+            :src="entryLogos[project.slug]"
             :alt="`${project.title} logo`"
           />
         </h3>
@@ -523,12 +538,16 @@ onUnmounted(() => {
 
 .project-logo {
   margin-left: auto;
-  width: 28px;
+  width: auto;
   height: 28px;
   flex-shrink: 0;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+}
+
+.project-logo--half {
+  height: 14px;
 }
 
 /* When the viewport is wide enough that the readme body has real margin
@@ -546,14 +565,22 @@ onUnmounted(() => {
    of horizontal room. */
 @media (min-width: 1025px) {
   .project-logo {
+    --logo-full-width: min(calc(50vw - 410px), 360px);
     position: absolute;
     top: 50%;
     left: calc(100% + 24px);
     margin-left: 0;
     transform: translateY(-50%);
-    width: min(calc(50vw - 410px), 360px);
+    width: var(--logo-full-width);
     height: auto;
-    aspect-ratio: 1 / 1;
+  }
+
+  /* Half-size logos stay horizontally centered within the same right-margin
+     range that a full-size logo would occupy. */
+  .project-logo--half {
+    width: calc(var(--logo-full-width) / 2);
+    left: calc(100% + 24px + var(--logo-full-width) / 2);
+    transform: translate(-50%, -50%);
   }
 }
 
