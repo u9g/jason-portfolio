@@ -252,7 +252,7 @@
     },
     {
       "slug": "portfolio",
-      "title": "Portfolio Website, Vue App",
+      "title": "Portfolio Website, Web App",
       "conversation": [
         { "role": "user", "message": "What's this?" },
         {
