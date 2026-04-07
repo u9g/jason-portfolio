@@ -138,29 +138,29 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <nav class="toc">
-      <h2>Table of Contents</h2>
-      <ul>
-        <li v-for="entry in tocEntries" :key="entry.id">
-          <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
-          <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
-            <li v-for="child in entry.children" :key="child.id">
-              <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
-                <img
-                  v-if="entryLogos[child.id]"
-                  :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
-                  :src="entryLogos[child.id]"
-                  alt=""
-                  aria-hidden="true"
-                /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
-              </a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-
     <div class="readme-body">
+      <nav class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li v-for="entry in tocEntries" :key="entry.id">
+            <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
+            <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
+              <li v-for="child in entry.children" :key="child.id">
+                <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
+                  <img
+                    v-if="entryLogos[child.id]"
+                    :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
+                    :src="entryLogos[child.id]"
+                    alt=""
+                    aria-hidden="true"
+                  /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
       <h1>Jason Lernerman's Portfolio</h1>
 
       <!-- About -->
