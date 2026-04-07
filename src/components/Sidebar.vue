@@ -86,6 +86,7 @@ const buildDate = __BUILD_DATE__;
         />
       </div>
 
+      <div class="sidebar-scroll">
       <div v-if="!collapsed" class="recent-section">
         <span class="recent-heading">Jason's Job Experience</span>
         <button
@@ -125,6 +126,7 @@ const buildDate = __BUILD_DATE__;
         </button>
       </div>
 
+      </div>
       <p v-if="!collapsed" class="attribution">
         This website's theme and design were heavily inspired by<br />
         <a
@@ -280,13 +282,26 @@ button {
   padding: 0 8px;
 }
 
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* Scroll shadows: soft shadows appear at the top/bottom when there's more
+     to scroll in that direction, and disappear when the user reaches the edge. */
+  background:
+    linear-gradient(var(--bg-base), var(--bg-base)) top / 100% 24px no-repeat local,
+    linear-gradient(var(--bg-base), var(--bg-base)) bottom / 100% 24px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.35), transparent) top / 100% 14px no-repeat,
+    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.35), transparent) bottom / 100% 14px no-repeat;
+}
+
 .recent-section {
   display: flex;
   flex-direction: column;
   padding: 8px 8px 0;
   gap: 2px;
-  overflow-y: auto;
-  min-height: 0;
 }
 
 .recent-heading {
