@@ -141,7 +141,15 @@ onUnmounted(() => {
           <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
           <ul v-if="entry.children && activeSection === entry.id" class="toc-sub">
             <li v-for="child in entry.children" :key="child.id">
-              <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">{{ child.title }}</a>
+              <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
+                <img
+                  v-if="entryLogos[child.id]"
+                  class="toc-logo"
+                  :src="entryLogos[child.id]"
+                  alt=""
+                  aria-hidden="true"
+                />{{ child.title }}
+              </a>
             </li>
           </ul>
         </li>
@@ -472,6 +480,23 @@ onUnmounted(() => {
 
 .toc-sub {
   padding-left: 0.75rem;
+}
+
+.toc-sub a {
+  position: relative;
+}
+
+.toc-logo {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+  height: 14px;
+  max-width: 16px;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .toc-sub a {
