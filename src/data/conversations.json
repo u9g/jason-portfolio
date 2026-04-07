@@ -98,7 +98,39 @@
       ]
     }
   ],
+  "__comment": "projects is reverse chronological: newest first",
   "projects": [
+    {
+      "slug": "promptlog",
+      "title": "promptlog, Claude Code Plugin",
+      "conversation": [
+        { "role": "user", "message": "What's promptlog?" },
+        {
+          "role": "assistant",
+          "message": "promptlog is a Claude Code plugin I built that logs every prompt I send to Claude into a local file, so I can search my own history later."
+        },
+        { "role": "user", "message": "Why did you build it?" },
+        {
+          "role": "assistant",
+          "message": "I kept wanting to go back and find something I'd asked Claude Code a few days prior, and there was no built-in way to do it. Turned out to be fixable with a ~15-line shell script once I understood Claude Code's hook system."
+        },
+        { "role": "user", "message": "How does it work?" },
+        {
+          "role": "assistant",
+          "message": "Claude Code fires a `UserPromptSubmit` hook every time you send a message. The hook receives JSON on stdin with the prompt, session ID, and working directory. promptlog's hook script parses that with jq and appends each prompt to a timestamped log file under `~/.promptlog/{project_name}/`, one folder per project."
+        },
+        { "role": "user", "message": "What's the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "Bash and jq. That's it, no runtime dependencies beyond what most dev machines already have."
+        },
+        { "role": "user", "message": "Where can I check it out?" },
+        {
+          "role": "assistant",
+          "message": "It's published as a Claude Code plugin. Inside Claude Code, run `/plugin marketplace add u9g/promptlog` and then `/plugin install promptlog@u9g`. Source is on [GitHub](https://github.com/u9g/promptlog)."
+        }
+      ]
+    },
     {
       "slug": "unoroyale",
       "title": "Uno Royale, Card Game",
