@@ -10,6 +10,13 @@ import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
 
+const projectLogos: Record<string, string> = {
+  unoroyale: "https://raw.githubusercontent.com/u9g/unoroyale/main/public/logo.svg",
+  learntensors: "https://raw.githubusercontent.com/u9g/learntensors/main/public/favicon.svg",
+  "color-picker": "https://raw.githubusercontent.com/u9g/color-picker/main/logo.svg",
+  portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
+};
+
 interface TocEntry {
   id: string;
   title: string;
@@ -209,6 +216,12 @@ onUnmounted(() => {
           @click="copyAnchor(project.slug)"
         >
           <span class="anchor-icon">#</span> {{ project.title }}
+          <img
+            v-if="projectLogos[project.slug]"
+            class="project-logo"
+            :src="projectLogos[project.slug]"
+            :alt="`${project.title} logo`"
+          />
         </h3>
         <div
           v-for="(msg, i) in project.conversation"
@@ -490,6 +503,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   font-weight: 300;
   line-height: 1.7;
+  position: relative;
 }
 
 .sub-header {
@@ -505,6 +519,42 @@ onUnmounted(() => {
 .sub-header:hover .anchor-icon,
 .sub-header.active .anchor-icon {
   opacity: 1;
+}
+
+.project-logo {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* When the viewport is wide enough that the readme body has real margin
+   space on its right, lock the logo into that right margin and center it
+   vertically against the entire QnA block (its containing section-content).
+   The width fills the available gap between the text column and the
+   scrollbar — capped so it never grows obnoxiously large on huge monitors.
+
+   Math: .readme-body is centered with max-width 724px (border-box, 16px
+   horizontal padding → 692px inner). The right edge of .section-content is
+   at viewport_center + 346px. With `left: calc(100% + 24px)` the logo's
+   left edge sits at viewport_center + 370px. Reserving ~24px of right
+   padding and ~16px for the scrollbar leaves
+   `viewport_width - 40 - (viewport_center + 370) = 50vw - 410px`
+   of horizontal room. */
+@media (min-width: 1025px) {
+  .project-logo {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 24px);
+    margin-left: 0;
+    transform: translateY(-50%);
+    width: min(calc(50vw - 410px), 360px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
 }
 
 .essay-date {
