@@ -5,8 +5,11 @@ import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
+import resumeIcon from "../assets/resume.svg";
 import { essays } from "../data/essays";
 import { renderMarkdown } from "../data/render-markdown";
+
+const emit = defineEmits<{ "print-resume": [] }>();
 
 const langPattern = new RegExp(
   `\\b(${Object.keys(techColors)
@@ -126,6 +129,10 @@ onUnmounted(() => {
   <div id="readme-view" class="readme-view">
     <div class="readme-banner">
       <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
+      <button class="resume-banner-btn" @click="emit('print-resume')">
+        <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
+        Printable Resume
+      </button>
     </div>
 
     <nav class="toc">
@@ -324,10 +331,41 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   padding: 8px 16px;
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.8rem;
+}
+
+.resume-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--text-muted);
+  padding: 0 0 1px;
+  border-radius: 0;
+}
+
+.resume-banner-btn:hover {
+  color: var(--text-bright);
+  border-bottom-color: var(--text-bright);
+}
+
+.resume-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  filter: brightness(0) invert(0.75);
+}
+
+:root[data-theme="light"] .resume-icon {
+  filter: brightness(0) invert(0.35);
 }
 
 .readme-banner a {

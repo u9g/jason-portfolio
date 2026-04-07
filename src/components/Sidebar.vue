@@ -5,6 +5,7 @@ import contactIcon from "../assets/contact.svg";
 import claudeIcon from "../assets/claude.svg";
 import githubIcon from "../assets/github.svg";
 import sourceIcon from "../assets/source.svg";
+import resumeIcon from "../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
 import { essays } from "../data/essays";
 
@@ -15,7 +16,7 @@ defineProps<{
   collapsed: boolean;
 }>();
 
-const emit = defineEmits<{ navigate: [slug: string]; toggle: [] }>();
+const emit = defineEmits<{ navigate: [slug: string]; toggle: []; "print-resume": [] }>();
 
 const buildDate = __BUILD_DATE__;
 </script>
@@ -76,6 +77,12 @@ const buildDate = __BUILD_DATE__;
           label="Contact Jason"
           href="https://www.linkedin.com/in/jason-lernerman/"
           :collapsed="collapsed"
+        />
+        <SidebarButton
+          :icon="resumeIcon"
+          label="Printable Resume"
+          :collapsed="collapsed"
+          @click="emit('print-resume')"
         />
       </div>
 

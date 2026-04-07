@@ -6,6 +6,7 @@ import About from "./components/About.vue";
 import OSSContributions from "./components/OSSContributions.vue";
 import Essays from "./components/Essays.vue";
 import ReadmeView from "./components/ReadmeView.vue";
+import ResumePrint from "./components/ResumePrint.vue";
 import conversations from "./data/conversations.json";
 import { essays, getEssay } from "./data/essays";
 
@@ -81,6 +82,8 @@ const currentConversation = computed(() =>
   allConversations.find((x) => x.slug === currentSlug.value),
 );
 
+const resumePrint = ref<InstanceType<typeof ResumePrint>>();
+
 const SITE_NAME = "Jason";
 
 const pageTitle = computed(() => {
@@ -104,8 +107,9 @@ if (!isSSR) {
 </script>
 
 <template>
+  <ResumePrint ref="resumePrint" />
   <button class="theme-fab" @click="toggleTheme($event)">{{ theme === 'dark' ? '☀' : '☾' }}</button>
-  <ReadmeView v-if="isReadmeMode" />
+  <ReadmeView v-if="isReadmeMode" @print-resume="resumePrint?.printResume()" />
   <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || essaySlugs.has(currentSlug) || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
       <a href="/">View as document</a>
@@ -119,6 +123,7 @@ if (!isSSR) {
       :collapsed="sidebarCollapsed"
       @navigate="navigateTo($event); if (isOverlay) sidebarCollapsed = true"
       @toggle="sidebarCollapsed = !sidebarCollapsed"
+      @print-resume="resumePrint?.printResume()"
     />
     <About
       v-if="currentSlug === 'about'"
