@@ -46,6 +46,27 @@ function copyAnchor(id: string) {
   window.location.hash = id;
 }
 
+// Split a title like "Tool Name, Description" at the first comma so that
+// the description always renders on its own line in the TOC sidebar.
+function splitTitleAtComma(title: string): [string, string] | [string] {
+  const idx = title.indexOf(", ");
+  if (idx === -1) return [title];
+  return [title.slice(0, idx + 1), title.slice(idx + 2)];
+}
+
+// Scroll the readme-view container to the current location.hash target.
+// Browsers natively scroll on anchor clicks but not on back/forward popstate
+// when the scroll container is not the document, so we have to do it ourselves.
+function scrollToCurrentHash() {
+  const hash = window.location.hash;
+  if (hash.length > 1) {
+    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (target) target.scrollIntoView({ behavior: "instant" });
+  } else {
+    document.getElementById("readme-view")?.scrollTo({ top: 0, behavior: "instant" });
+  }
+}
+
 let observer: IntersectionObserver | null = null;
 
 const topLevelIds = ["about", "jobs", "projects", "oss", "essays"];
@@ -66,11 +87,8 @@ const subToParent = computed(() => {
 onMounted(async () => {
   fetchRepoInfo();
   await nextTick();
-  const hash = window.location.hash;
-  if (hash.length > 1) {
-    const target = document.getElementById(hash.slice(1));
-    if (target) target.scrollIntoView({ behavior: "instant" });
-  }
+  scrollToCurrentHash();
+  window.addEventListener("popstate", scrollToCurrentHash);
 
   const scrollRoot = document.getElementById("readme-view");
   observer = new IntersectionObserver(
@@ -106,6 +124,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   observer?.disconnect();
+  window.removeEventListener("popstate", scrollToCurrentHash);
 });
 </script>
 
@@ -133,7 +152,7 @@ onUnmounted(() => {
                   :src="entryLogos[child.id]"
                   alt=""
                   aria-hidden="true"
-                />{{ child.title }}
+                /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
               </a>
             </li>
           </ul>
