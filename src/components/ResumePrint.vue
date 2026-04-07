@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import conversations from "../data/conversations.json";
 
 const showResume = ref(false);
 
-function printResume() {
+async function printResume() {
   showResume.value = true;
-  requestAnimationFrame(() => {
-    window.print();
-    showResume.value = false;
-  });
+  await nextTick();
+  window.print();
+  showResume.value = false;
 }
 
 defineExpose({ printResume });
