@@ -1,31 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import conversations from "../data/conversations.json";
-import { techColors } from "../data/tech-colors";
 import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import { essays } from "../data/essays";
-import { renderMarkdown } from "../data/render-markdown";
+import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
-
-const langPattern = new RegExp(
-  `\\b(${Object.keys(techColors)
-    .sort((a, b) => b.length - a.length)
-    .join("|")})\\b`,
-  "g",
-);
-
-function formatMessage(text: string): string {
-  let result = renderMarkdown(text);
-  result = result.replace(langPattern, (match) => {
-    const color = techColors[match];
-    return `<span style="color: ${color}">${match}</span>`;
-  });
-  return result;
-}
 
 interface TocEntry {
   id: string;
@@ -203,7 +186,7 @@ onUnmounted(() => {
           :class="['qa-pair', msg.role]"
         >
           <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
+          <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
         </div>
       </div>
 
@@ -233,7 +216,7 @@ onUnmounted(() => {
           :class="['qa-pair', msg.role]"
         >
           <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="formatMessage(msg.message)"></p>
+          <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
         </div>
       </div>
 
@@ -305,8 +288,8 @@ onUnmounted(() => {
             <span class="anchor-icon">#</span> {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
           </h3>
           <template v-for="(block, i) in essay.blocks" :key="i">
-            <p v-if="block.type === 'p'" v-html="formatMessage(block.text)"></p>
-            <li v-else-if="block.type === 'li'" class="essay-li" v-html="formatMessage(block.text)"></li>
+            <p v-if="block.type === 'p'" v-html="renderMessage(block.text)"></p>
+            <li v-else-if="block.type === 'li'" class="essay-li" v-html="renderMessage(block.text)"></li>
           </template>
         </template>
       </div>
@@ -581,6 +564,17 @@ onUnmounted(() => {
 
 .answer :deep(a:hover) {
   color: var(--text-muted);
+}
+
+.answer :deep(code) {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: var(--bg-hover);
+  color: var(--text-bright);
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .oss-repo {

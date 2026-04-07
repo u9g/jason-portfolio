@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PromptBar from "./PromptBar.vue";
 import ShareButton from "./ShareButton.vue";
-import { techColors } from "../data/tech-colors";
+import { renderMessage } from "../data/render-markdown";
 
 defineProps<{
   title: string;
@@ -9,27 +9,6 @@ defineProps<{
   conversation: { role: string; message: string }[];
   sidebarCollapsed: boolean;
 }>();
-
-const langPattern = new RegExp(
-  `\\b(${Object.keys(techColors)
-    .sort((a, b) => b.length - a.length)
-    .join("|")})\\b`,
-  "g",
-);
-
-function formatMessage(text: string): string {
-  // Links first
-  let result = text.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>',
-  );
-  // Colorize language names (only outside of HTML tags)
-  result = result.replace(langPattern, (match) => {
-    const color = techColors[match];
-    return `<span style="color: ${color}">${match}</span>`;
-  });
-  return result;
-}
 
 const emit = defineEmits<{ toggleSidebar: [] }>();
 </script>
@@ -49,7 +28,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
         :key="i"
         :class="['message', msg.role]"
       >
-        <span v-html="formatMessage(msg.message)"></span>
+        <span v-html="renderMessage(msg.message)"></span>
       </div>
     </div>
 
@@ -133,4 +112,19 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
 
 .message :deep(a:hover) {
   color: var(--text-muted);
+}
+
+.message :deep(code) {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: var(--bg-hover);
+  color: var(--text-bright);
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.message.user :deep(code) {
+  background: var(--bg-base);
 }</style>
