@@ -51,6 +51,36 @@ const expandedRepos = ref<Set<string>>(new Set());
 const showAllRepos = ref(false);
 const activeSection = ref("about");
 const activeSubSection = ref("");
+const tocOpen = ref(false);
+const tocStuck = ref(false);
+const pillSlot = ref<HTMLElement | null>(null);
+
+const currentSectionLabel = computed(() => {
+  const subId = activeSubSection.value;
+  const secId = activeSection.value;
+  for (const entry of tocEntries.value) {
+    if (subId && entry.children) {
+      const child = entry.children.find((c) => c.id === subId);
+      if (child) return `${entry.title} / ${child.title}`;
+    }
+    if (entry.id === secId && !subId) return entry.title;
+  }
+  return "Table of Contents";
+});
+
+function handleTocLinkClick() {
+  tocOpen.value = false;
+}
+
+function handleOutsideClick(e: MouseEvent) {
+  if (!tocOpen.value) return;
+  const target = e.target as Element | null;
+  // The pill may be teleported out of .toc into .readme-pill-slot when
+  // stuck, so allow clicks inside either the pill or the .toc panel.
+  if (target && !target.closest(".toc, .toc-pill")) {
+    tocOpen.value = false;
+  }
+}
 
 function copyAnchor(id: string) {
   window.location.hash = id;
@@ -78,6 +108,9 @@ function scrollToCurrentHash() {
 }
 
 let observer: IntersectionObserver | null = null;
+let stickyObserver: IntersectionObserver | null = null;
+
+const PILL_SLOT_H = 52;
 
 const topLevelIds = ["about", "jobs", "projects", "oss", "essays"];
 
@@ -99,6 +132,7 @@ onMounted(async () => {
   await nextTick();
   scrollToCurrentHash();
   window.addEventListener("popstate", scrollToCurrentHash);
+  document.addEventListener("click", handleOutsideClick);
 
   const scrollRoot = document.getElementById("readme-view");
   observer = new IntersectionObserver(
@@ -130,6 +164,31 @@ onMounted(async () => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   }
+
+  // Watch a sentinel placed just above the TOC; when it scrolls out of the
+  // top of the readme-view, the sticky pill is "stuck" and should expand
+  // to full width.
+  const sentinel = document.querySelector(".toc-sentinel");
+  if (sentinel) {
+    stickyObserver = new IntersectionObserver(
+      ([entry]) => {
+        const newStuck = !entry.isIntersecting;
+        if (newStuck === tocStuck.value) return;
+        // When the pill teleports out of the scroll container into the
+        // slot above, #readme-view shrinks by PILL_SLOT_H from the top.
+        // Compensate scrollTop so the visible content stays put rather
+        // than appearing to jump down/up.
+        const root = scrollRoot;
+        if (root) {
+          if (newStuck) root.scrollTop += PILL_SLOT_H;
+          else root.scrollTop = Math.max(0, root.scrollTop - PILL_SLOT_H);
+        }
+        tocStuck.value = newStuck;
+      },
+      { root: scrollRoot, threshold: 0 },
+    );
+    stickyObserver.observe(sentinel);
+  }
 });
 
 // Keep the active TOC entry in view as the user scrolls the page. We adjust
@@ -140,7 +199,8 @@ onMounted(async () => {
 watch([activeSection, activeSubSection], () => {
   const id = activeSubSection.value || activeSection.value;
   if (!id) return;
-  const toc = document.querySelector(".toc") as HTMLElement | null;
+  const toc = (document.querySelector(".toc-panel") ||
+    document.querySelector(".toc")) as HTMLElement | null;
   if (!toc) return;
   const links = Array.from(toc.querySelectorAll<HTMLElement>('a[href^="#"]'));
   const idx = links.findIndex((a) => a.getAttribute("href") === `#${id}`);
@@ -167,12 +227,16 @@ watch([activeSection, activeSubSection], () => {
 
 onUnmounted(() => {
   observer?.disconnect();
+  stickyObserver?.disconnect();
   window.removeEventListener("popstate", scrollToCurrentHash);
+  document.removeEventListener("click", handleOutsideClick);
 });
 </script>
 
 <template>
-  <div id="readme-view" class="readme-view">
+  <div class="readme-shell" :class="{ 'toc-stuck': tocStuck }">
+    <div class="readme-pill-slot" ref="pillSlot"></div>
+  <div id="readme-view" class="readme-view" :class="{ 'toc-stuck': tocStuck }">
     <div class="readme-banner">
       <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
       <button class="resume-banner-btn" @click="emit('print-resume')">
@@ -182,26 +246,53 @@ onUnmounted(() => {
     </div>
 
     <div class="readme-body">
-      <nav class="toc">
-        <h2>Table of Contents</h2>
-        <ul>
-          <li v-for="entry in tocEntries" :key="entry.id">
-            <a :href="`#${entry.id}`" :class="{ 'toc-active': activeSection === entry.id }">{{ entry.title }}</a>
-            <ul v-if="entry.children" class="toc-sub">
-              <li v-for="child in entry.children" :key="child.id">
-                <a :href="`#${child.id}`" :class="{ 'toc-active': activeSubSection === child.id }">
-                  <img
-                    v-if="entryLogos[child.id]"
-                    :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
-                    :src="entryLogos[child.id]"
-                    alt=""
-                    aria-hidden="true"
-                  /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ul>
+      <div class="toc-sentinel" aria-hidden="true"></div>
+      <nav class="toc" :class="{ stuck: tocStuck }">
+        <Teleport :to="pillSlot" :disabled="!tocStuck || !pillSlot">
+          <button
+            type="button"
+            class="toc-pill"
+            :class="{ 'toc-pill--stuck': tocStuck }"
+            :aria-expanded="tocOpen"
+            @click="tocOpen = !tocOpen"
+          >
+            <span class="toc-pill-label"
+              ><span class="toc-pill-prefix">On this page:</span> {{ currentSectionLabel }}</span
+            >
+            <span class="toc-chevron" aria-hidden="true">▾</span>
+          </button>
+        </Teleport>
+        <div v-if="tocStuck" class="toc-pill-placeholder" aria-hidden="true"></div>
+        <div class="toc-panel" :hidden="!tocOpen">
+          <h2>Table of Contents</h2>
+          <ul>
+            <li v-for="entry in tocEntries" :key="entry.id">
+              <a
+                :href="`#${entry.id}`"
+                :class="{ 'toc-active': activeSection === entry.id }"
+                @click="handleTocLinkClick"
+                >{{ entry.title }}</a
+              >
+              <ul v-if="entry.children" class="toc-sub">
+                <li v-for="child in entry.children" :key="child.id">
+                  <a
+                    :href="`#${child.id}`"
+                    :class="{ 'toc-active': activeSubSection === child.id }"
+                    @click="handleTocLinkClick"
+                  >
+                    <img
+                      v-if="entryLogos[child.id]"
+                      :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
+                      :src="entryLogos[child.id]"
+                      alt=""
+                      aria-hidden="true"
+                    /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </nav>
 
       <div class="title-row">
@@ -396,17 +487,40 @@ onUnmounted(() => {
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <style lang="css" scoped>
+.readme-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+}
+
+/* Slot above #readme-view that hosts the teleported pill when stuck.
+   At rest its height collapses to zero so the layout looks unchanged. */
+.readme-pill-slot {
+  flex: 0 0 auto;
+  height: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 5;
+}
+
+.readme-shell.toc-stuck .readme-pill-slot {
+  /* Reserve room for the full-bleed pill. Matches the pill height
+     (0.7rem padding x 2 + ~1.2rem text + 2px borders ≈ ~52px). */
+  height: 52px;
+}
+
 .readme-view {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
   min-height: 0;
-  height: 100vh;
-  height: 100dvh;
   width: 100%;
 }
 
@@ -531,14 +645,125 @@ onUnmounted(() => {
   filter: invert(1);
 }
 
+.toc-sentinel {
+  height: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
 .toc {
-  margin: 1rem 1rem 2rem;
-  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  /* Always full-bleed: span the entire viewport width regardless of the
+     724px-capped .readme-body parent, so the stuck-state pill can grow
+     edge-to-edge. The inner .toc-pill controls the visible width. */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: 1rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.toc-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  /* At rest the pill is capped at a small max-width and centered. When
+     .toc.stuck is applied the max-width grows to span the viewport,
+     animating the pill from a centered chip into a full-bleed bar. */
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 0.7rem 1rem;
   background: var(--bg-raised);
-  border-radius: 8px;
   border: 1px solid var(--border-color);
-  max-height: 75vh;
+  border-radius: 8px;
+  color: var(--text-bright);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: max-width 0.22s ease, margin 0.22s ease,
+    border-radius 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.toc.stuck .toc-pill,
+.readme-pill-slot .toc-pill {
+  max-width: 100vw;
+  margin: 0;
+  border-radius: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.readme-pill-slot .toc-pill {
+  height: 100%;
+}
+
+.toc-pill-placeholder {
+  height: 52px;
+}
+
+.toc-pill-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toc-pill-prefix {
+  color: var(--text-muted);
+}
+
+.toc-chevron {
+  display: inline-block;
+  color: var(--text-muted);
+  transition: transform 0.18s ease;
+  font-size: 0.85rem;
+}
+
+.toc-pill[aria-expanded="true"] .toc-chevron {
+  transform: rotate(180deg);
+}
+
+.toc-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 1rem;
+  right: 1rem;
+  max-height: 70vh;
   overflow-y: auto;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: left 0.22s ease, right 0.22s ease, border-radius 0.22s ease;
+}
+
+.toc.stuck .toc-panel {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  right: 0;
+  border-radius: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.toc-panel[hidden] {
+  display: none;
+}
+
+.toc-panel h2 {
+  display: none;
 }
 
 @media (min-width: 1025px) {
@@ -550,6 +775,24 @@ onUnmounted(() => {
     width: 200px;
     margin: 0;
     z-index: 1;
+  }
+  .toc-pill {
+    display: none;
+  }
+  .toc-panel,
+  .toc-panel[hidden] {
+    display: block;
+    position: static;
+    max-height: 75vh;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+  .toc-panel h2 {
+    display: block;
   }
 }
 
