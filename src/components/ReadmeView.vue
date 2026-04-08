@@ -137,6 +137,33 @@ const subToParent = computed(() => {
   return map;
 });
 
+function setupStickyObserver() {
+  stickyObserver?.disconnect();
+  stickyObserver = null;
+
+  if (isDesktop.value) {
+    tocStuck.value = false;
+    return;
+  }
+
+  const sentinel = document.querySelector(".toc-sentinel");
+  if (!sentinel) return;
+
+  stickyObserver = new IntersectionObserver(
+    ([entry]) => {
+      const newStuck = !entry.isIntersecting;
+      if (newStuck === tocStuck.value) return;
+      // When the pill enters/leaves the fixed mobile layer, compensate
+      // scroll so the visible content stays put rather than jumping.
+      const delta = newStuck ? PILL_SLOT_H : -PILL_SLOT_H;
+      window.scrollBy({ top: delta, behavior: "instant" });
+      tocStuck.value = newStuck;
+    },
+    { threshold: 0 },
+  );
+  stickyObserver.observe(sentinel);
+}
+
 onMounted(async () => {
   fetchRepoInfo();
   await nextTick();
@@ -190,30 +217,7 @@ onMounted(async () => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   }
-
-  // Watch a sentinel placed just above the TOC; when it scrolls out of the
-  // top of the readme-view, the sticky pill is "stuck" and should expand
-  // to full width. The sticky-pill UX is mobile-only — on desktop the TOC
-  // is fixed to the left rail and there is no slot to teleport into, so we
-  // skip setting the observer up entirely above the breakpoint.
-  const sentinel = document.querySelector(".toc-sentinel");
-  if (sentinel && !window.matchMedia("(min-width: 1025px)").matches) {
-    stickyObserver = new IntersectionObserver(
-      ([entry]) => {
-        const newStuck = !entry.isIntersecting;
-        if (newStuck === tocStuck.value) return;
-        // When the pill teleports out into the slot above, the readme
-        // content shifts by PILL_SLOT_H from the top. Compensate the
-        // window scroll so the visible content stays put rather than
-        // appearing to jump down/up.
-        const delta = newStuck ? PILL_SLOT_H : -PILL_SLOT_H;
-        window.scrollBy({ top: delta, behavior: "instant" });
-        tocStuck.value = newStuck;
-      },
-      { threshold: 0 },
-    );
-    stickyObserver.observe(sentinel);
-  }
+  setupStickyObserver();
 });
 
 // Keep the active TOC entry in view as the user scrolls the page. We adjust
@@ -252,6 +256,10 @@ watch([activeSection, activeSubSection], () => {
   } else if (linkBottom > toc.scrollTop + toc.clientHeight - pad) {
     toc.scrollTo({ top: Math.min(max, linkBottom - toc.clientHeight + pad), behavior: "smooth" });
   }
+});
+
+watch(isDesktop, () => {
+  setupStickyObserver();
 });
 
 onUnmounted(() => {
