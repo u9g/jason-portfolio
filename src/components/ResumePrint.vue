@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
 import conversations from "../data/conversations.json";
 
-const showResume = ref(false);
-
-async function printResume() {
-  showResume.value = true;
-  await nextTick();
+// The resume container is always mounted but hidden via the
+// `.resume-print-container { display: none }` rule below; the @media print
+// block flips it to display: block during printing. Keeping it permanently
+// in the DOM matters for Safari/iOS, where `window.print()` returns
+// immediately instead of blocking — toggling a v-if around the call would
+// race the browser's print capture and produce a blank page.
+function printResume() {
   window.print();
-  showResume.value = false;
 }
 
 defineExpose({ printResume });
@@ -81,7 +81,7 @@ const projectEntries = conversations.projects
 
 <template>
   <Teleport to="body">
-    <div v-if="showResume" class="resume-print-container">
+    <div class="resume-print-container">
       <div class="resume">
         <header class="resume-header">
           <h1>Jason Lernerman</h1>
