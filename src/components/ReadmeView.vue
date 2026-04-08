@@ -317,14 +317,19 @@ onUnmounted(() => {
                     :class="{ 'toc-active': activeSubSection === child.id }"
                     @click="handleTocLinkClick"
                   >
-                    <img
-                      v-if="entryLogos[child.id]"
-                      :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
-                      :src="entryLogos[child.id]"
-                      alt=""
-                      aria-hidden="true"
-                    /><template v-if="isDesktop" v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
-                    <template v-else>{{ child.title }}</template>
+                    <span class="toc-link-content">
+                      <img
+                        v-if="entryLogos[child.id]"
+                        :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
+                        :src="entryLogos[child.id]"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <span class="toc-link-label">
+                        <template v-if="isDesktop" v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
+                        <template v-else>{{ child.title }}</template>
+                      </span>
+                    </span>
                   </a>
                 </li>
               </ul>
@@ -892,20 +897,28 @@ onUnmounted(() => {
 }
 
 .toc-sub a {
-  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
 }
 
 .toc-logo {
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-50%);
+  flex-shrink: 0;
   width: auto;
   height: 14px;
   max-width: 16px;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.toc-link-content {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.toc-link-label {
+  min-width: 0;
 }
 
 :root[data-theme="dark"] .toc-logo--dark-invert,
