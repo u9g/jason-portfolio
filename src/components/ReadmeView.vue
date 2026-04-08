@@ -673,6 +673,7 @@ onUnmounted(() => {
   z-index: 20;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .toc-pill {
@@ -702,11 +703,9 @@ onUnmounted(() => {
 }
 
 .toc.stuck .toc-pill {
-  max-width: 100vw;
-  margin: 0;
-  border-radius: 0;
-  border-left-color: transparent;
-  border-right-color: transparent;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
@@ -755,10 +754,8 @@ onUnmounted(() => {
 .toc.stuck .toc-panel {
   position: static;
   margin: 0;
-  max-width: 100vw;
-  border-radius: 0;
-  border-left-color: transparent;
-  border-right-color: transparent;
+  width: 100%;
+  max-width: 380px;
 }
 
 .toc-panel[hidden] {
