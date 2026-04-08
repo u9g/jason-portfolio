@@ -54,7 +54,6 @@ const activeSection = ref("about");
 const activeSubSection = ref("");
 const tocOpen = ref(false);
 const tocStuck = ref(false);
-const pillSlot = ref<HTMLElement | null>(null);
 
 const currentSectionLabel = computed(() => {
   const subId = activeSubSection.value;
@@ -256,7 +255,6 @@ onUnmounted(() => {
 
 <template>
   <div class="readme-shell" :class="{ 'toc-stuck': tocStuck }">
-    <div class="readme-pill-slot" ref="pillSlot"></div>
   <div id="readme-view" class="readme-view" :class="{ 'toc-stuck': tocStuck }">
     <div class="readme-banner">
       <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
@@ -268,22 +266,20 @@ onUnmounted(() => {
 
     <div class="readme-body">
       <div class="toc-sentinel" aria-hidden="true"></div>
+      <div v-if="tocStuck" class="toc-stuck-spacer" aria-hidden="true"></div>
       <nav class="toc" :class="{ stuck: tocStuck }">
-        <Teleport :to="pillSlot" :disabled="!tocStuck || !pillSlot">
-          <button
-            type="button"
-            class="toc-pill"
-            :class="{ 'toc-pill--stuck': tocStuck }"
-            :aria-expanded="tocOpen"
-            @click="tocOpen = !tocOpen"
+        <button
+          type="button"
+          class="toc-pill"
+          :class="{ 'toc-pill--stuck': tocStuck }"
+          :aria-expanded="tocOpen"
+          @click="tocOpen = !tocOpen"
+        >
+          <span class="toc-pill-label"
+            ><span class="toc-pill-prefix">On this page:</span> {{ currentSectionLabel }}</span
           >
-            <span class="toc-pill-label"
-              ><span class="toc-pill-prefix">On this page:</span> {{ currentSectionLabel }}</span
-            >
-            <span class="toc-chevron" aria-hidden="true">▾</span>
-          </button>
-        </Teleport>
-        <div v-if="tocStuck" class="toc-pill-placeholder" aria-hidden="true"></div>
+          <span class="toc-chevron" aria-hidden="true">▾</span>
+        </button>
         <div class="toc-panel" :hidden="!tocOpen">
           <h2>Table of Contents</h2>
           <ul>
@@ -518,22 +514,6 @@ onUnmounted(() => {
   width: 100%;
 }
 
-/* Slot above #readme-view that hosts the teleported pill when stuck.
-   At rest its height collapses to zero so the layout looks unchanged. */
-.readme-pill-slot {
-  flex: 0 0 auto;
-  height: 0;
-  overflow: visible;
-  position: relative;
-  z-index: 5;
-}
-
-.readme-shell.toc-stuck .readme-pill-slot {
-  /* Reserve room for the full-bleed pill. Matches the pill height
-     (0.7rem padding x 2 + ~1.2rem text + 2px borders ≈ ~52px). */
-  height: 52px;
-}
-
 .readme-view {
   display: flex;
   flex-direction: column;
@@ -668,6 +648,10 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
+.toc-stuck-spacer {
+  height: 52px;
+}
+
 .toc {
   position: sticky;
   top: 0;
@@ -682,6 +666,16 @@ onUnmounted(() => {
   padding: 0;
   background: transparent;
   border: none;
+}
+
+.toc.stuck {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  margin: 0;
+  z-index: 20;
 }
 
 .toc-pill {
@@ -710,22 +704,13 @@ onUnmounted(() => {
     border-radius 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
-.toc.stuck .toc-pill,
-.readme-pill-slot .toc-pill {
+.toc.stuck .toc-pill {
   max-width: 100vw;
   margin: 0;
   border-radius: 0;
   border-left-color: transparent;
   border-right-color: transparent;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
-.readme-pill-slot .toc-pill {
-  height: 100%;
-}
-
-.toc-pill-placeholder {
-  height: 52px;
 }
 
 .toc-pill-label {
@@ -797,10 +782,8 @@ onUnmounted(() => {
      own padding/border/background. The inner .toc-panel becomes an
      unstyled passthrough so the box-sizing/width/transition baked into
      its base styles for the mobile dropdown can't leak in here. */
-  .readme-shell.toc-stuck .readme-pill-slot {
-    /* Sticky-pill slot is mobile-only; defensively collapse it on desktop
-       in case a viewport resize leaves tocStuck=true behind. */
-    height: 0;
+  .toc-stuck-spacer {
+    display: none;
   }
   .toc {
     position: fixed;
