@@ -104,7 +104,7 @@ function scrollToCurrentHash() {
     const target = document.getElementById(decodeURIComponent(hash.slice(1)));
     if (target) target.scrollIntoView({ behavior: "instant" });
   } else {
-    document.getElementById("readme-view")?.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 }
 
@@ -142,7 +142,6 @@ onMounted(async () => {
   window.addEventListener("popstate", scrollToCurrentHash);
   document.addEventListener("click", handleOutsideClick);
 
-  const scrollRoot = document.getElementById("readme-view");
   observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -170,7 +169,7 @@ onMounted(async () => {
         activeSubSection.value = "";
       }
     },
-    { root: scrollRoot, rootMargin: "0px 0px -60% 0px", threshold: 0 },
+    { rootMargin: "0px 0px -60% 0px", threshold: 0 },
   );
 
   for (const id of topLevelIds) {
@@ -195,18 +194,15 @@ onMounted(async () => {
       ([entry]) => {
         const newStuck = !entry.isIntersecting;
         if (newStuck === tocStuck.value) return;
-        // When the pill teleports out of the scroll container into the
-        // slot above, #readme-view shrinks by PILL_SLOT_H from the top.
-        // Compensate scrollTop so the visible content stays put rather
-        // than appearing to jump down/up.
-        const root = scrollRoot;
-        if (root) {
-          if (newStuck) root.scrollTop += PILL_SLOT_H;
-          else root.scrollTop = Math.max(0, root.scrollTop - PILL_SLOT_H);
-        }
+        // When the pill teleports out into the slot above, the readme
+        // content shifts by PILL_SLOT_H from the top. Compensate the
+        // window scroll so the visible content stays put rather than
+        // appearing to jump down/up.
+        const delta = newStuck ? PILL_SLOT_H : -PILL_SLOT_H;
+        window.scrollBy({ top: delta, behavior: "instant" });
         tocStuck.value = newStuck;
       },
-      { root: scrollRoot, threshold: 0 },
+      { threshold: 0 },
     );
     stickyObserver.observe(sentinel);
   }
@@ -519,8 +515,6 @@ onUnmounted(() => {
 .readme-shell {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
   width: 100%;
 }
 
@@ -544,8 +538,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  overflow-y: auto;
-  min-height: 0;
   width: 100%;
 }
 
