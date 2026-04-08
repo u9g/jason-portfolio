@@ -266,7 +266,6 @@ onUnmounted(() => {
 
     <div class="readme-body">
       <div class="toc-sentinel" aria-hidden="true"></div>
-      <div v-if="tocStuck" class="toc-stuck-spacer" aria-hidden="true"></div>
       <nav class="toc" :class="{ stuck: tocStuck }">
         <button
           type="button"
@@ -648,10 +647,6 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.toc-stuck-spacer {
-  height: 52px;
-}
-
 .toc {
   position: sticky;
   top: 0;
@@ -676,6 +671,8 @@ onUnmounted(() => {
   width: auto;
   margin: 0;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
 }
 
 .toc-pill {
@@ -756,12 +753,8 @@ onUnmounted(() => {
 }
 
 .toc.stuck .toc-panel {
-  position: fixed;
-  top: 52px;
-  left: 0;
-  right: 0;
+  position: static;
   margin: 0;
-  width: auto;
   max-width: 100vw;
   border-radius: 0;
   border-left-color: transparent;
@@ -782,9 +775,6 @@ onUnmounted(() => {
      own padding/border/background. The inner .toc-panel becomes an
      unstyled passthrough so the box-sizing/width/transition baked into
      its base styles for the mobile dropdown can't leak in here. */
-  .toc-stuck-spacer {
-    display: none;
-  }
   .toc {
     position: fixed;
     top: 50%;
