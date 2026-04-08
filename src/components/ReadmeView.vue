@@ -53,7 +53,6 @@ const showAllRepos = ref(false);
 const activeSection = ref("about");
 const activeSubSection = ref("");
 const tocOpen = ref(false);
-const tocStuck = ref(false);
 const isDesktop = ref(false);
 
 const currentSectionLabel = computed(() => {
@@ -109,11 +108,8 @@ function scrollToCurrentHash() {
 }
 
 let observer: IntersectionObserver | null = null;
-let stickyObserver: IntersectionObserver | null = null;
 let desktopMediaQuery: MediaQueryList | null = null;
 let handleDesktopMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
-
-const PILL_SLOT_H = 52;
 
 // Tracks the viewport-relative top of every heading currently inside the
 // observer's intersection zone. We pick the active section from this map
@@ -136,33 +132,6 @@ const subToParent = computed(() => {
   }
   return map;
 });
-
-function setupStickyObserver() {
-  stickyObserver?.disconnect();
-  stickyObserver = null;
-
-  if (isDesktop.value) {
-    tocStuck.value = false;
-    return;
-  }
-
-  const sentinel = document.querySelector(".toc-sentinel");
-  if (!sentinel) return;
-
-  stickyObserver = new IntersectionObserver(
-    ([entry]) => {
-      const newStuck = !entry.isIntersecting;
-      if (newStuck === tocStuck.value) return;
-      // When the pill enters/leaves the fixed mobile layer, compensate
-      // scroll so the visible content stays put rather than jumping.
-      const delta = newStuck ? PILL_SLOT_H : -PILL_SLOT_H;
-      window.scrollBy({ top: delta, behavior: "instant" });
-      tocStuck.value = newStuck;
-    },
-    { threshold: 0 },
-  );
-  stickyObserver.observe(sentinel);
-}
 
 onMounted(async () => {
   fetchRepoInfo();
@@ -217,7 +186,6 @@ onMounted(async () => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   }
-  setupStickyObserver();
 });
 
 // Keep the active TOC entry in view as the user scrolls the page. We adjust
@@ -258,13 +226,8 @@ watch([activeSection, activeSubSection], () => {
   }
 });
 
-watch(isDesktop, () => {
-  setupStickyObserver();
-});
-
 onUnmounted(() => {
   observer?.disconnect();
-  stickyObserver?.disconnect();
   if (desktopMediaQuery && handleDesktopMediaChange) {
     desktopMediaQuery.removeEventListener("change", handleDesktopMediaChange);
   }
@@ -274,28 +237,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="readme-shell" :class="{ 'toc-stuck': tocStuck }">
-  <div id="readme-view" class="readme-view" :class="{ 'toc-stuck': tocStuck }">
-    <div class="readme-banner">
-      <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
-      <button class="resume-banner-btn" @click="emit('print-resume')">
-        <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
-        Printable Resume
-      </button>
-    </div>
-
+  <div class="readme-shell">
+  <div id="readme-view" class="readme-view">
     <div class="readme-body">
-      <div class="toc-sentinel" aria-hidden="true"></div>
-      <nav class="toc" :class="{ stuck: tocStuck }">
+      <nav class="toc">
         <button
           type="button"
           class="toc-pill"
-          :class="{ 'toc-pill--stuck': tocStuck }"
           :aria-expanded="tocOpen"
           @click="tocOpen = !tocOpen"
         >
           <span class="toc-pill-label"
-            ><span class="toc-pill-prefix">On this page:</span> {{ currentSectionLabel }}</span
+            >{{ currentSectionLabel }}</span
           >
           <span class="toc-chevron" aria-hidden="true">▾</span>
         </button>
@@ -338,6 +291,14 @@ onUnmounted(() => {
         </div>
         </Transition>
       </nav>
+
+      <div class="readme-banner">
+        <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
+        <button class="resume-banner-btn" @click="emit('print-resume')">
+          <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
+          Printable Resume
+        </button>
+      </div>
 
       <div class="title-row">
         <h1>Jason Lernerman's Portfolio</h1>
@@ -554,6 +515,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 16px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   padding: 8px 16px;
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border-color);
@@ -613,7 +577,7 @@ onUnmounted(() => {
   max-width: 724px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 0 1rem 4rem;
   box-sizing: border-box;
   overflow-wrap: break-word;
 }
@@ -669,39 +633,16 @@ onUnmounted(() => {
   filter: invert(1);
 }
 
-.toc-sentinel {
-  height: 0;
-  width: 100%;
-  pointer-events: none;
-}
-
 .toc {
   position: sticky;
   top: 0;
-  z-index: 5;
-  /* Always full-bleed: span the entire viewport width regardless of the
-     724px-capped .readme-body parent, so the stuck-state pill can grow
-     edge-to-edge. The inner .toc-pill controls the visible width. */
+  z-index: 20;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-bottom: 1rem;
-  padding: 0;
-  background: transparent;
-  border: none;
-}
-
-.toc.stuck {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: auto;
-  margin: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0.5rem 0;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .toc-pill {
@@ -730,23 +671,12 @@ onUnmounted(() => {
     border-radius 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
-.toc.stuck .toc-pill {
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
 .toc-pill-label {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.toc-pill-prefix {
-  color: var(--text-muted);
 }
 
 .toc-chevron {
@@ -763,9 +693,9 @@ onUnmounted(() => {
 .toc-panel {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
   width: 100%;
   max-width: 380px;
   max-height: 70vh;
@@ -779,13 +709,6 @@ onUnmounted(() => {
   transition: max-width 0.22s ease, border-radius 0.22s ease;
 }
 
-.toc.stuck .toc-panel {
-  position: static;
-  margin: 0;
-  width: 100%;
-  max-width: 380px;
-}
-
 .toc-panel-enter-active,
 .toc-panel-leave-active {
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -795,11 +718,11 @@ onUnmounted(() => {
 .toc-panel-enter-from,
 .toc-panel-leave-to {
   opacity: 0;
-  transform: translateY(-8px) scaleY(0.98);
+  transform: translateX(-50%) translateY(-8px) scaleY(0.98);
 }
 
 .toc-panel h2 {
-  display: none;
+  display: block;
 }
 
 @media (min-width: 1025px) {
@@ -827,9 +750,17 @@ onUnmounted(() => {
     display: none;
   }
   .toc-panel,
-  .toc.stuck .toc-panel {
-    display: block;
+  .toc-panel-enter-active,
+  .toc-panel-leave-active,
+  .toc-panel-enter-from,
+  .toc-panel-leave-to {
     position: static;
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
+  .toc-panel {
+    display: block;
     width: auto;
     max-width: none;
     max-height: none;
@@ -841,17 +772,6 @@ onUnmounted(() => {
     box-shadow: none;
     overflow: visible;
     transition: none;
-  }
-  .toc-panel-enter-active,
-  .toc-panel-leave-active,
-  .toc-panel-enter-from,
-  .toc-panel-leave-to {
-    transition: none;
-    transform: none;
-    opacity: 1;
-  }
-  .toc-panel h2 {
-    display: block;
   }
 }
 
