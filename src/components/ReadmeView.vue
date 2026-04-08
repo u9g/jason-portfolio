@@ -54,6 +54,7 @@ const activeSection = ref("about");
 const activeSubSection = ref("");
 const tocOpen = ref(false);
 const tocStuck = ref(false);
+const isDesktop = ref(false);
 
 const currentSectionLabel = computed(() => {
   const subId = activeSubSection.value;
@@ -109,6 +110,8 @@ function scrollToCurrentHash() {
 
 let observer: IntersectionObserver | null = null;
 let stickyObserver: IntersectionObserver | null = null;
+let desktopMediaQuery: MediaQueryList | null = null;
+let handleDesktopMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
 
 const PILL_SLOT_H = 52;
 
@@ -137,6 +140,12 @@ const subToParent = computed(() => {
 onMounted(async () => {
   fetchRepoInfo();
   await nextTick();
+  desktopMediaQuery = window.matchMedia("(min-width: 1025px)");
+  isDesktop.value = desktopMediaQuery.matches;
+  handleDesktopMediaChange = (e) => {
+    isDesktop.value = e.matches;
+  };
+  desktopMediaQuery.addEventListener("change", handleDesktopMediaChange);
   scrollToCurrentHash();
   window.addEventListener("popstate", scrollToCurrentHash);
   document.addEventListener("click", handleOutsideClick);
@@ -248,6 +257,9 @@ watch([activeSection, activeSubSection], () => {
 onUnmounted(() => {
   observer?.disconnect();
   stickyObserver?.disconnect();
+  if (desktopMediaQuery && handleDesktopMediaChange) {
+    desktopMediaQuery.removeEventListener("change", handleDesktopMediaChange);
+  }
   window.removeEventListener("popstate", scrollToCurrentHash);
   document.removeEventListener("click", handleOutsideClick);
 });
@@ -302,7 +314,8 @@ onUnmounted(() => {
                       :src="entryLogos[child.id]"
                       alt=""
                       aria-hidden="true"
-                    /><template v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
+                    /><template v-if="isDesktop" v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
+                    <template v-else>{{ child.title }}</template>
                   </a>
                 </li>
               </ul>
