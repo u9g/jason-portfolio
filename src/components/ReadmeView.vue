@@ -107,18 +107,8 @@ function scrollToCurrentHash() {
   }
 }
 
-let observer: IntersectionObserver | null = null;
 let desktopMediaQuery: MediaQueryList | null = null;
 let handleDesktopMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
-
-// Tracks the viewport-relative top of every heading currently inside the
-// observer's intersection zone. We pick the active section from this map
-// rather than from a single observer entry, so multiple headings being in
-// the trigger zone at once (e.g. clicking a short section whose neighbour
-// is right below it) resolves to the heading actually at the top.
-const intersectingTops = new Map<string, number>();
-
-const topLevelIds = ["about", "jobs", "projects", "oss", "essays"];
 
 // Map subheading IDs to their parent section ID
 const subToParent = computed(() => {
@@ -133,6 +123,35 @@ const subToParent = computed(() => {
   return map;
 });
 
+function stickyBottom(): number {
+  if (isDesktop.value) return 0;
+  const tocBottom = document.querySelector(".toc")?.getBoundingClientRect().bottom ?? 0;
+  const bannerBottom = document.querySelector(".readme-banner")?.getBoundingClientRect().bottom ?? 0;
+  return Math.max(tocBottom, bannerBottom);
+}
+
+function updateActiveHeading() {
+  const headings = Array.from(
+    document.querySelectorAll<HTMLElement>(".section-header, .sub-header, .repo-header"),
+  ).filter((el) => el.id);
+  if (headings.length === 0) return;
+
+  const cutoff = stickyBottom();
+  const firstVisible =
+    headings.find((el) => el.getBoundingClientRect().bottom > cutoff) ??
+    headings[headings.length - 1];
+
+  const bestId = firstVisible.id;
+  const parent = subToParent.value[bestId];
+  if (parent) {
+    activeSection.value = parent;
+    activeSubSection.value = bestId;
+  } else {
+    activeSection.value = bestId;
+    activeSubSection.value = "";
+  }
+}
+
 onMounted(async () => {
   fetchRepoInfo();
   await nextTick();
@@ -140,52 +159,15 @@ onMounted(async () => {
   isDesktop.value = desktopMediaQuery.matches;
   handleDesktopMediaChange = (e) => {
     isDesktop.value = e.matches;
+    updateActiveHeading();
   };
   desktopMediaQuery.addEventListener("change", handleDesktopMediaChange);
   scrollToCurrentHash();
   window.addEventListener("popstate", scrollToCurrentHash);
+  window.addEventListener("scroll", updateActiveHeading, { passive: true });
+  window.addEventListener("resize", updateActiveHeading);
   document.addEventListener("click", handleOutsideClick);
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          intersectingTops.set(entry.target.id, entry.boundingClientRect.top);
-        } else {
-          intersectingTops.delete(entry.target.id);
-        }
-      }
-      if (intersectingTops.size === 0) return;
-      let bestId = "";
-      let bestTop = Infinity;
-      for (const [id, top] of intersectingTops) {
-        if (top < bestTop) {
-          bestTop = top;
-          bestId = id;
-        }
-      }
-      const parent = subToParent.value[bestId];
-      if (parent) {
-        activeSection.value = parent;
-        activeSubSection.value = bestId;
-      } else {
-        activeSection.value = bestId;
-        activeSubSection.value = "";
-      }
-    },
-    { rootMargin: "0px 0px -60% 0px", threshold: 0 },
-  );
-
-  for (const id of topLevelIds) {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  }
-
-  // Also observe all subheadings
-  for (const id of Object.keys(subToParent.value)) {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  }
+  updateActiveHeading();
 });
 
 // Keep the active TOC entry in view as the user scrolls the page. We adjust
@@ -227,11 +209,12 @@ watch([activeSection, activeSubSection], () => {
 });
 
 onUnmounted(() => {
-  observer?.disconnect();
   if (desktopMediaQuery && handleDesktopMediaChange) {
     desktopMediaQuery.removeEventListener("change", handleDesktopMediaChange);
   }
   window.removeEventListener("popstate", scrollToCurrentHash);
+  window.removeEventListener("scroll", updateActiveHeading);
+  window.removeEventListener("resize", updateActiveHeading);
   document.removeEventListener("click", handleOutsideClick);
 });
 </script>
@@ -319,7 +302,6 @@ onUnmounted(() => {
           </a>
         </div>
       </div>
-
       <!-- About -->
       <h2
         id="about"
@@ -348,7 +330,6 @@ onUnmounted(() => {
           >!
         </p>
       </div>
-
       <!-- Job Experience -->
       <h2 id="jobs" :class="['section-header', { active: activeSection === 'jobs' }]" @click="copyAnchor('jobs')">
         <span class="anchor-icon">#</span> Job Experience
@@ -380,7 +361,6 @@ onUnmounted(() => {
           <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
         </div>
       </div>
-
       <!-- Personal Projects -->
       <h2
         id="projects"
@@ -416,7 +396,6 @@ onUnmounted(() => {
           <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
         </div>
       </div>
-
       <!-- OSS Contributions -->
       <h2 id="oss" :class="['section-header', { active: activeSection === 'oss' }]" @click="copyAnchor('oss')">
         <span class="anchor-icon">#</span> Notable OSS Contributions
@@ -470,7 +449,6 @@ onUnmounted(() => {
           Show less
         </button>
       </div>
-
       <!-- Essays -->
       <h2 id="essays" :class="['section-header', { active: activeSection === 'essays' }]" @click="copyAnchor('essays')">
         <span class="anchor-icon">#</span> Essays
