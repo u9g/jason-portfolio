@@ -218,12 +218,16 @@ aside {
   z-index: 10;
   transform: translateX(0);
   transition: transform 0.2s ease;
+  visibility: visible;
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
 }
 
 .collapsed .sidebar-inner {
-  transform: translateX(-100%);
+  transform: translateX(calc(-100% - 1px));
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .overlay-backdrop {

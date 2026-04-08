@@ -114,6 +114,8 @@ function goRandom() {
   background: transparent;
   border: none;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-appearance: none;
   width: 32px;
   height: 32px;
   display: flex;
