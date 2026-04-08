@@ -1031,8 +1031,9 @@ onUnmounted(() => {
 .about-prose a,
 .about-prose :deep(a) {
   color: var(--text-bright);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
 }
 
 .about-prose a:hover,
@@ -1062,8 +1063,9 @@ onUnmounted(() => {
 
 .answer :deep(a) {
   color: var(--text-bright);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
 }
 
 .answer :deep(a:hover) {
@@ -1103,10 +1105,12 @@ onUnmounted(() => {
 .repo-header a {
   color: var(--text-bright);
   text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
 }
 
 .repo-header a:hover {
-  text-decoration: underline;
+  border-bottom-color: currentColor;
 }
 
 .lang-dot {
@@ -1135,11 +1139,13 @@ onUnmounted(() => {
 .pr-list a {
   color: var(--text-muted);
   text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
 }
 
 .pr-list a:hover {
   color: var(--text-bright);
-  text-decoration: underline;
+  border-bottom-color: currentColor;
 }
 
 .expand-btn {

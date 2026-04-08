@@ -215,8 +215,13 @@ onMounted(fetchRepoInfo);
   flex-shrink: 0;
 }
 
+.repo-link {
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+}
+
 .repo-link:hover {
-  text-decoration: underline;
+  border-bottom-color: currentColor;
 }
 
 .lang-label {

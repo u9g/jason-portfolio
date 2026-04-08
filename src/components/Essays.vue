@@ -133,8 +133,9 @@ const essay = computed(() => getEssay(props.slug));
 
 .essay :deep(a) {
   color: var(--text-bright);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
 }
 
 .essay :deep(a:hover) {
