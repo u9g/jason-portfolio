@@ -3,6 +3,7 @@ import contactIcon from "../assets/contact.svg";
 import diceIcon from "../assets/dice.svg";
 import SidebarButton from "./SidebarButton.vue";
 import ShareButton from "./ShareButton.vue";
+import Arrow from "./Arrow.vue";
 import conversations from "../data/conversations.json";
 import { essays } from "../data/essays";
 
@@ -60,7 +61,7 @@ function goRandom() {
           href="https://www.psu.edu"
           target="_blank"
           rel="noopener noreferrer"
-          >Penn State University ↗</a
+          >Penn State University <Arrow /></a
         >! If my experience sounds like something you are hiring for or know
         someone who is hiring for, please
         <SidebarButton

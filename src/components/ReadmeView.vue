@@ -5,6 +5,7 @@ import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
+import Arrow from "./Arrow.vue";
 import { essays } from "../data/essays";
 import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 import { renderMessage } from "../data/render-markdown";
@@ -356,14 +357,14 @@ onUnmounted(() => {
             href="https://www.psu.edu"
             target="_blank"
             rel="noopener noreferrer"
-            >Penn State University ↗</a
+            >Penn State University <Arrow /></a
           >! If my experience sounds like something you are hiring for or know
           someone who is hiring for, please
           <a
             href="https://www.linkedin.com/in/jason-lernerman/"
             target="_blank"
             rel="noopener noreferrer"
-            >contact Jason ↗</a
+            >contact Jason <Arrow /></a
           >!
         </p>
       </div>
@@ -454,7 +455,7 @@ onUnmounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               @click.stop
-              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} ↗</a
+              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} <Arrow /></a
             >
             <button
               class="expand-btn"
@@ -477,7 +478,7 @@ onUnmounted(() => {
                 target="_blank"
                 rel="noopener noreferrer"
                 @click.stop
-                >{{ pr.description }} ↗</a
+                >{{ pr.description }} <Arrow /></a
               >
             </li>
           </ul>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import ShareButton from "./ShareButton.vue";
+import Arrow from "./Arrow.vue";
 import { prUrl } from "../data/oss-repos";
 import { repoGHInfo, fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 
@@ -54,7 +55,7 @@ onMounted(fetchRepoInfo);
             rel="noopener noreferrer"
             class="repo-link"
           >
-            <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} <span class="arrow">↗</span></span>
+            <span class="repo-org-group"><span class="repo-org">{{ repo.name.split('/')[0] }}</span><span class="repo-sep">/</span></span><span class="repo-name">{{ repo.name.split('/')[1] }} <Arrow /></span>
           </a>
           <span v-if="repoGHInfo[repo.name]?.description" class="repo-about">
             <em>{{ repoGHInfo[repo.name].description }}</em>
@@ -76,7 +77,7 @@ onMounted(fetchRepoInfo);
                   target="_blank"
                   rel="noopener noreferrer"
                   class="pr-link"
-                >{{ pr.description }} <span class="arrow">↗</span></a>
+                >{{ pr.description }} <Arrow /></a>
               </td>
             </tr>
           </tbody>

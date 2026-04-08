@@ -7,6 +7,7 @@ import githubIcon from "../assets/github.svg";
 import sourceIcon from "../assets/source.svg";
 import resumeIcon from "../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
+import Arrow from "./Arrow.vue";
 import { essays } from "../data/essays";
 import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 
@@ -154,7 +155,7 @@ const buildDate = __BUILD_DATE__;
             :src="claudeIcon"
             class="claude-logo"
             aria-hidden="true"
-          />&nbsp;↗</a
+          />&nbsp;<Arrow /></a
         >
       </p>
 
