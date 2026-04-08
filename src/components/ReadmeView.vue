@@ -112,6 +112,13 @@ let stickyObserver: IntersectionObserver | null = null;
 
 const PILL_SLOT_H = 52;
 
+// Tracks the viewport-relative top of every heading currently inside the
+// observer's intersection zone. We pick the active section from this map
+// rather than from a single observer entry, so multiple headings being in
+// the trigger zone at once (e.g. clicking a short section whose neighbour
+// is right below it) resolves to the heading actually at the top.
+const intersectingTops = new Map<string, number>();
+
 const topLevelIds = ["about", "jobs", "projects", "oss", "essays"];
 
 // Map subheading IDs to their parent section ID
@@ -139,16 +146,27 @@ onMounted(async () => {
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          const id = entry.target.id;
-          const parent = subToParent.value[id];
-          if (parent) {
-            activeSection.value = parent;
-            activeSubSection.value = id;
-          } else {
-            activeSection.value = id;
-            activeSubSection.value = "";
-          }
+          intersectingTops.set(entry.target.id, entry.boundingClientRect.top);
+        } else {
+          intersectingTops.delete(entry.target.id);
         }
+      }
+      if (intersectingTops.size === 0) return;
+      let bestId = "";
+      let bestTop = Infinity;
+      for (const [id, top] of intersectingTops) {
+        if (top < bestTop) {
+          bestTop = top;
+          bestId = id;
+        }
+      }
+      const parent = subToParent.value[bestId];
+      if (parent) {
+        activeSection.value = parent;
+        activeSubSection.value = bestId;
+      } else {
+        activeSection.value = bestId;
+        activeSubSection.value = "";
       }
     },
     { root: scrollRoot, rootMargin: "0px 0px -60% 0px", threshold: 0 },
