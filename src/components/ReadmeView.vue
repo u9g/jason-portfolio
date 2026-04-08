@@ -855,6 +855,13 @@ onUnmounted(() => {
   }
 }
 
+@media (max-width: 1024px) {
+  .section-header,
+  .sub-header {
+    scroll-margin-top: 76px;
+  }
+}
+
 .toc h2 {
   font-size: 1rem;
   margin: 0 0 0.75rem;
