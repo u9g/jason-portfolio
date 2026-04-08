@@ -185,9 +185,11 @@ onMounted(async () => {
 
   // Watch a sentinel placed just above the TOC; when it scrolls out of the
   // top of the readme-view, the sticky pill is "stuck" and should expand
-  // to full width.
+  // to full width. The sticky-pill UX is mobile-only — on desktop the TOC
+  // is fixed to the left rail and there is no slot to teleport into, so we
+  // skip setting the observer up entirely above the breakpoint.
   const sentinel = document.querySelector(".toc-sentinel");
-  if (sentinel) {
+  if (sentinel && !window.matchMedia("(min-width: 1025px)").matches) {
     stickyObserver = new IntersectionObserver(
       ([entry]) => {
         const newStuck = !entry.isIntersecting;
@@ -217,8 +219,12 @@ onMounted(async () => {
 watch([activeSection, activeSubSection], () => {
   const id = activeSubSection.value || activeSection.value;
   if (!id) return;
-  const toc = (document.querySelector(".toc-panel") ||
-    document.querySelector(".toc")) as HTMLElement | null;
+  // On desktop the .toc element itself is the scroll container; on mobile
+  // it's the .toc-panel inside. Pick whichever actually owns the overflow.
+  const isDesktop = window.matchMedia("(min-width: 1025px)").matches;
+  const toc = (isDesktop
+    ? document.querySelector(".toc")
+    : document.querySelector(".toc-panel")) as HTMLElement | null;
   if (!toc) return;
   const links = Array.from(toc.querySelectorAll<HTMLElement>('a[href^="#"]'));
   const idx = links.findIndex((a) => a.getAttribute("href") === `#${id}`);
@@ -793,6 +799,16 @@ onUnmounted(() => {
 }
 
 @media (min-width: 1025px) {
+  /* On desktop the .toc element itself is the visible box, exactly as it
+     was before the mobile pill redesign — fixed to the left rail with its
+     own padding/border/background. The inner .toc-panel becomes an
+     unstyled passthrough so the box-sizing/width/transition baked into
+     its base styles for the mobile dropdown can't leak in here. */
+  .readme-shell.toc-stuck .readme-pill-slot {
+    /* Sticky-pill slot is mobile-only; defensively collapse it on desktop
+       in case a viewport resize leaves tocStuck=true behind. */
+    height: 0;
+  }
   .toc {
     position: fixed;
     top: 50%;
@@ -801,21 +817,32 @@ onUnmounted(() => {
     width: 200px;
     margin: 0;
     z-index: 1;
+    padding: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    max-height: 75vh;
+    overflow-y: auto;
   }
   .toc-pill {
     display: none;
   }
   .toc-panel,
-  .toc-panel[hidden] {
+  .toc-panel[hidden],
+  .toc.stuck .toc-panel {
     display: block;
     position: static;
-    max-height: 75vh;
-    overflow-y: auto;
-    padding: 1rem;
-    background: var(--bg-raised);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
     box-shadow: none;
+    overflow: visible;
+    transition: none;
   }
   .toc-panel h2 {
     display: block;
