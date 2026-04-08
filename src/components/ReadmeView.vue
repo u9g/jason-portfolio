@@ -687,6 +687,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: max-width 0.22s ease, margin 0.22s ease,
     border-radius 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -735,17 +736,21 @@ onUnmounted(() => {
 
 .toc-panel {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 1rem;
-  right: 1rem;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 380px;
   max-height: 70vh;
   overflow-y: auto;
   background: var(--bg-raised);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1rem 0.75rem;
+  box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  transition: left 0.22s ease, right 0.22s ease, border-radius 0.22s ease;
+  transition: max-width 0.22s ease, border-radius 0.22s ease;
 }
 
 .toc.stuck .toc-panel {
@@ -753,6 +758,9 @@ onUnmounted(() => {
   top: 52px;
   left: 0;
   right: 0;
+  margin: 0;
+  width: auto;
+  max-width: 100vw;
   border-radius: 0;
   border-left-color: transparent;
   border-right-color: transparent;
@@ -804,7 +812,7 @@ onUnmounted(() => {
 
 .toc ul {
   margin: 0;
-  padding-left: 1.25rem;
+  padding-left: 0.95rem;
   list-style: none;
 }
 
