@@ -299,7 +299,8 @@ onUnmounted(() => {
           >
           <span class="toc-chevron" aria-hidden="true">▾</span>
         </button>
-        <div class="toc-panel" :hidden="!tocOpen">
+        <Transition name="toc-panel">
+        <div v-if="isDesktop || tocOpen" class="toc-panel">
           <h2>Table of Contents</h2>
           <ul>
             <li v-for="entry in tocEntries" :key="entry.id">
@@ -330,6 +331,7 @@ onUnmounted(() => {
             </li>
           </ul>
         </div>
+        </Transition>
       </nav>
 
       <div class="title-row">
@@ -779,8 +781,16 @@ onUnmounted(() => {
   max-width: 380px;
 }
 
-.toc-panel[hidden] {
-  display: none;
+.toc-panel-enter-active,
+.toc-panel-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  transform-origin: top center;
+}
+
+.toc-panel-enter-from,
+.toc-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scaleY(0.98);
 }
 
 .toc-panel h2 {
@@ -812,7 +822,6 @@ onUnmounted(() => {
     display: none;
   }
   .toc-panel,
-  .toc-panel[hidden],
   .toc.stuck .toc-panel {
     display: block;
     position: static;
@@ -827,6 +836,14 @@ onUnmounted(() => {
     box-shadow: none;
     overflow: visible;
     transition: none;
+  }
+  .toc-panel-enter-active,
+  .toc-panel-leave-active,
+  .toc-panel-enter-from,
+  .toc-panel-leave-to {
+    transition: none;
+    transform: none;
+    opacity: 1;
   }
   .toc-panel h2 {
     display: block;
