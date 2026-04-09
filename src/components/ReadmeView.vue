@@ -712,7 +712,7 @@ onUnmounted(() => {
     top: 50%;
     transform: translateY(-50%);
     left: 24px;
-    width: 200px;
+    width: 250px;
     margin: 0;
     z-index: 1;
     padding: 1rem;
@@ -748,6 +748,24 @@ onUnmounted(() => {
     box-shadow: none;
     overflow: visible;
     transition: none;
+  }
+
+  /* Keep the mobile flex layout scoped away from desktop so logos stay
+     centered in the left gutter beside multi-line entry labels. */
+  .toc-sub a {
+    position: relative;
+    display: inline-block;
+  }
+
+  .toc-link-content {
+    display: inline;
+  }
+
+  .toc-logo {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 
