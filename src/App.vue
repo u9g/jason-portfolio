@@ -167,6 +167,7 @@ if (!isSSR) {
 
 <style>
 :root {
+  color-scheme: dark;
   --text-bright: #faf9f5;
   --text-muted: #c2c0b6;
   --text-mid: #9c9a92;
@@ -180,6 +181,7 @@ if (!isSSR) {
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   --text-bright: #2c2c2a;
   --text-muted: #5c5c58;
   --text-mid: #7a7a76;
