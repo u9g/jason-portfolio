@@ -222,8 +222,7 @@ onUnmounted(() => {
 <template>
   <div class="readme-shell">
   <div id="readme-view" class="readme-view">
-    <div class="readme-body">
-      <nav class="toc">
+    <nav class="toc">
         <button
           type="button"
           class="toc-pill"
@@ -273,16 +272,17 @@ onUnmounted(() => {
           </ul>
         </div>
         </Transition>
-      </nav>
+    </nav>
 
-      <div class="readme-banner">
-        <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
-        <button class="resume-banner-btn" @click="emit('print-resume')">
-          <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
-          Printable Resume
-        </button>
-      </div>
+    <div class="readme-banner">
+      <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
+      <button class="resume-banner-btn" @click="emit('print-resume')">
+        <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
+        Printable Resume
+      </button>
+    </div>
 
+    <div class="readme-body">
       <div class="title-row">
         <h1>Jason Lernerman's Portfolio</h1>
         <div class="title-logos">
@@ -493,13 +493,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 100%;
   padding: 8px 16px;
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.8rem;
+  box-sizing: border-box;
 }
 
 .resume-banner-btn {
@@ -571,7 +570,7 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem 1rem;
-  margin: 0 0 1.5rem;
+  margin: 1.5rem 0 1.5rem;
 }
 
 .title-logos {
@@ -615,12 +614,11 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   z-index: 20;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 100%;
   padding: 0.5rem 0;
   background: var(--bg-base);
   border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .toc-pill {
