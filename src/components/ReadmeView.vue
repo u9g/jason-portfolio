@@ -68,6 +68,11 @@ const currentSectionLabel = computed(() => {
   return "Table of Contents";
 });
 
+const currentSectionLogo = computed(() => {
+  const subId = activeSubSection.value;
+  return subId ? entryLogos[subId] ?? null : null;
+});
+
 function handleTocLinkClick() {
   tocOpen.value = false;
 }
@@ -229,9 +234,16 @@ onUnmounted(() => {
           :aria-expanded="tocOpen"
           @click="tocOpen = !tocOpen"
         >
-          <span class="toc-pill-label"
-            >{{ currentSectionLabel }}</span
-          >
+          <span class="toc-pill-label">
+            <img
+              v-if="currentSectionLogo"
+              :src="currentSectionLogo"
+              class="toc-pill-logo"
+              alt=""
+              aria-hidden="true"
+            />
+            <span>{{ currentSectionLabel }}</span>
+          </span>
           <span class="toc-chevron" aria-hidden="true">▾</span>
         </button>
         <Transition name="toc-panel">
@@ -648,11 +660,30 @@ onUnmounted(() => {
 }
 
 .toc-pill-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.toc-pill-label span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toc-pill-logo {
+  flex-shrink: 0;
+  width: auto;
+  height: 14px;
+  max-width: 16px;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .toc-chevron {
