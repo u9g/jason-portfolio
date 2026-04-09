@@ -147,6 +147,11 @@ function updateActiveHeading() {
     headings[headings.length - 1];
 
   const bestId = firstVisible.id;
+  if (firstVisible.classList.contains("repo-header")) {
+    activeSection.value = "oss";
+    activeSubSection.value = "";
+    return;
+  }
   const parent = subToParent.value[bestId];
   if (parent) {
     activeSection.value = parent;
