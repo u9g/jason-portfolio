@@ -5,7 +5,7 @@ import Conversation from "./components/Conversation.vue";
 import About from "./components/About.vue";
 import OSSContributions from "./components/OSSContributions.vue";
 import Essays from "./components/Essays.vue";
-import ReadmeView from "./components/ReadmeView.vue";
+import DocumentView from "./components/DocumentView.vue";
 import ResumePrint from "./components/ResumePrint.vue";
 import sunIcon from "./assets/sun.svg";
 import moonIcon from "./assets/moon.svg";
@@ -50,7 +50,7 @@ function toggleTheme(e: MouseEvent) {
 
 const initialPath = inject<string>("initialPath", "/");
 const pathname = initialPath.replace(/\/+$/, "") || "/";
-const isReadmeMode = pathname === "/" || pathname === "/index.html";
+const isDocumentMode = pathname === "/" || pathname === "/index.html";
 
 const DEFAULT_SLUG = "about";
 
@@ -89,7 +89,7 @@ const resumePrint = ref<InstanceType<typeof ResumePrint>>();
 const SITE_NAME = "Jason";
 
 const pageTitle = computed(() => {
-  if (isReadmeMode) return `${SITE_NAME}'s Portfolio`;
+  if (isDocumentMode) return `${SITE_NAME}'s Portfolio`;
   if (currentSlug.value === "about") return `About | ${SITE_NAME}`;
   if (currentSlug.value === "oss") return `OSS | ${SITE_NAME}`;
   const essay = getEssay(currentSlug.value);
@@ -113,7 +113,7 @@ if (!isSSR) {
   <button class="theme-fab" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme($event)">
     <img :src="theme === 'dark' ? sunIcon : moonIcon" alt="" />
   </button>
-  <ReadmeView v-if="isReadmeMode" @print-resume="resumePrint?.printResume()" />
+  <DocumentView v-if="isDocumentMode" @print-resume="resumePrint?.printResume()" />
   <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || essaySlugs.has(currentSlug) || currentConversation">
     <div v-if="!bannerDismissed" class="doc-banner">
       <a href="/">View as document</a>
