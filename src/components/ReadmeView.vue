@@ -6,8 +6,9 @@ import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
 import Arrow from "./Arrow.vue";
+import EntryLogo from "./EntryLogo.vue";
 import { essays } from "../data/essays";
-import { entryLogos, darkInvertLogos } from "../data/entry-logos";
+import { entryLogos } from "../data/entry-logos";
 import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
@@ -44,7 +45,7 @@ const tocLogoEntries = computed(() =>
   tocEntries.value.flatMap((entry) =>
     (entry.children ?? [])
       .filter((child) => entryLogos[child.id])
-      .map((child) => ({ id: child.id, title: child.title, logo: entryLogos[child.id] })),
+      .map((child) => ({ id: child.id, title: child.title })),
   ),
 );
 
@@ -68,10 +69,7 @@ const currentSectionLabel = computed(() => {
   return "Table of Contents";
 });
 
-const currentSectionLogo = computed(() => {
-  const subId = activeSubSection.value;
-  return subId ? entryLogos[subId] ?? null : null;
-});
+const currentSectionSlug = computed(() => activeSubSection.value);
 
 function handleTocLinkClick() {
   tocOpen.value = false;
@@ -240,12 +238,10 @@ onUnmounted(() => {
           @click="tocOpen = !tocOpen"
         >
           <span class="toc-pill-label">
-            <img
-              v-if="currentSectionLogo"
-              :src="currentSectionLogo"
+            <EntryLogo
+              v-if="currentSectionSlug"
+              :slug="currentSectionSlug"
               class="toc-pill-logo"
-              alt=""
-              aria-hidden="true"
             />
             <span>{{ currentSectionLabel }}</span>
           </span>
@@ -270,13 +266,7 @@ onUnmounted(() => {
                     @click="handleTocLinkClick"
                   >
                     <span class="toc-link-content">
-                      <img
-                        v-if="entryLogos[child.id]"
-                        :class="['toc-logo', { 'toc-logo--dark-invert': darkInvertLogos.has(child.id) }]"
-                        :src="entryLogos[child.id]"
-                        alt=""
-                        aria-hidden="true"
-                      />
+                      <EntryLogo :slug="child.id" class="toc-logo" />
                       <span class="toc-link-label">
                         <template v-if="isDesktop" v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
                         <template v-else>{{ child.title }}</template>
@@ -311,11 +301,7 @@ onUnmounted(() => {
             :aria-label="item.title"
             class="title-logo"
           >
-            <img
-              :src="item.logo"
-              :class="{ 'title-logo--dark-invert': darkInvertLogos.has(item.id) }"
-              :alt="item.title"
-            />
+            <EntryLogo :slug="item.id" :alt="item.title" />
           </a>
         </div>
       </div>
@@ -362,12 +348,7 @@ onUnmounted(() => {
           @click="copyAnchor(job.slug)"
         >
           <span class="anchor-icon">#</span> {{ job.title }}
-          <img
-            v-if="entryLogos[job.slug]"
-            :class="['project-logo', { 'project-logo--dark-invert': darkInvertLogos.has(job.slug) }]"
-            :src="entryLogos[job.slug]"
-            :alt="`${job.title} logo`"
-          />
+          <EntryLogo :slug="job.slug" :alt="`${job.title} logo`" class="project-logo" />
         </h3>
         <div
           v-for="(msg, i) in job.conversation"
@@ -397,12 +378,7 @@ onUnmounted(() => {
           @click="copyAnchor(project.slug)"
         >
           <span class="anchor-icon">#</span> {{ project.title }}
-          <img
-            v-if="entryLogos[project.slug]"
-            :class="['project-logo', { 'project-logo--dark-invert': darkInvertLogos.has(project.slug) }]"
-            :src="entryLogos[project.slug]"
-            :alt="`${project.title} logo`"
-          />
+          <EntryLogo :slug="project.slug" :alt="`${project.title} logo`" class="project-logo" />
         </h3>
         <div
           v-for="(msg, i) in project.conversation"
@@ -621,10 +597,6 @@ onUnmounted(() => {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-:root[data-theme="dark"] .title-logo img.title-logo--dark-invert {
-  filter: invert(1);
 }
 
 .toc {
@@ -876,11 +848,6 @@ onUnmounted(() => {
 
 .toc-link-label {
   min-width: 0;
-}
-
-:root[data-theme="dark"] .toc-logo--dark-invert,
-:root[data-theme="dark"] .project-logo--dark-invert {
-  filter: invert(1);
 }
 
 .toc-sub a {

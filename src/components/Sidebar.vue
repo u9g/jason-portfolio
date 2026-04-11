@@ -8,8 +8,8 @@ import sourceIcon from "../assets/source.svg";
 import resumeIcon from "../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
 import Arrow from "./Arrow.vue";
+import EntryLogo from "./EntryLogo.vue";
 import { essays } from "../data/essays";
-import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 
 defineProps<{
   jobs: { slug: string; title: string }[];
@@ -98,13 +98,7 @@ const buildDate = __BUILD_DATE__;
           :class="{ active: conv.slug === currentSlug }"
           @click="emit('navigate', conv.slug)"
         >
-          <img
-            v-if="entryLogos[conv.slug]"
-            :class="['recent-item__logo', { 'recent-item__logo--dark-invert': darkInvertLogos.has(conv.slug) }]"
-            :src="entryLogos[conv.slug]"
-            alt=""
-            aria-hidden="true"
-          />
+          <EntryLogo :slug="conv.slug" class="recent-item__logo" />
           <span class="recent-item__label">{{ conv.title }}</span>
         </button>
       </div>
@@ -118,13 +112,7 @@ const buildDate = __BUILD_DATE__;
           :class="{ active: conv.slug === currentSlug }"
           @click="emit('navigate', conv.slug)"
         >
-          <img
-            v-if="entryLogos[conv.slug]"
-            :class="['recent-item__logo', { 'recent-item__logo--dark-invert': darkInvertLogos.has(conv.slug) }]"
-            :src="entryLogos[conv.slug]"
-            alt=""
-            aria-hidden="true"
-          />
+          <EntryLogo :slug="conv.slug" class="recent-item__logo" />
           <span class="recent-item__label">{{ conv.title }}</span>
         </button>
       </div>
@@ -352,10 +340,6 @@ button {
   flex-shrink: 0;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-:root[data-theme="dark"] .recent-item__logo--dark-invert {
-  filter: invert(1);
 }
 
 .recent-item__label {
