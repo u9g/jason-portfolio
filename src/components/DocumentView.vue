@@ -19,25 +19,30 @@ interface TocEntry {
   children?: { id: string; title: string }[];
 }
 
-const tocEntries = computed<TocEntry[]>(() => [
-  { id: "about", title: "About Me" },
-  {
-    id: "jobs",
-    title: "Job Experience",
-    children: conversations.jobs.map((j) => ({ id: j.slug, title: j.title })),
-  },
-  {
-    id: "projects",
-    title: "Personal Projects",
-    children: conversations.projects.map((p) => ({ id: p.slug, title: p.title })),
-  },
-  { id: "oss", title: "Notable OSS Contributions" },
-  {
-    id: "essays",
-    title: "Essays",
-    children: essays.map((e) => ({ id: e.slug, title: e.title })),
-  },
-]);
+const tocData = computed<{ entries: TocEntry[]; subToParent: Record<string, string> }>(() => {
+  const subToParent: Record<string, string> = {};
+  const makeChildren = (
+    parentId: string,
+    items: readonly { slug: string; title: string }[],
+  ) =>
+    items.map((item) => {
+      subToParent[item.slug] = parentId;
+      return { id: item.slug, title: item.title };
+    });
+  const entries: TocEntry[] = [
+    { id: "about", title: "About Me" },
+    { id: "jobs", title: "Job Experience", children: makeChildren("jobs", conversations.jobs) },
+    {
+      id: "projects",
+      title: "Personal Projects",
+      children: makeChildren("projects", conversations.projects),
+    },
+    { id: "oss", title: "Notable OSS Contributions" },
+    { id: "essays", title: "Essays", children: makeChildren("essays", essays) },
+  ];
+  return { entries, subToParent };
+});
+const tocEntries = computed(() => tocData.value.entries);
 
 // All TOC child entries that have a registered logo, in the order they appear
 // in the table of contents. Used to render the logo strip beside the page title.
@@ -113,19 +118,6 @@ function scrollToCurrentHash() {
 let desktopMediaQuery: MediaQueryList | null = null;
 let handleDesktopMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
 
-// Map subheading IDs to their parent section ID
-const subToParent = computed(() => {
-  const map: Record<string, string> = {};
-  for (const entry of tocEntries.value) {
-    if (entry.children) {
-      for (const child of entry.children) {
-        map[child.id] = entry.id;
-      }
-    }
-  }
-  return map;
-});
-
 function stickyBottom(): number {
   if (isDesktop.value) return 0;
   const tocBottom = document.querySelector(".toc")?.getBoundingClientRect().bottom ?? 0;
@@ -150,7 +142,7 @@ function updateActiveHeading() {
     activeSubSection.value = "";
     return;
   }
-  const parent = subToParent.value[bestId];
+  const parent = tocData.value.subToParent[bestId];
   if (parent) {
     activeSection.value = parent;
     activeSubSection.value = bestId;
