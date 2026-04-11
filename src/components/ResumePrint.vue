@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import conversations from "../data/conversations.json";
+import { stripMarkdownLinks } from "../data/render-markdown";
 
 // The resume container is always mounted but hidden via the
 // `.resume-print-container { display: none }` rule below; the @media print
@@ -33,8 +34,7 @@ function extractJobQA(conv: typeof conversations.jobs[number]): { title: string;
     if (messages[i].role === "user" && messages[i + 1]?.role === "assistant") {
       if (hiddenQuestions.test(messages[i].message)) continue;
       let answer = messages[i + 1].message;
-      // Strip markdown links, keep text
-      answer = answer.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+      answer = stripMarkdownLinks(answer);
       // Trim long answers
       if (answer.length > 200) {
         const cut = answer.lastIndexOf(".", 200);
@@ -59,7 +59,7 @@ function extractProjectQA(conv: typeof conversations.projects[number]): { title:
     if (messages[i].role === "user" && messages[i + 1]?.role === "assistant") {
       if (hiddenQuestions.test(messages[i].message)) continue;
       let answer = messages[i + 1].message;
-      answer = answer.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+      answer = stripMarkdownLinks(answer);
       if (answer.length > 200) {
         const cut = answer.lastIndexOf(".", 200);
         answer = cut > 80 ? answer.slice(0, cut + 1) : answer.slice(0, 200) + "…";

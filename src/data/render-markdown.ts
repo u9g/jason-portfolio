@@ -12,6 +12,10 @@ const langPattern = new RegExp(
 // stray whitespace character after the SVG inside the wrapper span.
 const ARROW_HTML = `<span class="arrow">${arrowSvgRaw.trim()}</span>`;
 
+export function stripMarkdownLinks(text: string): string {
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+}
+
 export function renderMarkdown(text: string): string {
   // Inline code first, so later transforms don't touch its contents
   let result = text.replace(/`([^`]+)`/g, "<code>$1</code>");
