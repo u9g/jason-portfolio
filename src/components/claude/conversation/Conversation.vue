@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import PromptBar from "./PromptBar.vue";
-import SidebarHeader from "./SidebarHeader.vue";
-import { renderMessage } from "../../data/render-markdown";
-import { entryLogos, darkInvertLogos } from "../../data/entry-logos";
+import SidebarHeader from "../sidebar/SidebarHeader.vue";
+import { renderMessage } from "../../../data/render-markdown";
+import { entryLogos, darkInvertLogos } from "../../../data/entry-logos";
 
 defineProps<{
   title: string;

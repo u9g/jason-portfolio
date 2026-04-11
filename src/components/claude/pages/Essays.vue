@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import SidebarHeader from "./SidebarHeader.vue";
-import { getEssay } from "../../data/essays";
-import { renderMarkdown } from "../../data/render-markdown";
+import SidebarHeader from "../sidebar/SidebarHeader.vue";
+import { getEssay } from "../../../data/essays";
+import { renderMarkdown } from "../../../data/render-markdown";
 
 const props = defineProps<{
   slug: string;

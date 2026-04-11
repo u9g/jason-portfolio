@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
-import conversations from "../data/conversations.json";
-import { prUrl } from "../data/oss-repos";
-import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
-import claudeIcon from "../assets/claude.svg";
-import resumeIcon from "../assets/resume.svg";
-import Arrow from "./Arrow.vue";
-import EntryLogo from "./EntryLogo.vue";
-import { essays } from "../data/essays";
-import { entryLogos } from "../data/entry-logos";
-import { renderMessage } from "../data/render-markdown";
+import conversations from "../../data/conversations.json";
+import { prUrl } from "../../data/oss-repos";
+import { fetchRepoInfo, sortedRepos } from "../../data/oss-github-info";
+import claudeIcon from "../../assets/claude.svg";
+import resumeIcon from "../../assets/resume.svg";
+import Arrow from "../shared/Arrow.vue";
+import EntryLogo from "../shared/EntryLogo.vue";
+import { essays } from "../../data/essays";
+import { entryLogos } from "../../data/entry-logos";
+import { renderMessage } from "../../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
 

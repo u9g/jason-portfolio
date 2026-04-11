@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ShareButton from "./ShareButton.vue";
+import ShareButton from "../conversation/ShareButton.vue";
 import SidebarToggleButton from "./SidebarToggleButton.vue";
 
 defineProps<{ sidebarCollapsed: boolean }>();

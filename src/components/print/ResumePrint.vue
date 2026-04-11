@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import conversations from "../data/conversations.json";
-import { stripMarkdownLinks } from "../data/render-markdown";
+import conversations from "../../data/conversations.json";
+import { stripMarkdownLinks } from "../../data/render-markdown";
 
 // The resume container is always mounted but hidden via the
 // `.resume-print-container { display: none }` rule below; the @media print

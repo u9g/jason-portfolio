@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import contactIcon from "../../assets/contact.svg";
-import diceIcon from "../../assets/dice.svg";
-import SidebarButton from "./SidebarButton.vue";
-import SidebarHeader from "./SidebarHeader.vue";
-import Arrow from "../Arrow.vue";
-import conversations from "../../data/conversations.json";
-import { essays } from "../../data/essays";
+import contactIcon from "../../../assets/contact.svg";
+import diceIcon from "../../../assets/dice.svg";
+import SidebarButton from "../sidebar/SidebarButton.vue";
+import SidebarHeader from "../sidebar/SidebarHeader.vue";
+import Arrow from "../../shared/Arrow.vue";
+import conversations from "../../../data/conversations.json";
+import { essays } from "../../../data/essays";
 
 defineProps<{
   sidebarCollapsed: boolean;

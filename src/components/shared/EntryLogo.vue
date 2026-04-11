@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { entryLogos, darkInvertLogos } from "../data/entry-logos";
+import { entryLogos, darkInvertLogos } from "../../data/entry-logos";
 
 defineProps<{ slug: string; alt?: string }>();
 </script>
