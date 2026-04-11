@@ -188,8 +188,7 @@ watch([activeSection, activeSubSection], () => {
   if (!id) return;
   // On desktop the .toc element itself is the scroll container; on mobile
   // it's the .toc-panel inside. Pick whichever actually owns the overflow.
-  const isDesktop = window.matchMedia("(min-width: 1025px)").matches;
-  const toc = (isDesktop
+  const toc = (isDesktop.value
     ? document.querySelector(".toc")
     : document.querySelector(".toc-panel")) as HTMLElement | null;
   if (!toc) return;
