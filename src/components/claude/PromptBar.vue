@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { nextTick, ref, watch, onMounted, onUnmounted } from "vue";
 
 const linkedinUrl = "https://www.linkedin.com/in/jason-lernerman/";
 
@@ -7,6 +7,7 @@ const hasText = ref(false);
 const isListening = ref(false);
 const showModal = ref(false);
 const promptInput = ref<HTMLElement | null>(null);
+const modalDialog = ref<HTMLElement | null>(null);
 const confirmLink = ref<HTMLAnchorElement | null>(null);
 
 const SpeechRecognition = import.meta.env.SSR
@@ -66,15 +67,9 @@ function onModalKeydown(e: KeyboardEvent) {
   }
 }
 
-let modalKeydownRaf = 0;
-
 watch(showModal, (open) => {
-  cancelAnimationFrame(modalKeydownRaf);
-  window.removeEventListener("keydown", onModalKeydown);
   if (open) {
-    modalKeydownRaf = requestAnimationFrame(() => {
-      window.addEventListener("keydown", onModalKeydown);
-    });
+    nextTick(() => modalDialog.value?.focus());
   }
 });
 
@@ -90,16 +85,10 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  cancelAnimationFrame(modalKeydownRaf);
-  window.removeEventListener("keydown", onModalKeydown);
   window.removeEventListener("resize", checkMobile);
 });
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === "Enter" && showModal.value) {
-    e.preventDefault();
-    return;
-  }
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && hasText.value && !isListening.value) {
     e.preventDefault();
     showModal.value = true;
@@ -216,7 +205,14 @@ function onInput(e: Event) {
   </div>
   <Teleport to="body">
     <div v-if="showModal" class="modal-backdrop" @click="showModal = false">
-      <div class="modal-dialog" role="dialog" @click.stop>
+      <div
+        ref="modalDialog"
+        class="modal-dialog"
+        role="dialog"
+        tabindex="-1"
+        @click.stop
+        @keydown="onModalKeydown"
+      >
         <h2 class="modal-title">Open external link</h2>
         <p class="modal-text">
           You're leaving Jason's Portfolio to visit an external link:
@@ -421,6 +417,7 @@ function onInput(e: Event) {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   animation: modal-zoom 250ms ease-out forwards;
   transition: border-color 0.15s ease;
+  outline: none;
 }
 
 .modal-dialog:hover {
