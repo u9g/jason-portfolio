@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import ShareButton from "./ShareButton.vue";
-import SidebarToggleButton from "./SidebarToggleButton.vue";
+import SidebarHeader from "./SidebarHeader.vue";
 import Arrow from "./Arrow.vue";
 import { prUrl } from "../data/oss-repos";
 import { repoGHInfo, fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
@@ -24,14 +23,12 @@ onMounted(fetchRepoInfo);
 
 <template>
   <div class="conversation">
-    <div class="top-bar">
-      <SidebarToggleButton
-        v-if="sidebarCollapsed"
-        @click="emit('toggleSidebar')"
-      />
+    <SidebarHeader
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="emit('toggleSidebar')"
+    >
       Notable OSS Contributions
-      <ShareButton />
-    </div>
+    </SidebarHeader>
     <div class="oss-content">
       <div v-for="repo in sortedRepos" :key="repo.name" class="repo-section">
         <div class="repo-header">
@@ -97,21 +94,6 @@ onMounted(fetchRepoInfo);
   overflow-y: auto;
   min-height: 0;
 }
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--bg-base);
-  z-index: 1;
-}
-
 
 .oss-content {
   display: flex;

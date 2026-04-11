@@ -2,8 +2,7 @@
 import contactIcon from "../assets/contact.svg";
 import diceIcon from "../assets/dice.svg";
 import SidebarButton from "./SidebarButton.vue";
-import ShareButton from "./ShareButton.vue";
-import SidebarToggleButton from "./SidebarToggleButton.vue";
+import SidebarHeader from "./SidebarHeader.vue";
 import Arrow from "./Arrow.vue";
 import conversations from "../data/conversations.json";
 import { essays } from "../data/essays";
@@ -29,14 +28,12 @@ function goRandom() {
 
 <template>
   <div class="conversation">
-    <div class="top-bar">
-      <SidebarToggleButton
-        v-if="sidebarCollapsed"
-        @click="emit('toggleSidebar')"
-      />
+    <SidebarHeader
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="emit('toggleSidebar')"
+    >
       About Jason
-      <ShareButton />
-    </div>
+    </SidebarHeader>
     <div class="about-content">
       <p>
         Hi, my name is Jason and I have been programming for a while.
@@ -81,20 +78,6 @@ function goRandom() {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-}
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--bg-base);
-  z-index: 1;
 }
 
 .about-content p {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import ShareButton from "./ShareButton.vue";
-import SidebarToggleButton from "./SidebarToggleButton.vue";
+import SidebarHeader from "./SidebarHeader.vue";
 import { getEssay } from "../data/essays";
 import { renderMarkdown } from "../data/render-markdown";
 
@@ -17,14 +16,12 @@ const essay = computed(() => getEssay(props.slug));
 
 <template>
   <div class="conversation">
-    <div class="top-bar">
-      <SidebarToggleButton
-        v-if="sidebarCollapsed"
-        @click="emit('toggleSidebar')"
-      />
+    <SidebarHeader
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="emit('toggleSidebar')"
+    >
       Essays
-      <ShareButton />
-    </div>
+    </SidebarHeader>
     <div v-if="essay" class="essays-content">
       <div class="essay">
         <h2 class="essay-title">{{ essay.title }} <span class="essay-date">{{ essay.date }}</span></h2>
@@ -44,20 +41,6 @@ const essay = computed(() => getEssay(props.slug));
   flex-direction: column;
   overflow-y: auto;
   min-height: 0;
-}
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--bg-base);
-  z-index: 1;
 }
 
 .essays-content {

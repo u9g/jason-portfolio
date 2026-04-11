@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import PromptBar from "./PromptBar.vue";
-import ShareButton from "./ShareButton.vue";
-import SidebarToggleButton from "./SidebarToggleButton.vue";
+import SidebarHeader from "./SidebarHeader.vue";
 import { renderMessage } from "../data/render-markdown";
 import { entryLogos, darkInvertLogos } from "../data/entry-logos";
 
@@ -17,8 +16,10 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
 
 <template>
   <div class="conversation">
-    <div class="top-bar">
-      <SidebarToggleButton v-if="sidebarCollapsed" @click="emit('toggleSidebar')" />
+    <SidebarHeader
+      :sidebar-collapsed="sidebarCollapsed"
+      @toggle-sidebar="emit('toggleSidebar')"
+    >
       <img
         v-if="entryLogos[slug]"
         :class="['title-logo', { 'title-logo--dark-invert': darkInvertLogos.has(slug) }]"
@@ -27,8 +28,7 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
         aria-hidden="true"
       />
       {{ title }}
-      <ShareButton />
-    </div>
+    </SidebarHeader>
     <div class="messages">
       <div
         v-for="(msg, i) in conversation"
@@ -52,17 +52,6 @@ const emit = defineEmits<{ toggleSidebar: [] }>();
   max-width: 724px;
   margin: 0 auto;
   width: 100%;
-}
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  height: 56px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--bg-base);
 }
 
 .title-logo {
