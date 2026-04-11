@@ -5,7 +5,7 @@ import Conversation from "./components/claude/conversation/Conversation.vue";
 import About from "./components/claude/pages/About.vue";
 import OSSContributions from "./components/claude/pages/OSSContributions.vue";
 import Essays from "./components/claude/pages/Essays.vue";
-import DocumentView from "./components/print/DocumentView.vue";
+import DocumentView from "./components/DocumentView.vue";
 import ResumePrint from "./components/print/ResumePrint.vue";
 import sunIcon from "./assets/sun.svg";
 import moonIcon from "./assets/moon.svg";
@@ -16,7 +16,7 @@ const isSSR = import.meta.env.SSR;
 
 const bannerDismissed = ref(false);
 
-const theme = ref(isSSR ? "dark" : (localStorage.getItem("theme") || "dark"));
+const theme = ref(isSSR ? "dark" : localStorage.getItem("theme") || "dark");
 
 function applyTheme(t: string) {
   if (isSSR) return;
@@ -61,7 +61,9 @@ function slugFromPath(path: string): string {
 
 const currentSlug = ref(slugFromPath(pathname));
 
-const isOverlay = isSSR ? true : !window.matchMedia("(min-width: 1025px)").matches;
+const isOverlay = isSSR
+  ? true
+  : !window.matchMedia("(min-width: 1025px)").matches;
 const sidebarCollapsed = ref(isOverlay);
 
 function navigateTo(slug: string) {
@@ -110,50 +112,70 @@ if (!isSSR) {
 
 <template>
   <ResumePrint ref="resumePrint" />
-  <button class="theme-fab" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme($event)">
+  <button
+    class="theme-fab"
+    :aria-label="
+      theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+    "
+    @click="toggleTheme($event)"
+  >
     <img :src="theme === 'dark' ? sunIcon : moonIcon" alt="" />
   </button>
-  <DocumentView v-if="isDocumentMode" @print-resume="resumePrint?.printResume()" />
-  <div class="layout-wrap" v-else-if="currentSlug === 'about' || currentSlug === 'oss' || essaySlugs.has(currentSlug) || currentConversation">
+  <DocumentView
+    v-if="isDocumentMode"
+    @print-resume="resumePrint?.printResume()"
+  />
+  <div
+    class="layout-wrap"
+    v-else-if="
+      currentSlug === 'about' ||
+      currentSlug === 'oss' ||
+      essaySlugs.has(currentSlug) ||
+      currentConversation
+    "
+  >
     <div v-if="!bannerDismissed" class="doc-banner">
       <a href="/">View as document</a>
       <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
     </div>
     <div class="layout">
-    <Sidebar
-      :jobs="conversations.jobs"
-      :projects="conversations.projects"
-      :current-slug="currentSlug"
-      :collapsed="sidebarCollapsed"
-      @navigate="navigateTo($event); if (isOverlay) sidebarCollapsed = true"
-      @toggle="sidebarCollapsed = !sidebarCollapsed"
-      @print-resume="resumePrint?.printResume()"
-    />
-    <About
-      v-if="currentSlug === 'about'"
-      :sidebar-collapsed="sidebarCollapsed"
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-      @navigate="navigateTo($event)"
-    />
-    <OSSContributions
-      v-else-if="currentSlug === 'oss'"
-      :sidebar-collapsed="sidebarCollapsed"
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-    />
-    <Essays
-      v-else-if="essaySlugs.has(currentSlug)"
-      :slug="currentSlug"
-      :sidebar-collapsed="sidebarCollapsed"
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-    />
-    <Conversation
-      v-else-if="currentConversation"
-      :slug="currentSlug"
-      :title="currentConversation.title"
-      :conversation="currentConversation.conversation"
-      :sidebar-collapsed="sidebarCollapsed"
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-    />
+      <Sidebar
+        :jobs="conversations.jobs"
+        :projects="conversations.projects"
+        :current-slug="currentSlug"
+        :collapsed="sidebarCollapsed"
+        @navigate="
+          navigateTo($event);
+          if (isOverlay) sidebarCollapsed = true;
+        "
+        @toggle="sidebarCollapsed = !sidebarCollapsed"
+        @print-resume="resumePrint?.printResume()"
+      />
+      <About
+        v-if="currentSlug === 'about'"
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+        @navigate="navigateTo($event)"
+      />
+      <OSSContributions
+        v-else-if="currentSlug === 'oss'"
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+      />
+      <Essays
+        v-else-if="essaySlugs.has(currentSlug)"
+        :slug="currentSlug"
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+      />
+      <Conversation
+        v-else-if="currentConversation"
+        :slug="currentSlug"
+        :title="currentConversation.title"
+        :conversation="currentConversation.conversation"
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+      />
     </div>
   </div>
   <div v-else class="not-found">
@@ -223,7 +245,6 @@ body,
   color: var(--text-bright);
   font-family: "Lora", serif;
 }
-
 </style>
 
 <style lang="css" scoped>

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
-import conversations from "../../data/conversations.json";
-import { prUrl } from "../../data/oss-repos";
-import { fetchRepoInfo, sortedRepos } from "../../data/oss-github-info";
+import conversations from "../data/conversations.json";
+import { prUrl } from "../data/oss-repos";
+import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../../assets/claude.svg";
 import resumeIcon from "../../assets/resume.svg";
-import Arrow from "../shared/Arrow.vue";
-import EntryLogo from "../shared/EntryLogo.vue";
-import { essays } from "../../data/essays";
-import { entryLogos } from "../../data/entry-logos";
-import { renderMessage } from "../../data/render-markdown";
+import Arrow from "./shared/Arrow.vue";
+import EntryLogo from "./shared/EntryLogo.vue";
+import { essays } from "../data/essays";
+import { entryLogos } from "../data/entry-logos";
+import { renderMessage } from "../data/render-markdown";
 
 const emit = defineEmits<{ "print-resume": [] }>();
 
@@ -19,7 +19,10 @@ interface TocEntry {
   children?: { id: string; title: string }[];
 }
 
-const tocData = computed<{ entries: TocEntry[]; subToParent: Record<string, string> }>(() => {
+const tocData = computed<{
+  entries: TocEntry[];
+  subToParent: Record<string, string>;
+}>(() => {
   const subToParent: Record<string, string> = {};
   const makeChildren = (
     parentId: string,
@@ -31,7 +34,11 @@ const tocData = computed<{ entries: TocEntry[]; subToParent: Record<string, stri
     });
   const entries: TocEntry[] = [
     { id: "about", title: "About Me" },
-    { id: "jobs", title: "Job Experience", children: makeChildren("jobs", conversations.jobs) },
+    {
+      id: "jobs",
+      title: "Job Experience",
+      children: makeChildren("jobs", conversations.jobs),
+    },
     {
       id: "projects",
       title: "Personal Projects",
@@ -120,14 +127,19 @@ let handleDesktopMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
 
 function stickyBottom(): number {
   if (isDesktop.value) return 0;
-  const tocBottom = document.querySelector(".toc")?.getBoundingClientRect().bottom ?? 0;
-  const bannerBottom = document.querySelector(".readme-banner")?.getBoundingClientRect().bottom ?? 0;
+  const tocBottom =
+    document.querySelector(".toc")?.getBoundingClientRect().bottom ?? 0;
+  const bannerBottom =
+    document.querySelector(".readme-banner")?.getBoundingClientRect().bottom ??
+    0;
   return Math.max(tocBottom, bannerBottom);
 }
 
 function updateActiveHeading() {
   const headings = Array.from(
-    document.querySelectorAll<HTMLElement>(".section-header, .sub-header, .repo-header"),
+    document.querySelectorAll<HTMLElement>(
+      ".section-header, .sub-header, .repo-header",
+    ),
   ).filter((el) => el.id);
   if (headings.length === 0) return;
 
@@ -180,9 +192,11 @@ watch([activeSection, activeSubSection], () => {
   if (!id) return;
   // On desktop the .toc element itself is the scroll container; on mobile
   // it's the .toc-panel inside. Pick whichever actually owns the overflow.
-  const toc = (isDesktop.value
-    ? document.querySelector(".toc")
-    : document.querySelector(".toc-panel")) as HTMLElement | null;
+  const toc = (
+    isDesktop.value
+      ? document.querySelector(".toc")
+      : document.querySelector(".toc-panel")
+  ) as HTMLElement | null;
   if (!toc) return;
   const links = Array.from(toc.querySelectorAll<HTMLElement>('a[href^="#"]'));
   const idx = links.findIndex((a) => a.getAttribute("href") === `#${id}`);
@@ -203,7 +217,10 @@ watch([activeSection, activeSubSection], () => {
   if (linkTop < toc.scrollTop + pad) {
     toc.scrollTo({ top: Math.max(0, linkTop - pad), behavior: "smooth" });
   } else if (linkBottom > toc.scrollTop + toc.clientHeight - pad) {
-    toc.scrollTo({ top: Math.min(max, linkBottom - toc.clientHeight + pad), behavior: "smooth" });
+    toc.scrollTo({
+      top: Math.min(max, linkBottom - toc.clientHeight + pad),
+      behavior: "smooth",
+    });
   }
 });
 
@@ -220,8 +237,8 @@ onUnmounted(() => {
 
 <template>
   <div class="readme-shell">
-  <div id="readme-view" class="readme-view">
-    <nav class="toc">
+    <div id="readme-view" class="readme-view">
+      <nav class="toc">
         <button
           type="button"
           class="toc-pill"
@@ -239,221 +256,284 @@ onUnmounted(() => {
           <span class="toc-chevron" aria-hidden="true">▾</span>
         </button>
         <Transition name="toc-panel">
-        <div v-if="isDesktop || tocOpen" class="toc-panel">
-          <h2>Table of Contents</h2>
-          <ul>
-            <li v-for="entry in tocEntries" :key="entry.id">
-              <a
-                :href="`#${entry.id}`"
-                :class="{ 'toc-active': activeSection === entry.id }"
-                @click="handleTocLinkClick"
-                >{{ entry.title }}</a
-              >
-              <ul v-if="entry.children" class="toc-sub">
-                <li v-for="child in entry.children" :key="child.id">
-                  <a
-                    :href="`#${child.id}`"
-                    :class="{ 'toc-active': activeSubSection === child.id }"
-                    @click="handleTocLinkClick"
-                  >
-                    <span class="toc-link-content">
-                      <EntryLogo :slug="child.id" class="toc-logo" />
-                      <span class="toc-link-label">
-                        <template v-if="isDesktop" v-for="(part, i) in splitTitleAtComma(child.title)" :key="i"><br v-if="i > 0" />{{ part }}</template>
-                        <template v-else>{{ child.title }}</template>
+          <div v-if="isDesktop || tocOpen" class="toc-panel">
+            <h2>Table of Contents</h2>
+            <ul>
+              <li v-for="entry in tocEntries" :key="entry.id">
+                <a
+                  :href="`#${entry.id}`"
+                  :class="{ 'toc-active': activeSection === entry.id }"
+                  @click="handleTocLinkClick"
+                  >{{ entry.title }}</a
+                >
+                <ul v-if="entry.children" class="toc-sub">
+                  <li v-for="child in entry.children" :key="child.id">
+                    <a
+                      :href="`#${child.id}`"
+                      :class="{ 'toc-active': activeSubSection === child.id }"
+                      @click="handleTocLinkClick"
+                    >
+                      <span class="toc-link-content">
+                        <EntryLogo :slug="child.id" class="toc-logo" />
+                        <span class="toc-link-label">
+                          <template
+                            v-if="isDesktop"
+                            v-for="(part, i) in splitTitleAtComma(child.title)"
+                            :key="i"
+                            ><br v-if="i > 0" />{{ part }}</template
+                          >
+                          <template v-else>{{ child.title }}</template>
+                        </span>
                       </span>
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
         </Transition>
-    </nav>
+      </nav>
 
-    <div class="readme-banner">
-      <a href="/claude">Make it look like Claude <img :src="claudeIcon" class="claude-logo" aria-hidden="true" /></a>
-      <button class="resume-banner-btn" @click="emit('print-resume')">
-        <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
-        Printable Resume
-      </button>
-    </div>
+      <div class="readme-banner">
+        <a href="/claude"
+          >Make it look like Claude
+          <img :src="claudeIcon" class="claude-logo" aria-hidden="true"
+        /></a>
+        <button class="resume-banner-btn" @click="emit('print-resume')">
+          <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
+          Printable Resume
+        </button>
+      </div>
 
-    <div class="readme-body">
-      <div class="title-row">
-        <h1>Jason Lernerman's Portfolio</h1>
-        <div class="title-logos">
-          <a
-            v-for="item in tocLogoEntries"
-            :key="item.id"
-            :href="`#${item.id}`"
-            :title="item.title"
-            :aria-label="item.title"
-            class="title-logo"
-          >
-            <EntryLogo :slug="item.id" :alt="item.title" />
-          </a>
-        </div>
-      </div>
-      <!-- About -->
-      <h2
-        id="about"
-        :class="['section-header', { active: activeSection === 'about' }]"
-        @click="copyAnchor('about')"
-      >
-        <span class="anchor-icon">#</span> About Me
-      </h2>
-      <div class="section-content about-prose">
-        <p>Hi, my name is Jason and I have been programming for a while.</p>
-        <p>
-          I've worked on a lot of fun and interesting projects, as you will see
-          if you read on, and have now graduated from
-          <a
-            href="https://www.psu.edu"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Penn State University <Arrow /></a
-          >! If my experience sounds like something you are hiring for or know
-          someone who is hiring for, please
-          <a
-            href="https://www.linkedin.com/in/jason-lernerman/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >contact Jason <Arrow /></a
-          >!
-        </p>
-      </div>
-      <!-- Job Experience -->
-      <h2 id="jobs" :class="['section-header', { active: activeSection === 'jobs' }]" @click="copyAnchor('jobs')">
-        <span class="anchor-icon">#</span> Job Experience
-      </h2>
-      <div
-        v-for="job in conversations.jobs"
-        :key="job.slug"
-        class="section-content"
-      >
-        <h3
-          :id="job.slug"
-          :class="['sub-header', { active: activeSubSection === job.slug }]"
-          @click="copyAnchor(job.slug)"
-        >
-          <span class="anchor-icon">#</span> {{ job.title }}
-          <EntryLogo :slug="job.slug" :alt="`${job.title} logo`" class="project-logo" />
-        </h3>
-        <div
-          v-for="(msg, i) in job.conversation"
-          :key="i"
-          :class="['qa-pair', msg.role]"
-        >
-          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
-        </div>
-      </div>
-      <!-- Personal Projects -->
-      <h2
-        id="projects"
-        :class="['section-header', { active: activeSection === 'projects' }]"
-        @click="copyAnchor('projects')"
-      >
-        <span class="anchor-icon">#</span> Personal Projects
-      </h2>
-      <div
-        v-for="project in conversations.projects"
-        :key="project.slug"
-        class="section-content"
-      >
-        <h3
-          :id="project.slug"
-          :class="['sub-header', { active: activeSubSection === project.slug }]"
-          @click="copyAnchor(project.slug)"
-        >
-          <span class="anchor-icon">#</span> {{ project.title }}
-          <EntryLogo :slug="project.slug" :alt="`${project.title} logo`" class="project-logo" />
-        </h3>
-        <div
-          v-for="(msg, i) in project.conversation"
-          :key="i"
-          :class="['qa-pair', msg.role]"
-        >
-          <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-          <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
-        </div>
-      </div>
-      <!-- OSS Contributions -->
-      <h2 id="oss" :class="['section-header', { active: activeSection === 'oss' }]" @click="copyAnchor('oss')">
-        <span class="anchor-icon">#</span> Notable OSS Contributions
-      </h2>
-      <div class="section-content">
-        <div v-for="repo in (showAllRepos ? sortedRepos : sortedRepos.slice(0, 5))" :key="repo.name" class="oss-repo">
-          <h3
-            :id="`oss-${repo.name.replace('/', '-')}`"
-            :class="['repo-header', { active: activeSubSection === `oss-${repo.name.replace('/', '-')}` }]"
-            @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
-          >
-            <span class="anchor-icon">#</span>
-            <span class="lang-dot" :style="{ background: repo.color }"></span>
+      <div class="readme-body">
+        <div class="title-row">
+          <h1>Jason Lernerman's Portfolio</h1>
+          <div class="title-logos">
             <a
-              :href="`https://github.com/${repo.name}`"
+              v-for="item in tocLogoEntries"
+              :key="item.id"
+              :href="`#${item.id}`"
+              :title="item.title"
+              :aria-label="item.title"
+              class="title-logo"
+            >
+              <EntryLogo :slug="item.id" :alt="item.title" />
+            </a>
+          </div>
+        </div>
+        <!-- About -->
+        <h2
+          id="about"
+          :class="['section-header', { active: activeSection === 'about' }]"
+          @click="copyAnchor('about')"
+        >
+          <span class="anchor-icon">#</span> About Me
+        </h2>
+        <div class="section-content about-prose">
+          <p>Hi, my name is Jason and I have been programming for a while.</p>
+          <p>
+            I've worked on a lot of fun and interesting projects, as you will
+            see if you read on, and have now graduated from
+            <a
+              href="https://www.psu.edu"
               target="_blank"
               rel="noopener noreferrer"
-              @click.stop
-              >{{ repo.name.split('/')[0] }}/<wbr>{{ repo.name.split('/')[1] }} <Arrow /></a
-            >
-            <button
-              class="expand-btn"
-              @click.stop="
-                expandedRepos.has(repo.name)
-                  ? expandedRepos.delete(repo.name)
-                  : expandedRepos.add(repo.name)
-              "
-            >
-              {{ expandedRepos.has(repo.name) ? "−" : "+" }}
-            </button>
-            <span class="lang-label" :style="{ color: repo.color }">{{
-              repo.lang
-            }}</span>
+              >Penn State University <Arrow /></a
+            >! If my experience sounds like something you are hiring for or know
+            someone who is hiring for, please
+            <a
+              href="https://www.linkedin.com/in/jason-lernerman/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >contact Jason <Arrow /></a
+            >!
+          </p>
+        </div>
+        <!-- Job Experience -->
+        <h2
+          id="jobs"
+          :class="['section-header', { active: activeSection === 'jobs' }]"
+          @click="copyAnchor('jobs')"
+        >
+          <span class="anchor-icon">#</span> Job Experience
+        </h2>
+        <div
+          v-for="job in conversations.jobs"
+          :key="job.slug"
+          class="section-content"
+        >
+          <h3
+            :id="job.slug"
+            :class="['sub-header', { active: activeSubSection === job.slug }]"
+            @click="copyAnchor(job.slug)"
+          >
+            <span class="anchor-icon">#</span> {{ job.title }}
+            <EntryLogo
+              :slug="job.slug"
+              :alt="`${job.title} logo`"
+              class="project-logo"
+            />
           </h3>
-          <ul v-if="expandedRepos.has(repo.name)" class="pr-list">
-            <li v-for="pr in repo.prs" :key="pr.id">
+          <div
+            v-for="(msg, i) in job.conversation"
+            :key="i"
+            :class="['qa-pair', msg.role]"
+          >
+            <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
+            <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
+          </div>
+        </div>
+        <!-- Personal Projects -->
+        <h2
+          id="projects"
+          :class="['section-header', { active: activeSection === 'projects' }]"
+          @click="copyAnchor('projects')"
+        >
+          <span class="anchor-icon">#</span> Personal Projects
+        </h2>
+        <div
+          v-for="project in conversations.projects"
+          :key="project.slug"
+          class="section-content"
+        >
+          <h3
+            :id="project.slug"
+            :class="[
+              'sub-header',
+              { active: activeSubSection === project.slug },
+            ]"
+            @click="copyAnchor(project.slug)"
+          >
+            <span class="anchor-icon">#</span> {{ project.title }}
+            <EntryLogo
+              :slug="project.slug"
+              :alt="`${project.title} logo`"
+              class="project-logo"
+            />
+          </h3>
+          <div
+            v-for="(msg, i) in project.conversation"
+            :key="i"
+            :class="['qa-pair', msg.role]"
+          >
+            <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
+            <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
+          </div>
+        </div>
+        <!-- OSS Contributions -->
+        <h2
+          id="oss"
+          :class="['section-header', { active: activeSection === 'oss' }]"
+          @click="copyAnchor('oss')"
+        >
+          <span class="anchor-icon">#</span> Notable OSS Contributions
+        </h2>
+        <div class="section-content">
+          <div
+            v-for="repo in showAllRepos ? sortedRepos : sortedRepos.slice(0, 5)"
+            :key="repo.name"
+            class="oss-repo"
+          >
+            <h3
+              :id="`oss-${repo.name.replace('/', '-')}`"
+              :class="[
+                'repo-header',
+                {
+                  active:
+                    activeSubSection === `oss-${repo.name.replace('/', '-')}`,
+                },
+              ]"
+              @click="copyAnchor(`oss-${repo.name.replace('/', '-')}`)"
+            >
+              <span class="anchor-icon">#</span>
+              <span class="lang-dot" :style="{ background: repo.color }"></span>
               <a
-                :href="prUrl(repo.name, pr.id)"
+                :href="`https://github.com/${repo.name}`"
                 target="_blank"
                 rel="noopener noreferrer"
                 @click.stop
-                >{{ pr.description }} <Arrow /></a
+                >{{ repo.name.split("/")[0] }}/<wbr />{{
+                  repo.name.split("/")[1]
+                }}
+                <Arrow
+              /></a>
+              <button
+                class="expand-btn"
+                @click.stop="
+                  expandedRepos.has(repo.name)
+                    ? expandedRepos.delete(repo.name)
+                    : expandedRepos.add(repo.name)
+                "
               >
-            </li>
-          </ul>
-        </div>
-        <button v-if="!showAllRepos && sortedRepos.length > 5" class="show-all-btn" @click="showAllRepos = true">
-          Show {{ sortedRepos.length - 5 }} more repos
-        </button>
-        <button v-else-if="showAllRepos && sortedRepos.length > 5" class="show-all-btn" @click="showAllRepos = false">
-          Show less
-        </button>
-      </div>
-      <!-- Essays -->
-      <h2 id="essays" :class="['section-header', { active: activeSection === 'essays' }]" @click="copyAnchor('essays')">
-        <span class="anchor-icon">#</span> Essays
-      </h2>
-      <div class="section-content about-prose">
-        <template v-for="essay in essays" :key="essay.slug">
-          <h3
-            :id="essay.slug"
-            :class="['sub-header', { active: activeSubSection === essay.slug }]"
-            @click="copyAnchor(essay.slug)"
+                {{ expandedRepos.has(repo.name) ? "−" : "+" }}
+              </button>
+              <span class="lang-label" :style="{ color: repo.color }">{{
+                repo.lang
+              }}</span>
+            </h3>
+            <ul v-if="expandedRepos.has(repo.name)" class="pr-list">
+              <li v-for="pr in repo.prs" :key="pr.id">
+                <a
+                  :href="prUrl(repo.name, pr.id)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                  >{{ pr.description }} <Arrow
+                /></a>
+              </li>
+            </ul>
+          </div>
+          <button
+            v-if="!showAllRepos && sortedRepos.length > 5"
+            class="show-all-btn"
+            @click="showAllRepos = true"
           >
-            <span class="anchor-icon">#</span> {{ essay.title }} <span class="essay-date">{{ essay.date }}</span>
-          </h3>
-          <template v-for="(block, i) in essay.blocks" :key="i">
-            <p v-if="block.type === 'p'" v-html="renderMessage(block.text)"></p>
-            <li v-else-if="block.type === 'li'" class="essay-li" v-html="renderMessage(block.text)"></li>
+            Show {{ sortedRepos.length - 5 }} more repos
+          </button>
+          <button
+            v-else-if="showAllRepos && sortedRepos.length > 5"
+            class="show-all-btn"
+            @click="showAllRepos = false"
+          >
+            Show less
+          </button>
+        </div>
+        <!-- Essays -->
+        <h2
+          id="essays"
+          :class="['section-header', { active: activeSection === 'essays' }]"
+          @click="copyAnchor('essays')"
+        >
+          <span class="anchor-icon">#</span> Essays
+        </h2>
+        <div class="section-content about-prose">
+          <template v-for="essay in essays" :key="essay.slug">
+            <h3
+              :id="essay.slug"
+              :class="[
+                'sub-header',
+                { active: activeSubSection === essay.slug },
+              ]"
+              @click="copyAnchor(essay.slug)"
+            >
+              <span class="anchor-icon">#</span> {{ essay.title }}
+              <span class="essay-date">{{ essay.date }}</span>
+            </h3>
+            <template v-for="(block, i) in essay.blocks" :key="i">
+              <p
+                v-if="block.type === 'p'"
+                v-html="renderMessage(block.text)"
+              ></p>
+              <li
+                v-else-if="block.type === 'li'"
+                class="essay-li"
+                v-html="renderMessage(block.text)"
+              ></li>
+            </template>
           </template>
-        </template>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -470,7 +550,6 @@ onUnmounted(() => {
   flex: 1 1 auto;
   width: 100%;
 }
-
 
 .readme-banner {
   display: flex;
@@ -571,7 +650,9 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  transition: transform 0.12s ease, opacity 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
   opacity: 0.85;
 }
 
@@ -623,8 +704,12 @@ onUnmounted(() => {
   cursor: pointer;
   box-sizing: border-box;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: max-width 0.22s ease, margin 0.22s ease,
-    border-radius 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    max-width 0.22s ease,
+    margin 0.22s ease,
+    border-radius 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .toc-pill-label {
@@ -681,12 +766,16 @@ onUnmounted(() => {
   padding: 1rem 0.75rem;
   box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  transition: max-width 0.22s ease, border-radius 0.22s ease;
+  transition:
+    max-width 0.22s ease,
+    border-radius 0.22s ease;
 }
 
 .toc-panel-enter-active,
 .toc-panel-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
   transform-origin: top center;
 }
 
