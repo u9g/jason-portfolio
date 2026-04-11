@@ -18,24 +18,14 @@ type QA = { question: string; answer: string };
 
 const hiddenQuestions = /when did you make it|any interesting features/i;
 
-function extractJobQA(conv: typeof conversations.jobs[number]): { title: string; period: string; qa: QA[] } {
-  const title = conv.title;
-  const messages = conv.conversation;
+type Message = { role: string; message: string };
 
-  // Extract period from assistant messages
-  let period = "";
-  const allText = messages.filter((m) => m.role === "assistant").map((m) => m.message).join(" ");
-  const periodMatch = allText.match(/(?:from |)(\w+ \d{4})\s*to\s*(\w+ \d{4})/i);
-  if (periodMatch) period = `${periodMatch[1]} – ${periodMatch[2]}`;
-
-  // Build Q&A pairs, skip the first "What is X?" pair
+function extractQA(messages: Message[], skipFirst: boolean): QA[] {
   const qa: QA[] = [];
-  for (let i = 2; i < messages.length - 1; i += 2) {
+  for (let i = skipFirst ? 2 : 0; i < messages.length - 1; i += 2) {
     if (messages[i].role === "user" && messages[i + 1]?.role === "assistant") {
       if (hiddenQuestions.test(messages[i].message)) continue;
-      let answer = messages[i + 1].message;
-      answer = stripMarkdownLinks(answer);
-      // Trim long answers
+      let answer = stripMarkdownLinks(messages[i + 1].message);
       if (answer.length > 200) {
         const cut = answer.lastIndexOf(".", 200);
         answer = cut > 80 ? answer.slice(0, cut + 1) : answer.slice(0, 200) + "…";
@@ -43,40 +33,27 @@ function extractJobQA(conv: typeof conversations.jobs[number]): { title: string;
       qa.push({ question: messages[i].message, answer });
     }
   }
-
-  // Hide date for intern positions
-  if (/intern/i.test(title)) period = "";
-
-  return { title, period, qa };
+  return qa;
 }
 
-function extractProjectQA(conv: typeof conversations.projects[number]): { title: string; qa: QA[] } {
-  const title = conv.title;
-  const messages = conv.conversation;
+function extractJobQA(conv: typeof conversations.jobs[number]): { title: string; period: string; qa: QA[] } {
+  const { title, conversation: messages } = conv;
 
-  const qa: QA[] = [];
-  for (let i = 0; i < messages.length - 1; i += 2) {
-    if (messages[i].role === "user" && messages[i + 1]?.role === "assistant") {
-      if (hiddenQuestions.test(messages[i].message)) continue;
-      let answer = messages[i + 1].message;
-      answer = stripMarkdownLinks(answer);
-      if (answer.length > 200) {
-        const cut = answer.lastIndexOf(".", 200);
-        answer = cut > 80 ? answer.slice(0, cut + 1) : answer.slice(0, 200) + "…";
-      }
-      qa.push({ question: messages[i].message, answer });
-    }
+  let period = "";
+  if (!/intern/i.test(title)) {
+    const allText = messages.filter((m) => m.role === "assistant").map((m) => m.message).join(" ");
+    const periodMatch = allText.match(/(?:from |)(\w+ \d{4})\s*to\s*(\w+ \d{4})/i);
+    if (periodMatch) period = `${periodMatch[1]} – ${periodMatch[2]}`;
   }
 
-  // Keep only first 3 Q&A pairs per project to fit on one page
-  return { title, qa: qa.slice(0, 3) };
+  return { title, period, qa: extractQA(messages, true) };
 }
 
 const jobEntries = conversations.jobs.map(extractJobQA);
 const resumeProjectSlugs = new Set(["unoroyale", "learntensors"]);
 const projectEntries = conversations.projects
   .filter((p) => resumeProjectSlugs.has(p.slug))
-  .map(extractProjectQA);
+  .map((conv) => ({ title: conv.title, qa: extractQA(conv.conversation, false).slice(0, 3) }));
 </script>
 
 <template>
