@@ -66,13 +66,15 @@ function onModalKeydown(e: KeyboardEvent) {
   }
 }
 
+let modalKeydownRaf = 0;
+
 watch(showModal, (open) => {
+  cancelAnimationFrame(modalKeydownRaf);
+  window.removeEventListener("keydown", onModalKeydown);
   if (open) {
-    requestAnimationFrame(() => {
+    modalKeydownRaf = requestAnimationFrame(() => {
       window.addEventListener("keydown", onModalKeydown);
     });
-  } else {
-    window.removeEventListener("keydown", onModalKeydown);
   }
 });
 
@@ -88,6 +90,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  cancelAnimationFrame(modalKeydownRaf);
   window.removeEventListener("keydown", onModalKeydown);
   window.removeEventListener("resize", checkMobile);
 });
