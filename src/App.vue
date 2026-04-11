@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, inject, ref, watchEffect } from "vue";
-import Sidebar from "./components/Sidebar.vue";
-import Conversation from "./components/Conversation.vue";
-import About from "./components/About.vue";
-import OSSContributions from "./components/OSSContributions.vue";
-import Essays from "./components/Essays.vue";
+import Sidebar from "./components/claude/Sidebar.vue";
+import Conversation from "./components/claude/Conversation.vue";
+import About from "./components/claude/About.vue";
+import OSSContributions from "./components/claude/OSSContributions.vue";
+import Essays from "./components/claude/Essays.vue";
 import DocumentView from "./components/DocumentView.vue";
 import ResumePrint from "./components/ResumePrint.vue";
 import sunIcon from "./assets/sun.svg";

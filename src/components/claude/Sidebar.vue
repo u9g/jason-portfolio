@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import bookIcon from "../assets/book.svg";
-import codeIcon from "../assets/code.svg";
-import contactIcon from "../assets/contact.svg";
-import claudeIcon from "../assets/claude.svg";
-import githubIcon from "../assets/github.svg";
-import sourceIcon from "../assets/source.svg";
-import resumeIcon from "../assets/resume.svg";
+import bookIcon from "../../assets/book.svg";
+import codeIcon from "../../assets/code.svg";
+import contactIcon from "../../assets/contact.svg";
+import claudeIcon from "../../assets/claude.svg";
+import githubIcon from "../../assets/github.svg";
+import sourceIcon from "../../assets/source.svg";
+import resumeIcon from "../../assets/resume.svg";
 import SidebarButton from "./SidebarButton.vue";
-import Arrow from "./Arrow.vue";
-import EntryLogo from "./EntryLogo.vue";
-import { essays } from "../data/essays";
+import Arrow from "../Arrow.vue";
+import EntryLogo from "../EntryLogo.vue";
+import { essays } from "../../data/essays";
 
 defineProps<{
   jobs: { slug: string; title: string }[];

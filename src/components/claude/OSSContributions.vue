@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import SidebarHeader from "./SidebarHeader.vue";
-import Arrow from "./Arrow.vue";
-import { prUrl } from "../data/oss-repos";
-import { repoGHInfo, fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
+import Arrow from "../Arrow.vue";
+import { prUrl } from "../../data/oss-repos";
+import { repoGHInfo, fetchRepoInfo, sortedRepos } from "../../data/oss-github-info";
 
 defineProps<{
   sidebarCollapsed: boolean;
