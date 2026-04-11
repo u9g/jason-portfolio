@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from "vue";
 
+const linkedinUrl = "https://www.linkedin.com/in/jason-lernerman/";
+
 const hasText = ref(false);
 const isListening = ref(false);
 const showModal = ref(false);
@@ -217,7 +219,7 @@ function onInput(e: Event) {
           You're leaving Jason's Portfolio to visit an external link:
         </p>
         <div class="modal-url">
-          https://www.linkedin.com/in/jason-lernerman/
+          {{ linkedinUrl }}
         </div>
         <div class="modal-actions">
           <button class="modal-btn modal-cancel" @click="showModal = false">
@@ -226,7 +228,7 @@ function onInput(e: Event) {
           <a
             ref="confirmLink"
             class="modal-btn modal-confirm"
-            href="https://www.linkedin.com/in/jason-lernerman/"
+            :href="linkedinUrl"
             target="_blank"
             rel="noopener noreferrer"
             @click="showModal = false"
