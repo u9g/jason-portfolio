@@ -100,14 +100,15 @@ defineEmits<{ click: [] }>();
 }
 
 .icon-circle img {
+  --logo-invert: 0.75;
   width: 14px;
   height: 14px;
-  filter: brightness(0) invert(0.75);
+  filter: brightness(0) invert(var(--logo-invert));
   transition: filter 0.2s ease;
 }
 
 :root[data-theme="light"] .icon-circle img {
-  filter: brightness(0) invert(0.35);
+  --logo-invert: 0.35;
 }
 
 .label {
@@ -128,11 +129,11 @@ defineEmits<{ click: [] }>();
   }
 
   .sidebar-btn:hover .icon-circle img {
-    filter: brightness(0) invert(1);
+    --logo-invert: 1;
   }
 
   :root[data-theme="light"] .sidebar-btn:hover .icon-circle img {
-    filter: brightness(0) invert(0);
+    --logo-invert: 0;
   }
 
   .sidebar-btn:hover .external-icon {
