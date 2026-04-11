@@ -253,6 +253,8 @@ aside {
     width: 100%;
     min-width: 0;
     transform: none;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .overlay-backdrop {
