@@ -88,77 +88,77 @@ const buildDate = __BUILD_DATE__;
         />
       </div>
 
-      <div class="sidebar-scroll">
-      <div v-if="!collapsed" class="recent-section">
-        <span class="recent-heading">Jason's Job Experience</span>
-        <button
-          v-for="conv in jobs"
-          :key="conv.slug"
-          class="recent-item"
-          :class="{ active: conv.slug === currentSlug }"
-          @click="emit('navigate', conv.slug)"
-        >
-          <EntryLogo :slug="conv.slug" class="recent-item__logo" />
-          <span class="recent-item__label">{{ conv.title }}</span>
-        </button>
-      </div>
+      <template v-if="!collapsed">
+        <div class="sidebar-scroll">
+          <div class="recent-section">
+            <span class="recent-heading">Jason's Job Experience</span>
+            <button
+              v-for="conv in jobs"
+              :key="conv.slug"
+              class="recent-item"
+              :class="{ active: conv.slug === currentSlug }"
+              @click="emit('navigate', conv.slug)"
+            >
+              <EntryLogo :slug="conv.slug" class="recent-item__logo" />
+              <span class="recent-item__label">{{ conv.title }}</span>
+            </button>
+          </div>
 
-      <div v-if="!collapsed" class="recent-section">
-        <span class="recent-heading">Jason's Personal Projects</span>
-        <button
-          v-for="conv in projects"
-          :key="conv.slug"
-          class="recent-item"
-          :class="{ active: conv.slug === currentSlug }"
-          @click="emit('navigate', conv.slug)"
-        >
-          <EntryLogo :slug="conv.slug" class="recent-item__logo" />
-          <span class="recent-item__label">{{ conv.title }}</span>
-        </button>
-      </div>
+          <div class="recent-section">
+            <span class="recent-heading">Jason's Personal Projects</span>
+            <button
+              v-for="conv in projects"
+              :key="conv.slug"
+              class="recent-item"
+              :class="{ active: conv.slug === currentSlug }"
+              @click="emit('navigate', conv.slug)"
+            >
+              <EntryLogo :slug="conv.slug" class="recent-item__logo" />
+              <span class="recent-item__label">{{ conv.title }}</span>
+            </button>
+          </div>
 
-      <div v-if="!collapsed" class="recent-section">
-        <span class="recent-heading">Essays</span>
-        <button
-          v-for="essay in essays"
-          :key="essay.slug"
-          class="recent-item"
-          :class="{ active: essay.slug === currentSlug }"
-          @click="emit('navigate', essay.slug)"
-        >
-          {{ essay.title }}
-        </button>
-      </div>
+          <div class="recent-section">
+            <span class="recent-heading">Essays</span>
+            <button
+              v-for="essay in essays"
+              :key="essay.slug"
+              class="recent-item"
+              :class="{ active: essay.slug === currentSlug }"
+              @click="emit('navigate', essay.slug)"
+            >
+              {{ essay.title }}
+            </button>
+          </div>
+        </div>
 
-      </div>
-      <p v-if="!collapsed" class="attribution">
-        This website's theme and design were heavily inspired by<br />
-        <a
-          href="https://claude.ai"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="attribution-link"
-          >Anthropic's Claude
-          <img
-            :src="claudeIcon"
-            class="claude-logo"
-            aria-hidden="true"
-          />&nbsp;<Arrow /></a
-        >
-      </p>
+        <p class="attribution">
+          This website's theme and design were heavily inspired by<br />
+          <a
+            href="https://claude.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="attribution-link"
+            >Anthropic's Claude
+            <img
+              :src="claudeIcon"
+              class="claude-logo"
+              aria-hidden="true"
+            />&nbsp;<Arrow /></a
+          >
+        </p>
 
-      <div v-if="!collapsed" class="source-link">
-        <SidebarButton
-          :icon="sourceIcon"
-          label="See the code"
-          href="https://github.com/u9g/jason-portfolio"
-          :collapsed="collapsed"
-        />
-      </div>
+        <div class="source-link">
+          <SidebarButton
+            :icon="sourceIcon"
+            label="See the code"
+            href="https://github.com/u9g/jason-portfolio"
+            :collapsed="collapsed"
+          />
+        </div>
 
-      <span v-if="!collapsed" class="last-updated"
-        >Last updated: {{ buildDate }}</span
-      >
+        <span class="last-updated">Last updated: {{ buildDate }}</span>
+      </template>
     </div>
     <div v-if="!collapsed" class="overlay-backdrop" @click="emit('toggle')" />
   </aside>
