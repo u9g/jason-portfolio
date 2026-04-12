@@ -5,6 +5,8 @@ import Taskbar from "./Taskbar.vue";
 import StartMenu from "./StartMenu.vue";
 import DesktopContextMenu from "./DesktopContextMenu.vue";
 import FileExplorer from "./FileExplorer.vue";
+import { useWindowManager } from "../../composables/useWindowManager";
+import fileExplorerIcon from "../../assets/file-explorer.svg";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -52,11 +54,31 @@ const emit = defineEmits<{
   "print-resume": [];
 }>();
 
+interface ExplorerConfig {
+  windowId: string;
+  initialRepo?: string;
+  initialFile?: string;
+}
+
+const wm = useWindowManager();
+const explorers = ref<ExplorerConfig[]>([]);
+
+function openNewExplorer(initialRepo?: string, initialFile?: string) {
+  const id = wm.createWindow(
+    initialFile ? initialFile.split("/").pop() ?? "File Explorer" : "File Explorer",
+    fileExplorerIcon,
+  );
+  explorers.value.push({ windowId: id, initialRepo, initialFile });
+}
+
+function onExplorerClose(windowId: string) {
+  wm.closeWindow(windowId);
+  explorers.value = explorers.value.filter((e) => e.windowId !== windowId);
+}
+
 const iconSelected = ref(false);
 const faviconSelected = ref(false);
 const startMenuOpen = ref(false);
-const explorerOpen = ref(false);
-const faviconExplorerOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
 const contextMenuY = ref(0);
@@ -66,6 +88,8 @@ function toggleIcon() {
 }
 
 function onContextMenu(e: MouseEvent) {
+  const el = e.target as HTMLElement;
+  if (!el.closest('.win-desktop') || el.closest('.taskbar, .window-frame, .start-menu')) return;
   contextMenuX.value = e.clientX;
   contextMenuY.value = e.clientY;
   contextMenuOpen.value = true;
@@ -87,7 +111,7 @@ function onContextMenu(e: MouseEvent) {
         label="File Explorer"
         :selected="iconSelected"
         @click.stop="toggleIcon"
-        @dblclick.stop="explorerOpen = true; iconSelected = false"
+        @dblclick.stop="openNewExplorer(); iconSelected = false"
       />
       <DesktopIcon
         label="favicon.svg"
@@ -95,14 +119,21 @@ function onContextMenu(e: MouseEvent) {
         class="favicon-icon"
         :selected="faviconSelected"
         @click.stop="faviconSelected = !faviconSelected"
-        @dblclick.stop="faviconExplorerOpen = true; faviconSelected = false"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', 'public/favicon.svg'); faviconSelected = false"
       />
     </div>
-    <FileExplorer :open="explorerOpen" @close="explorerOpen = false" @dismiss-menus="contextMenuOpen = false; startMenuOpen = false" />
-    <FileExplorer :open="faviconExplorerOpen" initial-repo="u9g/jason-portfolio" initial-file="public/favicon.svg" @close="faviconExplorerOpen = false" @dismiss-menus="contextMenuOpen = false; startMenuOpen = false" />
+    <FileExplorer
+      v-for="cfg in explorers"
+      :key="cfg.windowId"
+      :window-id="cfg.windowId"
+      :initial-repo="cfg.initialRepo"
+      :initial-file="cfg.initialFile"
+      @close="onExplorerClose(cfg.windowId)"
+      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
+    />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
-    <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
+    <Taskbar :start-menu-open="startMenuOpen" :open-windows="wm.openWindows.value" @toggle-start-menu="startMenuOpen = !startMenuOpen" @taskbar-click="wm.toggleTaskbarWindow" />
   </div>
 </template>
 

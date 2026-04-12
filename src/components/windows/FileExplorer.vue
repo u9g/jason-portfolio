@@ -3,9 +3,10 @@ import { ref, computed, watch } from "vue";
 import { fetchContents, fetchFileContent, fetchUserRepos, PINNED_REPOS, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import WindowFrame from "./WindowFrame.vue";
+import { useWindowManager } from "../../composables/useWindowManager";
 
 const props = defineProps<{
-  open: boolean;
+  windowId: string;
   initialRepo?: string;
   initialFile?: string;
 }>();
@@ -14,6 +15,10 @@ const emit = defineEmits<{
   close: [];
   "dismiss-menus": [];
 }>();
+
+const { getWindow, focusWindow, minimizeWindow } = useWindowManager();
+const defaultState = { open: false, minimized: false, focused: false, zIndex: 15 };
+const wState = computed(() => getWindow(props.windowId) ?? defaultState);
 
 const currentPath = ref("");
 const entries = ref<GHEntry[]>([]);
@@ -387,7 +392,7 @@ watch(currentPath, (p) => {
 }, { immediate: true });
 
 const hasLoaded = ref(false);
-watch(() => props.open, (isOpen) => {
+watch(() => wState.value.open, (isOpen) => {
   if (isOpen && !hasLoaded.value) {
     hasLoaded.value = true;
     if (props.initialRepo) currentRepo.value = props.initialRepo;
@@ -397,7 +402,7 @@ watch(() => props.open, (isOpen) => {
       loadDir("");
     }
   }
-});
+}, { immediate: true });
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -512,10 +517,15 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
 
 <template>
   <WindowFrame
-    :open="open"
+    :open="wState.open"
+    :minimized="wState.minimized"
+    :focused="wState.focused"
+    :z-index="wState.zIndex"
     :title="windowTitle"
     :icon="fileExplorerIcon"
     @close="emit('close')"
+    @minimize="minimizeWindow(windowId)"
+    @focus="focusWindow(windowId)"
     @dismiss-menus="emit('dismiss-menus')"
     @mouseup="onMouseButton"
   >

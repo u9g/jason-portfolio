@@ -7,10 +7,15 @@ const props = defineProps<{
   open: boolean;
   title: string;
   icon?: string;
+  zIndex?: number;
+  focused?: boolean;
+  minimized?: boolean;
 }>();
 
 const emit = defineEmits<{
   close: [];
+  minimize: [];
+  focus: [];
   "dismiss-menus": [];
 }>();
 
@@ -168,10 +173,11 @@ onUnmounted(() => {
   </Teleport>
   <Transition name="win-frame">
     <div
-      v-if="open"
+      v-if="open && !minimized"
       class="window-frame"
-      :class="{ snapped: !!snap }"
-      :style="snapStyle"
+      :class="{ snapped: !!snap, unfocused: focused === false }"
+      :style="{ ...snapStyle, zIndex: zIndex ?? 15 }"
+      @mousedown="emit('focus')"
       @click.stop="emit('dismiss-menus')"
       @contextmenu.stop.prevent
     >
@@ -179,7 +185,7 @@ onUnmounted(() => {
         <img v-if="icon" :src="icon" class="title-icon" alt="" />
         <span class="title-text">{{ title }}</span>
         <div class="title-buttons">
-          <button class="title-btn" aria-label="Minimize">
+          <button class="title-btn" aria-label="Minimize" @click.stop="emit('minimize')">
             <svg viewBox="0 0 12 12" width="10" height="10"><line x1="1" y1="6" x2="11" y2="6" stroke="#333" stroke-width="1" /></svg>
           </button>
           <button class="title-btn" aria-label="Maximize" @click.stop="toggleMaximize">
@@ -214,7 +220,6 @@ onUnmounted(() => {
   border: 1px solid #888;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  z-index: 15;
   font-family: "Segoe UI", -apple-system, sans-serif;
   font-size: 12px;
 }
@@ -256,6 +261,10 @@ onUnmounted(() => {
   flex-shrink: 0;
   user-select: none;
   border-bottom: 1px solid #e0e0e0;
+}
+
+.unfocused .title-bar {
+  background: #f0f0f0;
 }
 
 .title-icon {

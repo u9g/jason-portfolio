@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import startIcon from "../../assets/windows-start.svg";
+import type { WindowState } from "../../composables/useWindowManager";
 
 defineProps<{
   startMenuOpen: boolean;
+  openWindows: WindowState[];
 }>();
 
 const emit = defineEmits<{
   "toggle-start-menu": [];
+  "taskbar-click": [id: string];
 }>();
 
 const time = ref("");
@@ -42,6 +45,18 @@ onUnmounted(() => {
     <button class="start-button" :class="{ active: startMenuOpen }" aria-label="Start" @click.stop="emit('toggle-start-menu')">
       <img :src="startIcon" alt="" class="start-icon" />
     </button>
+    <div class="taskbar-windows">
+      <button
+        v-for="win in openWindows"
+        :key="win.id"
+        class="taskbar-window-btn"
+        :class="{ focused: win.focused }"
+        @click.stop="emit('taskbar-click', win.id)"
+      >
+        <img :src="win.icon" alt="" class="taskbar-window-icon" />
+        <span class="taskbar-window-title">{{ win.title }}</span>
+      </button>
+    </div>
     <div class="taskbar-spacer"></div>
     <div class="system-tray">
       <div class="clock">
@@ -93,6 +108,50 @@ onUnmounted(() => {
 
 .start-button:hover .start-icon {
   filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(1.1);
+}
+
+.taskbar-windows {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.taskbar-window-btn {
+  height: 34px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-size: 12px;
+  font-family: "Segoe UI", -apple-system, sans-serif;
+}
+
+.taskbar-window-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.taskbar-window-btn.focused {
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom-color: #4cc2ff;
+}
+
+.taskbar-window-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.taskbar-window-title {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .taskbar-spacer {
