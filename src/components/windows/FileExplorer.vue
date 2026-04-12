@@ -450,7 +450,11 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             :style="{ paddingLeft: (4 + item.depth * 20) + 'px' }"
             @click="onNavClick(item.node)"
           >
-            <span class="nav-arrow" :class="{ expanded: item.node.expanded, hidden: item.node.loaded && (!item.node.children || item.node.children.length === 0) }">›</span>
+            <span
+              class="nav-arrow"
+              :class="{ expanded: item.node.expanded, hidden: item.node.loaded && (!item.node.children || item.node.children.length === 0) }"
+              @click.stop="item.node.expanded = !item.node.expanded"
+            >›</span>
             <svg v-if="item.node.icon === 'pin'" class="nav-icon" viewBox="0 0 16 16">
               <defs>
                 <mask id="lines-mask">
@@ -767,6 +771,8 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   flex-shrink: 0;
   transition: transform 0.1s ease;
   display: inline-block;
+  cursor: pointer;
+  padding: 2px 0;
 }
 
 .nav-arrow.expanded {
