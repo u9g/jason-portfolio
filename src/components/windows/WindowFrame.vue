@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+
+type SnapZone = "max" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | null;
 
 const props = defineProps<{
   open: boolean;
@@ -12,7 +14,8 @@ const emit = defineEmits<{
   "dismiss-menus": [];
 }>();
 
-const maximized = ref(false);
+const snap = ref<SnapZone>(null);
+const snapPreview = ref<SnapZone>(null);
 const posX = ref(100);
 const posY = ref(60);
 let dragPending = false;
@@ -21,15 +24,74 @@ let dragStartX = 0;
 let dragStartY = 0;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
-let preMaxPos = { x: 0, y: 0 };
+let preSnapPos = { x: 0, y: 0 };
 const DRAG_THRESHOLD = 4;
+const EDGE = 8;
+const CORNER = 50;
+const TASKBAR = 40;
+
+function detectSnapZone(x: number, y: number): SnapZone {
+  const w = window.innerWidth;
+  const h = window.innerHeight - TASKBAR;
+  const atLeft = x <= EDGE;
+  const atRight = x >= w - EDGE;
+  const atTop = y <= EDGE;
+  const atBottom = y >= h - EDGE;
+  const nearTop = y < CORNER;
+  const nearBottom = y > h - CORNER;
+  const nearLeft = x < CORNER;
+  const nearRight = x > w - CORNER;
+
+  if (atTop && nearLeft) return "top-left";
+  if (atTop && nearRight) return "top-right";
+  if (atLeft && nearTop) return "top-left";
+  if (atRight && nearTop) return "top-right";
+  if (atLeft && nearBottom) return "bottom-left";
+  if (atRight && nearBottom) return "bottom-right";
+  if (atBottom && nearLeft) return "bottom-left";
+  if (atBottom && nearRight) return "bottom-right";
+  if (atTop) return "max";
+  if (atLeft) return "left";
+  if (atRight) return "right";
+  return null;
+}
+
+const snapStyle = computed(() => {
+  if (!snap.value) return { left: posX.value + "px", top: posY.value + "px" };
+  const h = "calc(100vh - 40px)";
+  const halfH = "calc((100vh - 40px) / 2)";
+  switch (snap.value) {
+    case "max": return { left: "0", top: "0", width: "100vw", height: h };
+    case "left": return { left: "0", top: "0", width: "50vw", height: h };
+    case "right": return { left: "50vw", top: "0", width: "50vw", height: h };
+    case "top-left": return { left: "0", top: "0", width: "50vw", height: halfH };
+    case "top-right": return { left: "50vw", top: "0", width: "50vw", height: halfH };
+    case "bottom-left": return { left: "0", top: halfH, width: "50vw", height: halfH };
+    case "bottom-right": return { left: "50vw", top: halfH, width: "50vw", height: halfH };
+  }
+});
+
+const previewStyle = computed(() => {
+  if (!snapPreview.value) return null;
+  const h = "calc(100vh - 40px)";
+  const halfH = "calc((100vh - 40px) / 2)";
+  switch (snapPreview.value) {
+    case "max": return { left: "0", top: "0", width: "100vw", height: h };
+    case "left": return { left: "0", top: "0", width: "50vw", height: h };
+    case "right": return { left: "50vw", top: "0", width: "50vw", height: h };
+    case "top-left": return { left: "0", top: "0", width: "50vw", height: halfH };
+    case "top-right": return { left: "50vw", top: "0", width: "50vw", height: halfH };
+    case "bottom-left": return { left: "0", top: halfH, width: "50vw", height: halfH };
+    case "bottom-right": return { left: "50vw", top: halfH, width: "50vw", height: halfH };
+  }
+});
 
 function onTitleBarMouseDown(e: MouseEvent) {
   dragPending = true;
   dragging = false;
   dragStartX = e.clientX;
   dragStartY = e.clientY;
-  if (!maximized.value) {
+  if (!snap.value) {
     dragOffsetX = e.clientX - posX.value;
     dragOffsetY = e.clientY - posY.value;
   }
@@ -43,36 +105,45 @@ function onMouseMove(e: MouseEvent) {
     if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
     dragging = true;
     dragPending = false;
-    if (maximized.value) {
-      // Restore from maximized: place window so cursor is proportionally on the title bar
+    if (snap.value) {
+      // Restore from snapped: place window so cursor is proportionally on the title bar
       const restoredWidth = 750;
-      const fractionX = dragStartX / window.innerWidth;
+      const fractionX = snap.value === "max"
+        ? dragStartX / window.innerWidth
+        : snap.value.includes("right") ? 0.75 : 0.25;
       posX.value = e.clientX - fractionX * restoredWidth;
       posY.value = e.clientY - dragStartY;
       dragOffsetX = e.clientX - posX.value;
       dragOffsetY = e.clientY - posY.value;
-      maximized.value = false;
+      snap.value = null;
     }
   }
   posX.value = e.clientX - dragOffsetX;
   posY.value = e.clientY - dragOffsetY;
+  snapPreview.value = detectSnapZone(e.clientX, e.clientY);
 }
 
-function onMouseUp() {
+function onMouseUp(e: MouseEvent) {
+  if (dragging) {
+    const zone = detectSnapZone(e.clientX, e.clientY);
+    if (zone) {
+      preSnapPos = { x: posX.value, y: posY.value };
+      snap.value = zone;
+    }
+  }
   dragging = false;
   dragPending = false;
+  snapPreview.value = null;
 }
 
 function toggleMaximize() {
-  if (maximized.value) {
-    maximized.value = false;
-    posX.value = preMaxPos.x;
-    posY.value = preMaxPos.y;
+  if (snap.value) {
+    snap.value = null;
+    posX.value = preSnapPos.x;
+    posY.value = preSnapPos.y;
   } else {
-    preMaxPos = { x: posX.value, y: posY.value };
-    maximized.value = true;
-    posX.value = 0;
-    posY.value = 0;
+    preSnapPos = { x: posX.value, y: posY.value };
+    snap.value = "max";
   }
 }
 
@@ -92,12 +163,15 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <Teleport to="body">
+    <div v-if="snapPreview" class="snap-preview" :style="previewStyle!" />
+  </Teleport>
   <Transition name="win-frame">
     <div
       v-if="open"
       class="window-frame"
-      :class="{ maximized }"
-      :style="maximized ? {} : { left: posX + 'px', top: posY + 'px' }"
+      :class="{ snapped: !!snap }"
+      :style="snapStyle"
       @click.stop="emit('dismiss-menus')"
       @contextmenu.stop.prevent
     >
@@ -109,7 +183,7 @@ onUnmounted(() => {
             <svg viewBox="0 0 12 12" width="10" height="10"><line x1="1" y1="6" x2="11" y2="6" stroke="#333" stroke-width="1" /></svg>
           </button>
           <button class="title-btn" aria-label="Maximize" @click.stop="toggleMaximize">
-            <svg v-if="!maximized" viewBox="0 0 12 12" width="10" height="10"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="#333" stroke-width="1" /></svg>
+            <svg v-if="!snap" viewBox="0 0 12 12" width="10" height="10"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="#333" stroke-width="1" /></svg>
             <svg v-else viewBox="0 0 12 12" width="10" height="10">
               <rect x="3" y="0.5" width="8.5" height="8.5" fill="none" stroke="#333" stroke-width="1" />
               <rect x="0.5" y="3" width="8.5" height="8.5" fill="#fff" stroke="#333" stroke-width="1" />
@@ -145,13 +219,19 @@ onUnmounted(() => {
   font-size: 12px;
 }
 
-.window-frame.maximized {
-  width: 100vw;
-  height: calc(100vh - 40px);
-  top: 0;
-  left: 0;
+.window-frame.snapped {
   border: none;
   box-shadow: none;
+}
+
+.snap-preview {
+  position: fixed;
+  background: rgba(100, 149, 237, 0.25);
+  border: 2px solid rgba(100, 149, 237, 0.6);
+  border-radius: 6px;
+  z-index: 14;
+  pointer-events: none;
+  transition: all 0.15s ease;
 }
 
 .win-frame-enter-active {
