@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import WindowFrame from "./WindowFrame.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
 import { entryLogos, darkInvertLogos } from "../../data/entry-logos";
@@ -23,6 +23,11 @@ const wState = computed(() => getWindow(props.windowId) ?? defaultState);
 
 const selectedSlug = ref(props.items[0]?.slug ?? "");
 const selected = computed(() => props.items.find((i) => i.slug === selectedSlug.value));
+const detailPane = ref<HTMLElement | null>(null);
+
+watch(selectedSlug, () => {
+  if (detailPane.value) detailPane.value.scrollTop = 0;
+});
 </script>
 
 <template>
@@ -58,7 +63,7 @@ const selected = computed(() => props.items.find((i) => i.slug === selectedSlug.
         </button>
       </div>
 
-      <div class="detail-pane">
+      <div ref="detailPane" class="detail-pane">
         <template v-if="selected">
           <div class="detail-header">
             <img
