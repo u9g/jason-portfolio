@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
 type SnapZone = "max" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | null;
+type MaxState = "max" | null;
 
 const props = defineProps<{
   open: boolean;
@@ -19,7 +20,7 @@ const emit = defineEmits<{
   "dismiss-menus": [];
 }>();
 
-const snap = ref<SnapZone>(null);
+const snap = ref<MaxState>(null);
 const snapPreview = ref<SnapZone>(null);
 const posX = ref(100);
 const posY = ref(60);
@@ -76,18 +77,8 @@ function detectSnapZone(x: number, y: number): SnapZone {
 }
 
 const snapStyle = computed(() => {
-  if (!snap.value) return { left: posX.value + "px", top: posY.value + "px", width: winW.value + "px", height: winH.value + "px" };
-  const h = "calc(100vh - 40px)";
-  const halfH = "calc((100vh - 40px) / 2)";
-  switch (snap.value) {
-    case "max": return { left: "0", top: "0", width: "100vw", height: h };
-    case "left": return { left: "0", top: "0", width: "50vw", height: h };
-    case "right": return { left: "50vw", top: "0", width: "50vw", height: h };
-    case "top-left": return { left: "0", top: "0", width: "50vw", height: halfH };
-    case "top-right": return { left: "50vw", top: "0", width: "50vw", height: halfH };
-    case "bottom-left": return { left: "0", top: halfH, width: "50vw", height: halfH };
-    case "bottom-right": return { left: "50vw", top: halfH, width: "50vw", height: halfH };
-  }
+  if (snap.value === "max") return { left: "0", top: "0", width: "100vw", height: "calc(100vh - 40px)" };
+  return { left: posX.value + "px", top: posY.value + "px", width: winW.value + "px", height: winH.value + "px" };
 });
 
 const previewStyle = computed(() => {
@@ -104,6 +95,19 @@ const previewStyle = computed(() => {
     case "bottom-right": return { left: "50vw", top: halfH, width: "50vw", height: halfH };
   }
 });
+
+function applySnapZone(zone: SnapZone) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight - TASKBAR;
+  switch (zone) {
+    case "left":         posX.value = 0;      posY.value = 0;      winW.value = vw / 2; winH.value = vh; break;
+    case "right":        posX.value = vw / 2; posY.value = 0;      winW.value = vw / 2; winH.value = vh; break;
+    case "top-left":     posX.value = 0;      posY.value = 0;      winW.value = vw / 2; winH.value = vh / 2; break;
+    case "top-right":    posX.value = vw / 2; posY.value = 0;      winW.value = vw / 2; winH.value = vh / 2; break;
+    case "bottom-left":  posX.value = 0;      posY.value = vh / 2; winW.value = vw / 2; winH.value = vh / 2; break;
+    case "bottom-right": posX.value = vw / 2; posY.value = vh / 2; winW.value = vw / 2; winH.value = vh / 2; break;
+  }
+}
 
 function onTitleBarMouseDown(e: MouseEvent) {
   dragPending = true;
@@ -158,12 +162,10 @@ function onMouseMove(e: MouseEvent) {
     if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
     dragging = true;
     dragPending = false;
-    if (snap.value) {
-      // Restore from snapped: place window so cursor is proportionally on the title bar
+    if (snap.value === "max") {
+      // Restore from maximized: place window so cursor is proportionally on the title bar
       const restoredWidth = winW.value;
-      const fractionX = snap.value === "max"
-        ? dragStartX / window.innerWidth
-        : snap.value.includes("right") ? 0.75 : 0.25;
+      const fractionX = dragStartX / window.innerWidth;
       posX.value = e.clientX - fractionX * restoredWidth;
       posY.value = e.clientY - dragStartY;
       dragOffsetX = e.clientX - posX.value;
@@ -183,9 +185,11 @@ function onMouseUp(e: MouseEvent) {
   }
   if (dragging) {
     const zone = detectSnapZone(e.clientX, e.clientY);
-    if (zone) {
+    if (zone === "max") {
       preSnapPos = { x: posX.value, y: posY.value };
-      snap.value = zone;
+      snap.value = "max";
+    } else if (zone) {
+      applySnapZone(zone);
     }
   }
   dragging = false;
@@ -234,7 +238,7 @@ onUnmounted(() => {
       @contextmenu.prevent
     >
       <!-- Resize handles -->
-      <template v-if="!snap">
+      <template v-if="snap !== 'max'">
         <div class="resize-handle resize-top" @mousedown.stop="onResizeMouseDown('top', $event)" />
         <div class="resize-handle resize-bottom" @mousedown.stop="onResizeMouseDown('bottom', $event)" />
         <div class="resize-handle resize-left" @mousedown.stop="onResizeMouseDown('left', $event)" />
