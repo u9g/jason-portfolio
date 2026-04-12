@@ -8,6 +8,7 @@ import FileExplorer from "./FileExplorer.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import folderFullIcon from "../../assets/folder-full.png";
+import thisPcIcon from "../../assets/this-pc.svg";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -109,10 +110,18 @@ function onContextMenu(e: MouseEvent) {
     />
     <div class="desktop-icons">
       <DesktopIcon
-        label="File Explorer"
+        label="This PC"
+        :icon="thisPcIcon"
         :selected="iconSelected"
         @click.stop="toggleIcon"
         @dblclick.stop="openNewExplorer(); iconSelected = false"
+      />
+      <DesktopIcon
+        label="Essays"
+        :icon="folderFullIcon"
+        :selected="essaysSelected"
+        @click.stop="essaysSelected = !essaysSelected"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); essaysSelected = false"
       />
       <DesktopIcon
         label="favicon.svg"
@@ -121,13 +130,6 @@ function onContextMenu(e: MouseEvent) {
         :selected="faviconSelected"
         @click.stop="faviconSelected = !faviconSelected"
         @dblclick.stop="openNewExplorer('u9g/jason-portfolio', 'public/favicon.svg'); faviconSelected = false"
-      />
-      <DesktopIcon
-        label="Essays"
-        :icon="folderFullIcon"
-        :selected="essaysSelected"
-        @click.stop="essaysSelected = !essaysSelected"
-        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); essaysSelected = false"
       />
     </div>
     <FileExplorer

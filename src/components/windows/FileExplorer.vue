@@ -4,6 +4,7 @@ import { fetchContents, fetchFileContent, fetchUserRepos, PINNED_REPOS, type GHE
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import folderIcon from "../../assets/folder.png";
 import driveIcon from "../../assets/drive.png";
+import thisPcIcon from "../../assets/this-pc.svg";
 import fileTextIcon from "../../assets/file-text.png";
 import WindowFrame from "./WindowFrame.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
@@ -390,7 +391,7 @@ watch(currentPath, (p) => {
     { label: "This PC", path: "__thispc__" },
   ];
   if (p !== "__thispc__") {
-    segs.push({ label: "Projects (D:)", path: "__drive__" });
+    segs.push({ label: "Jason's Github (D:)", path: "__drive__" });
     if (p !== "__drive__") {
       segs.push({ label: currentRepo.value.split("/").pop() ?? currentRepo.value, path: "" });
     }
@@ -416,8 +417,10 @@ watch(() => wState.value.open, (isOpen) => {
       openFile({ name: props.initialFile.split("/").pop() ?? props.initialFile, path: props.initialFile, type: "file", size: 0 });
     } else if (props.initialDir) {
       loadDir(props.initialDir);
-    } else {
+    } else if (props.initialRepo) {
       loadDir("");
+    } else {
+      showThisPC();
     }
   }
 }, { immediate: true });
@@ -459,7 +462,7 @@ const navTree = ref<NavNode[]>([
   {
     label: "This PC", icon: "pc", path: null, expanded: true, loaded: true,
     children: [
-      { label: "Projects (D:)", icon: "drive", path: "__drive__", expanded: false, loaded: false },
+      { label: "Jason's Github (D:)", icon: "drive", path: "__drive__", expanded: false, loaded: false },
     ],
   },
 ]);
@@ -624,7 +627,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
                 <line x1="0" y1="12.5" x2="3.5" y2="12.5" stroke="#3b8eea" stroke-width="0.7" />
               </g>
             </svg>
-            <svg v-else-if="item.node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
+            <img v-else-if="item.node.icon === 'pc'" :src="thisPcIcon" class="nav-icon" alt="" />
             <img v-else-if="item.node.icon === 'drive'" :src="driveIcon" class="nav-icon" alt="" />
             <img v-else :src="folderIcon" class="nav-icon" alt="" />
             <span class="nav-label">{{ item.node.label }}<svg v-if="item.node.label === 'jason-portfolio' && item.node.icon === 'folder'" class="nav-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
@@ -659,7 +662,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               <button class="drive-tile" @click="showDrive()">
                 <img :src="driveIcon" class="drive-tile-icon" alt="" />
                 <div class="drive-tile-info">
-                  <span class="drive-tile-label">Projects (D:)</span>
+                  <span class="drive-tile-label">Jason's Github (D:)</span>
                   <div class="drive-bar">
                     <div class="drive-bar-fill"></div>
                   </div>
