@@ -61,7 +61,7 @@ const rendered = computed(() => renderMd(props.source, props.baseUrl));
 .md-render :deep(a) { color: #0078d4; text-decoration: none; }
 .md-render :deep(a:hover) { text-decoration: underline; }
 .md-render :deep(strong) { font-weight: 600; }
-.md-render :deep(img) { max-width: 100%; height: auto; }
+.md-render :deep(img) { max-width: 50%; height: auto; }
 .md-render :deep(table) { border-collapse: collapse; margin: 0.5em 0; font-size: 12px; border: 1px solid #ddd; }
 .md-render :deep(th), .md-render :deep(td) { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
 .md-render :deep(th) { background: #f6f6f6; font-weight: 600; }
