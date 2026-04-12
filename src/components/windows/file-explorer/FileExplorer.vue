@@ -20,7 +20,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: [];
-  "dismiss-menus": [];
 }>();
 
 const { getWindow, focusWindow, minimizeWindow } = useWindowManager();
@@ -334,7 +333,6 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     @close="emit('close')"
     @minimize="minimizeWindow(windowId)"
     @focus="focusWindow(windowId)"
-    @dismiss-menus="emit('dismiss-menus')"
     @mouseup="onMouseButton"
   >
     <ExplorerToolbar

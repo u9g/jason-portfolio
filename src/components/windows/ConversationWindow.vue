@@ -14,7 +14,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: [];
-  "dismiss-menus": [];
 }>();
 
 const { getWindow, focusWindow, minimizeWindow } = useWindowManager();
@@ -41,7 +40,6 @@ watch(selectedSlug, () => {
     @close="emit('close')"
     @minimize="minimizeWindow(windowId)"
     @focus="focusWindow(windowId)"
-    @dismiss-menus="emit('dismiss-menus')"
   >
     <div class="conv-window">
       <div class="item-list">

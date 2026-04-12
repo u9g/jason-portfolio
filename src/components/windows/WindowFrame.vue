@@ -17,7 +17,6 @@ const emit = defineEmits<{
   close: [];
   minimize: [];
   focus: [];
-  "dismiss-menus": [];
   mouseup: [e: MouseEvent];
 }>();
 
@@ -236,7 +235,6 @@ onUnmounted(() => {
       :style="{ ...snapStyle, zIndex: zIndex ?? 15 }"
       @mousedown="emit('focus')"
       @mouseup="emit('mouseup', $event)"
-      @click.stop="emit('dismiss-menus')"
       @contextmenu.prevent
     >
       <!-- Resize handles -->

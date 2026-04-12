@@ -98,6 +98,15 @@ const desktopIcons = [
   { key: 'essays', label: 'Essays', icon: essaysIcon, selected: ref(false), action: () => openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays') },
 ];
 
+function onDesktopClick(e: MouseEvent) {
+  startMenuOpen.value = false;
+  contextMenuOpen.value = false;
+  const el = e.target as HTMLElement;
+  if (!el.closest('.window-frame')) {
+    desktopIcons.forEach(di => di.selected.value = false);
+  }
+}
+
 function onContextMenu(e: MouseEvent) {
   const el = e.target as HTMLElement;
   if (!el.closest('.win-desktop') || el.closest('.taskbar, .window-frame, .start-menu')) return;
@@ -109,7 +118,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="desktopIcons.forEach(di => di.selected.value = false); startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="onDesktopClick" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -136,7 +145,6 @@ function onContextMenu(e: MouseEvent) {
       :initial-file="cfg.initialFile"
       :initial-dir="cfg.initialDir"
       @close="onExplorerClose(cfg.windowId)"
-      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
       v-for="id in workExp.ids.value"
@@ -146,7 +154,6 @@ function onContextMenu(e: MouseEvent) {
       :window-icon="workExpIcon"
       :items="conversations.jobs"
       @close="workExp.close(id)"
-      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
       v-for="id in projects.ids.value"
@@ -156,7 +163,6 @@ function onContextMenu(e: MouseEvent) {
       :window-icon="projectsIcon"
       :items="conversations.projects"
       @close="projects.close(id)"
-      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
