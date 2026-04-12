@@ -128,7 +128,7 @@ function stickyBottom(): number {
 function updateActiveHeading() {
   const headings = Array.from(
     document.querySelectorAll<HTMLElement>(
-      ".section-header, .sub-header, .repo-header",
+      ".heading",
     ),
   ).filter((el) => el.id);
   if (headings.length === 0) return;
@@ -272,7 +272,7 @@ onUnmounted(() => {
         <!-- About -->
         <h2
           id="about"
-          :class="['section-header', { active: activeSection === 'about' }]"
+          :class="['heading', 'section-header', { active: activeSection === 'about' }]"
           @click="copyAnchor('about')"
         >
           <span class="anchor-icon">#</span> About Me
@@ -300,7 +300,7 @@ onUnmounted(() => {
         <!-- Job Experience -->
         <h2
           id="jobs"
-          :class="['section-header', { active: activeSection === 'jobs' }]"
+          :class="['heading', 'section-header', { active: activeSection === 'jobs' }]"
           @click="copyAnchor('jobs')"
         >
           <span class="anchor-icon">#</span> Job Experience
@@ -312,7 +312,7 @@ onUnmounted(() => {
         >
           <h3
             :id="job.slug"
-            :class="['sub-header', { active: activeSubSection === job.slug }]"
+            :class="['heading', 'sub-header', { active: activeSubSection === job.slug }]"
             @click="copyAnchor(job.slug)"
           >
             <span class="anchor-icon">#</span> {{ job.title }}
@@ -334,7 +334,7 @@ onUnmounted(() => {
         <!-- Personal Projects -->
         <h2
           id="projects"
-          :class="['section-header', { active: activeSection === 'projects' }]"
+          :class="['heading', 'section-header', { active: activeSection === 'projects' }]"
           @click="copyAnchor('projects')"
         >
           <span class="anchor-icon">#</span> Personal Projects
@@ -347,6 +347,7 @@ onUnmounted(() => {
           <h3
             :id="project.slug"
             :class="[
+              'heading',
               'sub-header',
               { active: activeSubSection === project.slug },
             ]"
@@ -371,7 +372,7 @@ onUnmounted(() => {
         <!-- OSS Contributions -->
         <h2
           id="oss"
-          :class="['section-header', { active: activeSection === 'oss' }]"
+          :class="['heading', 'section-header', { active: activeSection === 'oss' }]"
           @click="copyAnchor('oss')"
         >
           <span class="anchor-icon">#</span> Notable OSS Contributions
@@ -385,6 +386,7 @@ onUnmounted(() => {
             <h3
               :id="`oss-${repo.name.replace('/', '-')}`"
               :class="[
+                'heading',
                 'repo-header',
                 {
                   active:
@@ -449,7 +451,7 @@ onUnmounted(() => {
         <!-- Essays -->
         <h2
           id="essays"
-          :class="['section-header', { active: activeSection === 'essays' }]"
+          :class="['heading', 'section-header', { active: activeSection === 'essays' }]"
           @click="copyAnchor('essays')"
         >
           <span class="anchor-icon">#</span> Essays
@@ -459,6 +461,7 @@ onUnmounted(() => {
             <h3
               :id="essay.slug"
               :class="[
+                'heading',
                 'sub-header',
                 { active: activeSubSection === essay.slug },
               ]"
@@ -627,27 +630,28 @@ onUnmounted(() => {
 }
 
 @media (max-width: 1024px) {
-  .section-header,
-  .sub-header {
+  .heading {
     scroll-margin-top: 76px;
   }
 }
 
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-bright);
+}
+
+.heading:hover .anchor-icon,
+.heading.active .anchor-icon {
+  opacity: 1;
+}
 .section-header {
   font-size: 1.3rem;
   margin: 2.5rem 0 0.75rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-bright);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-header:hover .anchor-icon,
-.section-header.active .anchor-icon {
-  opacity: 1;
 }
 
 .anchor-icon {
@@ -668,16 +672,6 @@ onUnmounted(() => {
 .sub-header {
   font-size: 1.1rem;
   margin: 1.5rem 0 0.5rem;
-  color: var(--text-bright);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sub-header:hover .anchor-icon,
-.sub-header.active .anchor-icon {
-  opacity: 1;
 }
 
 .project-logo {
@@ -783,16 +777,6 @@ onUnmounted(() => {
 .repo-header {
   font-size: 1rem;
   margin: 1rem 0 0.4rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-bright);
-}
-
-.repo-header:hover .anchor-icon,
-.repo-header.active .anchor-icon {
-  opacity: 1;
 }
 
 .repo-header a {
