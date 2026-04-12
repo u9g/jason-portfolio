@@ -32,12 +32,11 @@ const entries = ref<GHEntry[]>([]);
 const loading = ref(false);
 const error = ref("");
 
-const viewingFile = ref(false);
+type ViewMode = "thispc" | "drive" | "directory" | "file";
+const viewMode = ref<ViewMode>("directory");
 const fileContent = ref("");
 const fileName = ref("");
 const fileLoading = ref(false);
-const viewingThisPC = ref(false);
-const viewingDrive = ref(false);
 const currentRepo = ref("jason-portfolio");
 
 // History navigation
@@ -56,16 +55,12 @@ async function navigateToHistory(index: number) {
   historyIndex.value = index;
   const path = historyStack.value[index];
   if (path === "__thispc__") {
-    viewingThisPC.value = true;
-    viewingDrive.value = false;
-    viewingFile.value = false;
+    viewMode.value = "thispc";
     currentPath.value = "__thispc__";
     entries.value = [];
     loading.value = false;
   } else if (path === "__drive__") {
-    viewingDrive.value = true;
-    viewingThisPC.value = false;
-    viewingFile.value = false;
+    viewMode.value = "drive";
     currentPath.value = "__drive__";
     loading.value = true;
     try {
@@ -83,9 +78,7 @@ async function navigateToHistory(index: number) {
     currentRepo.value = repo;
     fileName.value = filePath.split("/").pop() ?? filePath;
     currentPath.value = filePath;
-    viewingFile.value = true;
-    viewingThisPC.value = false;
-    viewingDrive.value = false;
+    viewMode.value = "file";
     fileLoading.value = true;
     try {
       fileContent.value = await fetchFileContent(filePath, repo);
@@ -101,9 +94,7 @@ async function navigateToHistory(index: number) {
     currentRepo.value = repo;
     loading.value = true;
     error.value = "";
-    viewingFile.value = false;
-    viewingThisPC.value = false;
-    viewingDrive.value = false;
+    viewMode.value = "directory";
     try {
       entries.value = await fetchContents(dirPath, repo);
       currentPath.value = dirPath;
@@ -129,7 +120,7 @@ function onMouseButton(e: MouseEvent) {
 }
 
 // Window title and icon
-const windowTitle = computed(() => viewingFile.value ? fileName.value : "File Explorer");
+const windowTitle = computed(() => viewMode.value === "file" ? fileName.value : "File Explorer");
 
 const fileViewerRef = ref<InstanceType<typeof FileViewer> | null>(null);
 const windowIcon = computed(() => {
@@ -150,9 +141,7 @@ watch(windowIcon, (i) => {
 
 // Navigation actions
 function showThisPC() {
-  viewingThisPC.value = true;
-  viewingDrive.value = false;
-  viewingFile.value = false;
+  viewMode.value = "thispc";
   currentPath.value = "__thispc__";
   entries.value = [];
   loading.value = false;
@@ -160,9 +149,7 @@ function showThisPC() {
 }
 
 async function showDrive() {
-  viewingDrive.value = true;
-  viewingThisPC.value = false;
-  viewingFile.value = false;
+  viewMode.value = "drive";
   currentPath.value = "__drive__";
   loading.value = true;
   error.value = "";
@@ -179,9 +166,7 @@ async function showDrive() {
 async function loadDir(path: string) {
   loading.value = true;
   error.value = "";
-  viewingFile.value = false;
-  viewingThisPC.value = false;
-  viewingDrive.value = false;
+  viewMode.value = "directory";
   try {
     entries.value = await fetchContents(path, currentRepo.value);
     currentPath.value = path;
@@ -196,8 +181,7 @@ async function loadDir(path: string) {
 async function openFile(entry: GHEntry) {
   fileLoading.value = true;
   fileName.value = entry.name;
-  viewingFile.value = true;
-  viewingThisPC.value = false;
+  viewMode.value = "file";
   currentPath.value = entry.path;
   pushHistory(`__file__:${currentRepo.value}::${entry.path}`);
   try {
@@ -221,12 +205,12 @@ function onEntryClick(entry: GHEntry) {
 }
 
 function goUp() {
-  if (viewingFile.value) {
-    viewingFile.value = false;
+  if (viewMode.value === "file") {
+    viewMode.value = "directory";
     return;
   }
-  if (viewingThisPC.value) return;
-  if (viewingDrive.value) {
+  if (viewMode.value === "thispc") return;
+  if (viewMode.value === "drive") {
     showThisPC();
     return;
   }
@@ -239,7 +223,7 @@ function goUp() {
   loadDir(parts.join("/"));
 }
 
-const canGoUp = computed(() => !viewingThisPC.value);
+const canGoUp = computed(() => viewMode.value !== "thispc");
 
 function onNavigateSegment(path: string) {
   if (path === "__thispc__") showThisPC();
@@ -419,12 +403,12 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         <div v-if="loading" class="status-msg">Loading...</div>
         <div v-else-if="error" class="status-msg error">{{ error }}</div>
         <ThisPCView
-          v-else-if="viewingThisPC"
+          v-else-if="viewMode === 'thispc'"
           @open-repo="onOpenRepo"
           @show-drive="showDrive"
         />
         <FileViewer
-          v-else-if="viewingFile"
+          v-else-if="viewMode === 'file'"
           ref="fileViewerRef"
           :file-name="fileName"
           :file-content="fileContent"
@@ -441,7 +425,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     </div>
 
     <div class="status-bar">
-      <span v-if="!viewingFile">{{ entries.length }} items</span>
+      <span v-if="viewMode !== 'file'">{{ entries.length }} items</span>
       <span v-else>{{ fileName }}</span>
     </div>
   </WindowFrame>
