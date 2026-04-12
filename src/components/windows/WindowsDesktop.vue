@@ -82,24 +82,40 @@ function onExplorerClose(windowId: string) {
   explorers.value = explorers.value.filter((e) => e.windowId !== windowId);
 }
 
-function useConversationWindows(title: string, icon: string) {
-  const ids = ref<string[]>([]);
-  const open = () => ids.value.push(wm.createWindow(title, icon));
-  const close = (id: string) => {
-    wm.closeWindow(id);
-    ids.value = ids.value.filter(w => w !== id);
-  };
-  return { ids, open, close };
+const workExpWindows = ref<string[]>([]);
+const projectsWindows = ref<string[]>([]);
+
+function openWorkExpWindow() {
+  const id = wm.createWindow("Work Experience", workExpIcon);
+  workExpWindows.value.push(id);
 }
 
-const workExp = useConversationWindows("Work Experience", workExpIcon);
-const projects = useConversationWindows("Projects", projectsIcon);
+function onWorkExpClose(windowId: string) {
+  wm.closeWindow(windowId);
+  workExpWindows.value = workExpWindows.value.filter((id) => id !== windowId);
+}
 
-const selectedIcon = ref<string | null>(null);
+function openProjectsWindow() {
+  const id = wm.createWindow("Projects", projectsIcon);
+  projectsWindows.value.push(id);
+}
+
+function onProjectsClose(windowId: string) {
+  wm.closeWindow(windowId);
+  projectsWindows.value = projectsWindows.value.filter((id) => id !== windowId);
+}
+
 const startMenuOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
 const contextMenuY = ref(0);
+
+const desktopIcons = [
+  { key: 'thisPc', label: 'This PC', icon: thisPcIcon, selected: ref(false), action: () => openNewExplorer() },
+  { key: 'workExp', label: 'Work Experience', icon: workExpIcon, selected: ref(false), action: () => openWorkExpWindow() },
+  { key: 'projects', label: 'Projects', icon: projectsIcon, selected: ref(false), action: () => openProjectsWindow() },
+  { key: 'essays', label: 'Essays', icon: essaysIcon, selected: ref(false), action: () => openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays') },
+];
 
 function onContextMenu(e: MouseEvent) {
   const el = e.target as HTMLElement;
@@ -112,7 +128,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="selectedIcon = null; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="desktopIcons.forEach(di => di.selected.value = false); startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -122,32 +138,13 @@ function onContextMenu(e: MouseEvent) {
     />
     <div class="desktop-icons">
       <DesktopIcon
-        label="This PC"
-        :icon="thisPcIcon"
-        :selected="selectedIcon === 'thisPc'"
-        @click.stop="selectedIcon = selectedIcon === 'thisPc' ? null : 'thisPc'"
-        @dblclick.stop="openNewExplorer(); selectedIcon = null"
-      />
-      <DesktopIcon
-        label="Work Experience"
-        :icon="workExpIcon"
-        :selected="selectedIcon === 'workExp'"
-        @click.stop="selectedIcon = selectedIcon === 'workExp' ? null : 'workExp'"
-        @dblclick.stop="workExp.open(); selectedIcon = null"
-      />
-      <DesktopIcon
-        label="Projects"
-        :icon="projectsIcon"
-        :selected="selectedIcon === 'projects'"
-        @click.stop="selectedIcon = selectedIcon === 'projects' ? null : 'projects'"
-        @dblclick.stop="projects.open(); selectedIcon = null"
-      />
-      <DesktopIcon
-        label="Essays"
-        :icon="essaysIcon"
-        :selected="selectedIcon === 'essays'"
-        @click.stop="selectedIcon = selectedIcon === 'essays' ? null : 'essays'"
-        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); selectedIcon = null"
+        v-for="di in desktopIcons"
+        :key="di.key"
+        :label="di.label"
+        :icon="di.icon"
+        :selected="di.selected.value"
+        @click.stop="di.selected.value = !di.selected.value"
+        @dblclick.stop="di.action(); di.selected.value = false"
       />
     </div>
     <FileExplorer
@@ -161,23 +158,23 @@ function onContextMenu(e: MouseEvent) {
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in workExp.ids.value"
+      v-for="id in workExpWindows"
       :key="id"
       :window-id="id"
       window-title="Work Experience"
       :window-icon="workExpIcon"
       :items="conversations.jobs"
-      @close="workExp.close(id)"
+      @close="onWorkExpClose(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in projects.ids.value"
+      v-for="id in projectsWindows"
       :key="id"
       :window-id="id"
       window-title="Projects"
       :window-icon="projectsIcon"
       :items="conversations.projects"
-      @close="projects.close(id)"
+      @close="onProjectsClose(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
