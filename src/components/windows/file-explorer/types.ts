@@ -16,3 +16,9 @@ export interface PathSegment {
   label: string;
   path: string;
 }
+
+export type HistoryEntry =
+  | { view: "thispc" }
+  | { view: "drive" }
+  | { view: "directory"; repo: string; path: string }
+  | { view: "file"; repo: string; path: string; name: string };

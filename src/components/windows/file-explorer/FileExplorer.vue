@@ -4,7 +4,7 @@ import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from ".
 import fileExplorerIcon from "../../../assets/file-explorer.svg";
 import WindowFrame from "../WindowFrame.vue";
 import { useWindowManager } from "../../../composables/useWindowManager";
-import type { NavNode, FlatNavItem, PathSegment } from "./types";
+import type { NavNode, FlatNavItem, PathSegment, HistoryEntry } from "./types";
 import ExplorerToolbar from "./ExplorerToolbar.vue";
 import NavigationPane from "./NavigationPane.vue";
 import ThisPCView from "./ThisPCView.vue";
@@ -40,69 +40,29 @@ const fileLoading = ref(false);
 const currentRepo = ref("jason-portfolio");
 
 // History navigation
-const historyStack = ref<string[]>([]);
+const historyStack = ref<HistoryEntry[]>([]);
 const historyIndex = ref(-1);
 const canGoBack = computed(() => historyIndex.value > 0);
 const canGoForward = computed(() => historyIndex.value < historyStack.value.length - 1);
 
-function pushHistory(path: string) {
+function pushHistory(entry: HistoryEntry) {
   historyStack.value = historyStack.value.slice(0, historyIndex.value + 1);
-  historyStack.value.push(path);
+  historyStack.value.push(entry);
   historyIndex.value = historyStack.value.length - 1;
 }
 
 async function navigateToHistory(index: number) {
   historyIndex.value = index;
-  const path = historyStack.value[index];
-  if (path === "__thispc__") {
-    viewMode.value = "thispc";
-    currentPath.value = "__thispc__";
-    entries.value = [];
-    loading.value = false;
-  } else if (path === "__drive__") {
-    viewMode.value = "drive";
-    currentPath.value = "__drive__";
-    loading.value = true;
-    try {
-      entries.value = await fetchUserRepos();
-    } catch {
-      error.value = "Failed to load repositories";
-    } finally {
-      loading.value = false;
-    }
-  } else if (path.startsWith("__file__:")) {
-    const rest = path.slice(9);
-    const sepIdx = rest.indexOf("::");
-    const repo = rest.slice(0, sepIdx);
-    const filePath = rest.slice(sepIdx + 2);
-    currentRepo.value = repo;
-    fileName.value = filePath.split("/").pop() ?? filePath;
-    currentPath.value = filePath;
-    viewMode.value = "file";
-    fileLoading.value = true;
-    try {
-      fileContent.value = await fetchFileContent(filePath, repo);
-    } catch {
-      fileContent.value = "Failed to load file content.";
-    } finally {
-      fileLoading.value = false;
-    }
-  } else {
-    const sepIdx = path.indexOf("::");
-    const repo = path.slice(0, sepIdx);
-    const dirPath = path.slice(sepIdx + 2);
-    currentRepo.value = repo;
-    loading.value = true;
-    error.value = "";
-    viewMode.value = "directory";
-    try {
-      entries.value = await fetchContents(dirPath, repo);
-      currentPath.value = dirPath;
-    } catch {
-      error.value = "Failed to load directory";
-    } finally {
-      loading.value = false;
-    }
+  const entry = historyStack.value[index];
+  switch (entry.view) {
+    case "thispc": return showThisPC(false);
+    case "drive": return showDrive(false);
+    case "directory":
+      currentRepo.value = entry.repo;
+      return loadDir(entry.path, false);
+    case "file":
+      currentRepo.value = entry.repo;
+      return openFile({ name: entry.name, path: entry.path, type: "file", size: 0 }, false);
   }
 }
 
@@ -140,20 +100,20 @@ watch(windowIcon, (i) => {
 }, { immediate: true });
 
 // Navigation actions
-function showThisPC() {
+function showThisPC(record = true) {
   viewMode.value = "thispc";
-  currentPath.value = "__thispc__";
+  currentPath.value = "";
   entries.value = [];
   loading.value = false;
-  pushHistory("__thispc__");
+  if (record) pushHistory({ view: "thispc" });
 }
 
-async function showDrive() {
+async function showDrive(record = true) {
   viewMode.value = "drive";
-  currentPath.value = "__drive__";
+  currentPath.value = "";
   loading.value = true;
   error.value = "";
-  pushHistory("__drive__");
+  if (record) pushHistory({ view: "drive" });
   try {
     entries.value = await fetchUserRepos();
   } catch {
@@ -163,14 +123,14 @@ async function showDrive() {
   }
 }
 
-async function loadDir(path: string) {
+async function loadDir(path: string, record = true) {
   loading.value = true;
   error.value = "";
   viewMode.value = "directory";
   try {
     entries.value = await fetchContents(path, currentRepo.value);
     currentPath.value = path;
-    pushHistory(`${currentRepo.value}::${path}`);
+    if (record) pushHistory({ view: "directory", repo: currentRepo.value, path });
   } catch {
     error.value = "Failed to load directory";
   } finally {
@@ -178,12 +138,12 @@ async function loadDir(path: string) {
   }
 }
 
-async function openFile(entry: GHEntry) {
+async function openFile(entry: GHEntry, record = true) {
   fileLoading.value = true;
   fileName.value = entry.name;
   viewMode.value = "file";
   currentPath.value = entry.path;
-  pushHistory(`__file__:${currentRepo.value}::${entry.path}`);
+  if (record) pushHistory({ view: "file", repo: currentRepo.value, path: entry.path, name: entry.name });
   try {
     fileContent.value = await fetchFileContent(entry.path, currentRepo.value);
   } catch {
@@ -237,29 +197,25 @@ function onOpenRepo(owner: string, name: string) {
 }
 
 // Path segments
-const pathSegments = ref<PathSegment[]>([]);
-
-watch(currentPath, (p) => {
+const pathSegments = computed<PathSegment[]>(() => {
   const segs: PathSegment[] = [
     { label: "This PC", path: "__thispc__" },
   ];
-  if (p !== "__thispc__") {
-    segs.push({ label: "Jason's Github (D:)", path: "__drive__" });
-    if (p !== "__drive__") {
-      segs.push({ label: currentRepo.value.split("/").pop() ?? currentRepo.value, path: "" });
-    }
-    if (p && !p.startsWith("__")) {
-      const parts = p.split("/");
-      for (let i = 0; i < parts.length; i++) {
-        segs.push({
-          label: parts[i],
-          path: parts.slice(0, i + 1).join("/"),
-        });
-      }
+  if (viewMode.value === "thispc") return segs;
+  segs.push({ label: "Jason's Github (D:)", path: "__drive__" });
+  if (viewMode.value === "drive") return segs;
+  segs.push({ label: currentRepo.value.split("/").pop() ?? currentRepo.value, path: "" });
+  if (currentPath.value) {
+    const parts = currentPath.value.split("/");
+    for (let i = 0; i < parts.length; i++) {
+      segs.push({
+        label: parts[i],
+        path: parts.slice(0, i + 1).join("/"),
+      });
     }
   }
-  pathSegments.value = segs;
-}, { immediate: true });
+  return segs;
+});
 
 // Initial load
 const hasLoaded = ref(false);
