@@ -82,28 +82,18 @@ function onExplorerClose(windowId: string) {
   explorers.value = explorers.value.filter((e) => e.windowId !== windowId);
 }
 
-const workExpWindows = ref<string[]>([]);
-const projectsWindows = ref<string[]>([]);
-
-function openWorkExpWindow() {
-  const id = wm.createWindow("Work Experience", workExpIcon);
-  workExpWindows.value.push(id);
+function useConversationWindows(title: string, icon: string) {
+  const ids = ref<string[]>([]);
+  const open = () => ids.value.push(wm.createWindow(title, icon));
+  const close = (id: string) => {
+    wm.closeWindow(id);
+    ids.value = ids.value.filter(w => w !== id);
+  };
+  return { ids, open, close };
 }
 
-function onWorkExpClose(windowId: string) {
-  wm.closeWindow(windowId);
-  workExpWindows.value = workExpWindows.value.filter((id) => id !== windowId);
-}
-
-function openProjectsWindow() {
-  const id = wm.createWindow("Projects", projectsIcon);
-  projectsWindows.value.push(id);
-}
-
-function onProjectsClose(windowId: string) {
-  wm.closeWindow(windowId);
-  projectsWindows.value = projectsWindows.value.filter((id) => id !== windowId);
-}
+const workExp = useConversationWindows("Work Experience", workExpIcon);
+const projects = useConversationWindows("Projects", projectsIcon);
 
 const selectedIcon = ref<string | null>(null);
 const startMenuOpen = ref(false);
@@ -143,14 +133,14 @@ function onContextMenu(e: MouseEvent) {
         :icon="workExpIcon"
         :selected="selectedIcon === 'workExp'"
         @click.stop="selectedIcon = selectedIcon === 'workExp' ? null : 'workExp'"
-        @dblclick.stop="openWorkExpWindow(); selectedIcon = null"
+        @dblclick.stop="workExp.open(); selectedIcon = null"
       />
       <DesktopIcon
         label="Projects"
         :icon="projectsIcon"
         :selected="selectedIcon === 'projects'"
         @click.stop="selectedIcon = selectedIcon === 'projects' ? null : 'projects'"
-        @dblclick.stop="openProjectsWindow(); selectedIcon = null"
+        @dblclick.stop="projects.open(); selectedIcon = null"
       />
       <DesktopIcon
         label="Essays"
@@ -171,23 +161,23 @@ function onContextMenu(e: MouseEvent) {
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in workExpWindows"
+      v-for="id in workExp.ids.value"
       :key="id"
       :window-id="id"
       window-title="Work Experience"
       :window-icon="workExpIcon"
       :items="conversations.jobs"
-      @close="onWorkExpClose(id)"
+      @close="workExp.close(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in projectsWindows"
+      v-for="id in projects.ids.value"
       :key="id"
       :window-id="id"
       window-title="Projects"
       :window-icon="projectsIcon"
       :items="conversations.projects"
-      @close="onProjectsClose(id)"
+      @close="projects.close(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
