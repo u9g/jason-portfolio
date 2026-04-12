@@ -334,7 +334,7 @@ onUnmounted(() => {
         >
           <span class="anchor-icon">#</span> About Me
         </h2>
-        <div class="section-content about-prose">
+        <div class="section-content about-prose prose-links">
           <p>Hi, my name is Jason and I have been programming for a while.</p>
           <p>
             I've worked on a lot of fun and interesting projects, as you will
@@ -385,7 +385,7 @@ onUnmounted(() => {
             :class="['qa-pair', msg.role]"
           >
             <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-            <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
+            <p v-else class="answer prose-links" v-html="renderMessage(msg.message)"></p>
           </div>
         </div>
         <!-- Personal Projects -->
@@ -422,7 +422,7 @@ onUnmounted(() => {
             :class="['qa-pair', msg.role]"
           >
             <p v-if="msg.role === 'user'" class="question">{{ msg.message }}</p>
-            <p v-else class="answer" v-html="renderMessage(msg.message)"></p>
+            <p v-else class="answer prose-links" v-html="renderMessage(msg.message)"></p>
           </div>
         </div>
         <!-- OSS Contributions -->
@@ -511,7 +511,7 @@ onUnmounted(() => {
         >
           <span class="anchor-icon">#</span> Essays
         </h2>
-        <div class="section-content about-prose">
+        <div class="section-content about-prose prose-links">
           <template v-for="essay in essays" :key="essay.slug">
             <h3
               :id="essay.slug"
@@ -1057,16 +1057,14 @@ onUnmounted(() => {
   padding-left: 40px;
 }
 
-.about-prose a,
-.about-prose :deep(a) {
+.prose-links :deep(a) {
   color: var(--text-bright);
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   padding-bottom: 1px;
 }
 
-.about-prose a:hover,
-.about-prose :deep(a:hover) {
+.prose-links :deep(a:hover) {
   color: var(--text-muted);
 }
 
@@ -1090,16 +1088,6 @@ onUnmounted(() => {
   padding-left: 40px;
 }
 
-.answer :deep(a) {
-  color: var(--text-bright);
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 1px;
-}
-
-.answer :deep(a:hover) {
-  color: var(--text-muted);
-}
 
 .answer :deep(code) {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
