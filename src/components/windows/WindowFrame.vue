@@ -23,6 +23,8 @@ const snap = ref<SnapZone>(null);
 const snapPreview = ref<SnapZone>(null);
 const posX = ref(100);
 const posY = ref(60);
+const winW = ref(750);
+const winH = ref(500);
 let dragPending = false;
 let dragging = false;
 let dragStartX = 0;
@@ -34,6 +36,18 @@ const DRAG_THRESHOLD = 4;
 const EDGE = 8;
 const CORNER = 50;
 const TASKBAR = 40;
+const MIN_W = 300;
+const MIN_H = 200;
+
+type ResizeDir = "top" | "bottom" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+let resizing = false;
+let resizeDir: ResizeDir = "right";
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeStartW = 0;
+let resizeStartH = 0;
+let resizeStartPosX = 0;
+let resizeStartPosY = 0;
 
 function detectSnapZone(x: number, y: number): SnapZone {
   const w = window.innerWidth;
@@ -62,7 +76,7 @@ function detectSnapZone(x: number, y: number): SnapZone {
 }
 
 const snapStyle = computed(() => {
-  if (!snap.value) return { left: posX.value + "px", top: posY.value + "px" };
+  if (!snap.value) return { left: posX.value + "px", top: posY.value + "px", width: winW.value + "px", height: winH.value + "px" };
   const h = "calc(100vh - 40px)";
   const halfH = "calc((100vh - 40px) / 2)";
   switch (snap.value) {
@@ -102,7 +116,41 @@ function onTitleBarMouseDown(e: MouseEvent) {
   }
 }
 
+function onResizeMouseDown(dir: ResizeDir, e: MouseEvent) {
+  e.preventDefault();
+  resizing = true;
+  resizeDir = dir;
+  resizeStartX = e.clientX;
+  resizeStartY = e.clientY;
+  resizeStartW = winW.value;
+  resizeStartH = winH.value;
+  resizeStartPosX = posX.value;
+  resizeStartPosY = posY.value;
+}
+
 function onMouseMove(e: MouseEvent) {
+  if (resizing) {
+    const dx = e.clientX - resizeStartX;
+    const dy = e.clientY - resizeStartY;
+    const dir = resizeDir;
+    if (dir.includes("right")) {
+      winW.value = Math.max(MIN_W, resizeStartW + dx);
+    }
+    if (dir.includes("left")) {
+      const newW = Math.max(MIN_W, resizeStartW - dx);
+      posX.value = resizeStartPosX + resizeStartW - newW;
+      winW.value = newW;
+    }
+    if (dir.includes("bottom")) {
+      winH.value = Math.max(MIN_H, resizeStartH + dy);
+    }
+    if (dir === "top" || dir === "top-left" || dir === "top-right") {
+      const newH = Math.max(MIN_H, resizeStartH - dy);
+      posY.value = resizeStartPosY + resizeStartH - newH;
+      winH.value = newH;
+    }
+    return;
+  }
   if (!dragPending && !dragging) return;
   if (dragPending && !dragging) {
     const dx = e.clientX - dragStartX;
@@ -112,7 +160,7 @@ function onMouseMove(e: MouseEvent) {
     dragPending = false;
     if (snap.value) {
       // Restore from snapped: place window so cursor is proportionally on the title bar
-      const restoredWidth = 750;
+      const restoredWidth = winW.value;
       const fractionX = snap.value === "max"
         ? dragStartX / window.innerWidth
         : snap.value.includes("right") ? 0.75 : 0.25;
@@ -129,6 +177,10 @@ function onMouseMove(e: MouseEvent) {
 }
 
 function onMouseUp(e: MouseEvent) {
+  if (resizing) {
+    resizing = false;
+    return;
+  }
   if (dragging) {
     const zone = detectSnapZone(e.clientX, e.clientY);
     if (zone) {
@@ -181,6 +233,17 @@ onUnmounted(() => {
       @click.stop="emit('dismiss-menus')"
       @contextmenu.prevent
     >
+      <!-- Resize handles -->
+      <template v-if="!snap">
+        <div class="resize-handle resize-top" @mousedown.stop="onResizeMouseDown('top', $event)" />
+        <div class="resize-handle resize-bottom" @mousedown.stop="onResizeMouseDown('bottom', $event)" />
+        <div class="resize-handle resize-left" @mousedown.stop="onResizeMouseDown('left', $event)" />
+        <div class="resize-handle resize-right" @mousedown.stop="onResizeMouseDown('right', $event)" />
+        <div class="resize-handle resize-top-left" @mousedown.stop="onResizeMouseDown('top-left', $event)" />
+        <div class="resize-handle resize-top-right" @mousedown.stop="onResizeMouseDown('top-right', $event)" />
+        <div class="resize-handle resize-bottom-left" @mousedown.stop="onResizeMouseDown('bottom-left', $event)" />
+        <div class="resize-handle resize-bottom-right" @mousedown.stop="onResizeMouseDown('bottom-right', $event)" />
+      </template>
       <div class="title-bar" @mousedown="onTitleBarMouseDown" @dblclick="onTitleBarDblClick">
         <img v-if="icon" :src="icon" class="title-icon" alt="" />
         <span class="title-text">{{ title }}</span>
@@ -213,12 +276,9 @@ onUnmounted(() => {
 <style lang="css" scoped>
 .window-frame {
   position: absolute;
-  width: 750px;
-  height: 500px;
   display: flex;
   flex-direction: column;
   border: 1px solid #888;
-  overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   font-family: "Segoe UI", -apple-system, sans-serif;
   font-size: 12px;
@@ -310,5 +370,20 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  z-index: 1;
+}
+.resize-top { top: -3px; left: 6px; right: 6px; height: 6px; cursor: n-resize; }
+.resize-bottom { bottom: -3px; left: 6px; right: 6px; height: 6px; cursor: s-resize; }
+.resize-left { left: -3px; top: 6px; bottom: 6px; width: 6px; cursor: w-resize; }
+.resize-right { right: -3px; top: 6px; bottom: 6px; width: 6px; cursor: e-resize; }
+.resize-top-left { top: -3px; left: -3px; width: 12px; height: 12px; cursor: nw-resize; }
+.resize-top-right { top: -3px; right: -3px; width: 12px; height: 12px; cursor: ne-resize; }
+.resize-bottom-left { bottom: -3px; left: -3px; width: 12px; height: 12px; cursor: sw-resize; }
+.resize-bottom-right { bottom: -3px; right: -3px; width: 12px; height: 12px; cursor: se-resize; }
 </style>
