@@ -15,7 +15,7 @@ export const entryLogos: Record<string, string> = {
   cerium: ceriumImg,
   promptlog: "https://raw.githubusercontent.com/u9g/promptlog/master/logo.svg",
   portfolio: "https://raw.githubusercontent.com/u9g/jason-portfolio/main/public/favicon.svg",
-  toplines: "https://raw.githubusercontent.com/u9g/toplines/main/logo.svg",
+  toplines: "https://raw.githubusercontent.com/u9g/toplines/master/logo.svg",
 };
 
 // Slugs whose logo is a black-on-transparent glyph and should be inverted
