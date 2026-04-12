@@ -5,10 +5,15 @@ import Taskbar from "./Taskbar.vue";
 import StartMenu from "./StartMenu.vue";
 import DesktopContextMenu from "./DesktopContextMenu.vue";
 import FileExplorer from "./file-explorer/FileExplorer.vue";
+import ConversationWindow from "./ConversationWindow.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
+import conversations from "../../data/conversations.json";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
-import folderFullIcon from "../../assets/folder-full.png";
+import essaysIcon from "../../assets/essays.svg";
 import thisPcIcon from "../../assets/this-pc.svg";
+import workExpIcon from "../../assets/work-experience.svg";
+import projectsIcon from "../../assets/projects.svg";
+
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -77,8 +82,32 @@ function onExplorerClose(windowId: string) {
   explorers.value = explorers.value.filter((e) => e.windowId !== windowId);
 }
 
+const workExpWindows = ref<string[]>([]);
+const projectsWindows = ref<string[]>([]);
+
+function openWorkExpWindow() {
+  const id = wm.createWindow("Work Experience", workExpIcon);
+  workExpWindows.value.push(id);
+}
+
+function onWorkExpClose(windowId: string) {
+  wm.closeWindow(windowId);
+  workExpWindows.value = workExpWindows.value.filter((id) => id !== windowId);
+}
+
+function openProjectsWindow() {
+  const id = wm.createWindow("Projects", projectsIcon);
+  projectsWindows.value.push(id);
+}
+
+function onProjectsClose(windowId: string) {
+  wm.closeWindow(windowId);
+  projectsWindows.value = projectsWindows.value.filter((id) => id !== windowId);
+}
+
 const iconSelected = ref(false);
-const faviconSelected = ref(false);
+
+const workExpSelected = ref(false);
 const projectsSelected = ref(false);
 const essaysSelected = ref(false);
 const startMenuOpen = ref(false);
@@ -101,7 +130,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; projectsSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="iconSelected = false; workExpSelected = false; projectsSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -118,26 +147,25 @@ function onContextMenu(e: MouseEvent) {
         @dblclick.stop="openNewExplorer(); iconSelected = false"
       />
       <DesktopIcon
+        label="Work Experience"
+        :icon="workExpIcon"
+        :selected="workExpSelected"
+        @click.stop="workExpSelected = !workExpSelected"
+        @dblclick.stop="openWorkExpWindow(); workExpSelected = false"
+      />
+      <DesktopIcon
         label="Projects"
-        :icon="folderFullIcon"
+        :icon="projectsIcon"
         :selected="projectsSelected"
         @click.stop="projectsSelected = !projectsSelected"
-        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/projects'); projectsSelected = false"
+        @dblclick.stop="openProjectsWindow(); projectsSelected = false"
       />
       <DesktopIcon
         label="Essays"
-        :icon="folderFullIcon"
+        :icon="essaysIcon"
         :selected="essaysSelected"
         @click.stop="essaysSelected = !essaysSelected"
         @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); essaysSelected = false"
-      />
-      <DesktopIcon
-        label="favicon.svg"
-        icon="/favicon.svg"
-        class="favicon-icon"
-        :selected="faviconSelected"
-        @click.stop="faviconSelected = !faviconSelected"
-        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', 'public/favicon.svg'); faviconSelected = false"
       />
     </div>
     <FileExplorer
@@ -148,6 +176,26 @@ function onContextMenu(e: MouseEvent) {
       :initial-file="cfg.initialFile"
       :initial-dir="cfg.initialDir"
       @close="onExplorerClose(cfg.windowId)"
+      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
+    />
+    <ConversationWindow
+      v-for="id in workExpWindows"
+      :key="id"
+      :window-id="id"
+      window-title="Work Experience"
+      :window-icon="workExpIcon"
+      :items="conversations.jobs"
+      @close="onWorkExpClose(id)"
+      @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
+    />
+    <ConversationWindow
+      v-for="id in projectsWindows"
+      :key="id"
+      :window-id="id"
+      window-title="Projects"
+      :window-icon="projectsIcon"
+      :items="conversations.projects"
+      @close="onProjectsClose(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />

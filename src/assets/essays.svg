@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Notebook body -->
+  <rect x="3.5" y="1.5" width="10" height="13" rx="0.5" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.4"/>
+  <!-- Spine/binding -->
+  <rect x="3.5" y="1.5" width="2" height="13" rx="0.3" fill="#4a8ab5"/>
+  <!-- Ring holes -->
+  <circle cx="3.5" cy="4" r="0.7" fill="#d4eaf7"/>
+  <circle cx="3.5" cy="7.5" r="0.7" fill="#d4eaf7"/>
+  <circle cx="3.5" cy="11" r="0.7" fill="#d4eaf7"/>
+  <!-- Text lines -->
+  <rect x="7" y="4" width="5" height="0.8" rx="0.2" fill="#d4eaf7"/>
+  <rect x="7" y="6" width="5" height="0.8" rx="0.2" fill="#d4eaf7"/>
+  <rect x="7" y="8" width="4" height="0.8" rx="0.2" fill="#d4eaf7"/>
+  <rect x="7" y="10" width="5" height="0.8" rx="0.2" fill="#d4eaf7"/>
+</svg>
