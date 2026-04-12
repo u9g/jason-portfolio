@@ -2,6 +2,9 @@
 import { ref, computed, watch } from "vue";
 import { fetchContents, fetchFileContent, fetchUserRepos, PINNED_REPOS, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
+import folderIcon from "../../assets/folder.png";
+import driveIcon from "../../assets/drive.png";
+import fileTextIcon from "../../assets/file-text.png";
 import WindowFrame from "./WindowFrame.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
 
@@ -619,8 +622,8 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               </g>
             </svg>
             <svg v-else-if="item.node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
-            <svg v-else-if="item.node.icon === 'drive'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" rx="1" fill="#bbb" stroke="#999" stroke-width="0.5"/><rect x="2" y="9" width="3" height="1.5" rx="0.5" fill="#6a6"/></svg>
-            <img v-else :src="fileExplorerIcon" class="nav-icon" alt="" />
+            <img v-else-if="item.node.icon === 'drive'" :src="driveIcon" class="nav-icon" alt="" />
+            <img v-else :src="folderIcon" class="nav-icon" alt="" />
             <span class="nav-label">{{ item.node.label }}<svg v-if="item.node.label === 'jason-portfolio' && item.node.icon === 'folder'" class="nav-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
           </button>
         </div>
@@ -641,7 +644,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
                 class="folder-tile"
                 @click="currentRepo = repo.owner + '/' + repo.name; loadDir('')"
               >
-                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
+                <img :src="folderIcon" class="folder-tile-icon" alt="" />
                 <span class="folder-tile-label">{{ repo.name }}</span>
               </button>
             </div>
@@ -651,11 +654,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             </button>
             <div class="drive-grid">
               <button class="drive-tile" @click="showDrive()">
-                <svg class="drive-tile-icon" viewBox="0 0 48 48">
-                  <rect x="2" y="10" width="44" height="28" rx="3" fill="#c0c0c0" stroke="#999" stroke-width="1" />
-                  <rect x="5" y="30" width="10" height="5" rx="1.5" fill="#6a6" />
-                  <rect x="6" y="14" width="36" height="12" rx="1" fill="#e8e8e8" />
-                </svg>
+                <img :src="driveIcon" class="drive-tile-icon" alt="" />
                 <div class="drive-tile-info">
                   <span class="drive-tile-label">Projects (D:)</span>
                   <div class="drive-bar">
@@ -713,12 +712,9 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
                 @click="onEntryClick(entry)"
               >
                 <span class="col-name">
-                  <img v-if="entry.type === 'dir'" :src="fileExplorerIcon" class="entry-icon" alt="" />
+                  <img v-if="entry.type === 'dir'" :src="folderIcon" class="entry-icon" alt="" />
                   <img v-else-if="entry.name.endsWith('.svg')" :src="rawUrl(entry.path)" class="entry-icon svg-entry-icon" alt="" />
-                  <svg v-else class="entry-icon" viewBox="0 0 24 24">
-                    <path d="M6 2h8l6 6v14H6z" fill="#e8e8e8" stroke="#c0c0c0" stroke-width="0.8" />
-                    <path d="M14 2v6h6" fill="none" stroke="#c0c0c0" stroke-width="0.8" />
-                  </svg>
+                  <img v-else :src="fileTextIcon" class="entry-icon" alt="" />
                   <span class="entry-label">{{ entry.name }}<svg v-if="entry.path === '__repo__:jason-portfolio'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
                 </span>
                 <span class="col-type">{{ entry.type === 'dir' ? 'File folder' : getFileType(entry.name) }}</span>
