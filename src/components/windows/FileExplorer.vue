@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
-import { fetchContents, fetchFileContent, type GHEntry } from "../../data/github-fs";
+import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 
 const props = defineProps<{
@@ -22,6 +22,95 @@ const fileContent = ref("");
 const fileName = ref("");
 const fileLoading = ref(false);
 const viewingThisPC = ref(false);
+const viewingDrive = ref(false);
+const currentRepo = ref("jason-portfolio");
+
+const historyStack = ref<string[]>([]);
+const historyIndex = ref(-1);
+const canGoBack = computed(() => historyIndex.value > 0);
+const canGoForward = computed(() => historyIndex.value < historyStack.value.length - 1);
+
+function pushHistory(path: string) {
+  historyStack.value = historyStack.value.slice(0, historyIndex.value + 1);
+  historyStack.value.push(path);
+  historyIndex.value = historyStack.value.length - 1;
+}
+
+async function navigateToHistory(index: number) {
+  historyIndex.value = index;
+  const path = historyStack.value[index];
+  if (path === "__thispc__") {
+    viewingThisPC.value = true;
+    viewingDrive.value = false;
+    viewingFile.value = false;
+    currentPath.value = "__thispc__";
+    entries.value = [];
+    loading.value = false;
+  } else if (path === "__drive__") {
+    viewingDrive.value = true;
+    viewingThisPC.value = false;
+    viewingFile.value = false;
+    currentPath.value = "__drive__";
+    loading.value = true;
+    try {
+      entries.value = await fetchUserRepos();
+    } catch {
+      error.value = "Failed to load repositories";
+    } finally {
+      loading.value = false;
+    }
+  } else if (path.startsWith("__file__:")) {
+    const rest = path.slice(9);
+    const sepIdx = rest.indexOf("::");
+    const repo = rest.slice(0, sepIdx);
+    const filePath = rest.slice(sepIdx + 2);
+    currentRepo.value = repo;
+    fileName.value = filePath.split("/").pop() ?? filePath;
+    currentPath.value = filePath;
+    viewingFile.value = true;
+    viewingThisPC.value = false;
+    viewingDrive.value = false;
+    fileLoading.value = true;
+    try {
+      fileContent.value = await fetchFileContent(filePath, repo);
+    } catch {
+      fileContent.value = "Failed to load file content.";
+    } finally {
+      fileLoading.value = false;
+    }
+  } else {
+    const sepIdx = path.indexOf("::");
+    const repo = path.slice(0, sepIdx);
+    const dirPath = path.slice(sepIdx + 2);
+    currentRepo.value = repo;
+    loading.value = true;
+    error.value = "";
+    viewingFile.value = false;
+    viewingThisPC.value = false;
+    viewingDrive.value = false;
+    try {
+      entries.value = await fetchContents(dirPath, repo);
+      currentPath.value = dirPath;
+    } catch {
+      error.value = "Failed to load directory";
+    } finally {
+      loading.value = false;
+    }
+  }
+}
+
+function goBack() {
+  if (canGoBack.value) navigateToHistory(historyIndex.value - 1);
+}
+
+function goForward() {
+  if (canGoForward.value) navigateToHistory(historyIndex.value + 1);
+}
+
+function onMouseButton(e: MouseEvent) {
+  if (e.button === 3) goBack();
+  else if (e.button === 4) goForward();
+}
 
 const posX = ref(100);
 const posY = ref(60);
@@ -57,10 +146,29 @@ onUnmounted(() => {
 
 function showThisPC() {
   viewingThisPC.value = true;
+  viewingDrive.value = false;
   viewingFile.value = false;
   currentPath.value = "__thispc__";
   entries.value = [];
   loading.value = false;
+  pushHistory("__thispc__");
+}
+
+async function showDrive() {
+  viewingDrive.value = true;
+  viewingThisPC.value = false;
+  viewingFile.value = false;
+  currentPath.value = "__drive__";
+  loading.value = true;
+  error.value = "";
+  pushHistory("__drive__");
+  try {
+    entries.value = await fetchUserRepos();
+  } catch {
+    error.value = "Failed to load repositories";
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function loadDir(path: string) {
@@ -68,9 +176,11 @@ async function loadDir(path: string) {
   error.value = "";
   viewingFile.value = false;
   viewingThisPC.value = false;
+  viewingDrive.value = false;
   try {
-    entries.value = await fetchContents(path);
+    entries.value = await fetchContents(path, currentRepo.value);
     currentPath.value = path;
+    pushHistory(`${currentRepo.value}::${path}`);
   } catch {
     error.value = "Failed to load directory";
   } finally {
@@ -82,8 +192,11 @@ async function openFile(entry: GHEntry) {
   fileLoading.value = true;
   fileName.value = entry.name;
   viewingFile.value = true;
+  viewingThisPC.value = false;
+  currentPath.value = entry.path;
+  pushHistory(`__file__:${currentRepo.value}::${entry.path}`);
   try {
-    fileContent.value = await fetchFileContent(entry.path);
+    fileContent.value = await fetchFileContent(entry.path, currentRepo.value);
   } catch {
     fileContent.value = "Failed to load file content.";
   } finally {
@@ -92,7 +205,10 @@ async function openFile(entry: GHEntry) {
 }
 
 function onEntryClick(entry: GHEntry) {
-  if (entry.type === "dir") {
+  if (entry.path.startsWith("__repo__:")) {
+    currentRepo.value = entry.path.slice(9);
+    loadDir("");
+  } else if (entry.type === "dir") {
     loadDir(entry.path);
   } else {
     openFile(entry);
@@ -105,14 +221,20 @@ function goUp() {
     return;
   }
   if (viewingThisPC.value) return;
-  if (currentPath.value === "") {
+  if (viewingDrive.value) {
     showThisPC();
+    return;
+  }
+  if (currentPath.value === "") {
+    showDrive();
     return;
   }
   const parts = currentPath.value.split("/");
   parts.pop();
   loadDir(parts.join("/"));
 }
+
+const canGoUp = computed(() => !viewingThisPC.value);
 
 const pathSegments = ref<{ label: string; path: string }[]>([]);
 
@@ -122,7 +244,9 @@ watch(currentPath, (p) => {
   ];
   if (p !== "__thispc__") {
     segs.push({ label: "Projects (D:)", path: "__drive__" });
-    segs.push({ label: "jason-portfolio", path: "" });
+    if (p !== "__drive__") {
+      segs.push({ label: currentRepo.value, path: "" });
+    }
     if (p && !p.startsWith("__")) {
       const parts = p.split("/");
       for (let i = 0; i < parts.length; i++) {
@@ -181,7 +305,7 @@ const navTree = ref<NavNode[]>([
   {
     label: "This PC", icon: "pc", path: null, expanded: true, loaded: true,
     children: [
-      { label: "Projects (D:)", icon: "drive", path: "", expanded: false, loaded: false },
+      { label: "Projects (D:)", icon: "drive", path: "__drive__", expanded: false, loaded: false },
     ],
   },
 ]);
@@ -189,7 +313,7 @@ const navTree = ref<NavNode[]>([
 async function loadNavChildren(node: NavNode) {
   if (node.path === null || node.loaded) return;
   try {
-    const contents = await fetchContents(node.path);
+    const contents = await fetchContents(node.path, currentRepo.value);
     node.children = contents
       .filter((e) => e.type === "dir")
       .map((e) => ({
@@ -209,6 +333,9 @@ async function loadNavChildren(node: NavNode) {
 async function onNavClick(node: NavNode) {
   if (node.icon === "pc") {
     showThisPC();
+    node.expanded = !node.expanded;
+  } else if (node.path === "__drive__") {
+    showDrive();
     node.expanded = !node.expanded;
   } else if (node.path !== null) {
     loadDir(node.path);
@@ -248,6 +375,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
       :style="{ left: posX + 'px', top: posY + 'px' }"
       @click.stop="emit('dismiss-menus')"
       @contextmenu.stop.prevent
+      @mouseup.stop="onMouseButton"
     >
       <!-- Title bar -->
       <div class="title-bar" @mousedown="onMouseDown">
@@ -274,22 +402,27 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         <div class="nav-buttons">
           <button
             class="nav-btn"
-            :disabled="viewingThisPC"
-            @click="goUp"
+            :disabled="!canGoBack"
+            @click="goBack"
             aria-label="Back"
           >
             <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M10 2L4 8l6 6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-          <button class="nav-btn" disabled aria-label="Forward">
+          <button
+            class="nav-btn"
+            :disabled="!canGoForward"
+            @click="goForward"
+            aria-label="Forward"
+          >
             <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 2l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
           <button
             class="nav-btn"
-            :disabled="viewingThisPC"
+            :disabled="!canGoUp"
             @click="goUp"
             aria-label="Up"
           >
@@ -302,7 +435,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
           <svg class="address-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
           <template v-for="(seg, i) in pathSegments" :key="seg.path">
             <span v-if="i > 0" class="path-sep">›</span>
-            <button class="path-segment" @click="seg.path === '__thispc__' ? showThisPC() : loadDir(seg.path === '__drive__' ? '' : seg.path)">{{ seg.label }}</button>
+            <button class="path-segment" @click="seg.path === '__thispc__' ? showThisPC() : seg.path === '__drive__' ? showDrive() : loadDir(seg.path)">{{ seg.label }}</button>
           </template>
         </div>
       </div>
@@ -339,7 +472,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             <svg v-else-if="item.node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
             <svg v-else-if="item.node.icon === 'drive'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" rx="1" fill="#bbb" stroke="#999" stroke-width="0.5"/><rect x="2" y="9" width="3" height="1.5" rx="0.5" fill="#6a6"/></svg>
             <img v-else :src="fileExplorerIcon" class="nav-icon" alt="" />
-            <span class="nav-label">{{ item.node.label }}</span>
+            <span class="nav-label">{{ item.node.label }}<svg v-if="item.node.label === 'jason-portfolio' && item.node.icon === 'folder'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
           </button>
         </div>
 
@@ -371,7 +504,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               Devices and drives
             </button>
             <div class="drive-grid">
-              <button class="drive-tile" @click="loadDir('')">
+              <button class="drive-tile" @click="showDrive()">
                 <svg class="drive-tile-icon" viewBox="0 0 48 48">
                   <rect x="2" y="10" width="44" height="28" rx="3" fill="#c0c0c0" stroke="#999" stroke-width="1" />
                   <rect x="5" y="30" width="10" height="5" rx="1.5" fill="#6a6" />
@@ -411,7 +544,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
                     <path d="M6 2h8l6 6v14H6z" fill="#e8e8e8" stroke="#c0c0c0" stroke-width="0.8" />
                     <path d="M14 2v6h6" fill="none" stroke="#c0c0c0" stroke-width="0.8" />
                   </svg>
-                  <span class="entry-label">{{ entry.name }}</span>
+                  <span class="entry-label">{{ entry.name }}<svg v-if="entry.path === '__repo__:jason-portfolio'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
                 </span>
                 <span class="col-type">{{ entry.type === 'dir' ? 'File folder' : getFileType(entry.name) }}</span>
                 <span class="col-size">{{ entry.type === 'file' ? formatSize(entry.size) : '' }}</span>
@@ -744,6 +877,13 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+.entry-star {
+  width: 11px;
+  height: 11px;
+  vertical-align: -1px;
+  margin-left: 4px;
 }
 
 .entry-label {
