@@ -7,6 +7,7 @@ import DesktopContextMenu from "./DesktopContextMenu.vue";
 import FileExplorer from "./file-explorer/FileExplorer.vue";
 import ConversationWindow from "./ConversationWindow.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
+import { useConversationWindows } from "../../composables/useConversationWindows";
 import conversations from "../../data/conversations.json";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import essaysIcon from "../../assets/essays.svg";
@@ -82,28 +83,8 @@ function onExplorerClose(windowId: string) {
   explorers.value = explorers.value.filter((e) => e.windowId !== windowId);
 }
 
-const workExpWindows = ref<string[]>([]);
-const projectsWindows = ref<string[]>([]);
-
-function openWorkExpWindow() {
-  const id = wm.createWindow("Work Experience", workExpIcon);
-  workExpWindows.value.push(id);
-}
-
-function onWorkExpClose(windowId: string) {
-  wm.closeWindow(windowId);
-  workExpWindows.value = workExpWindows.value.filter((id) => id !== windowId);
-}
-
-function openProjectsWindow() {
-  const id = wm.createWindow("Projects", projectsIcon);
-  projectsWindows.value.push(id);
-}
-
-function onProjectsClose(windowId: string) {
-  wm.closeWindow(windowId);
-  projectsWindows.value = projectsWindows.value.filter((id) => id !== windowId);
-}
+const workExp = useConversationWindows(wm, "Work Experience", workExpIcon);
+const projects = useConversationWindows(wm, "Projects", projectsIcon);
 
 const startMenuOpen = ref(false);
 const contextMenuOpen = ref(false);
@@ -112,8 +93,8 @@ const contextMenuY = ref(0);
 
 const desktopIcons = [
   { key: 'thisPc', label: 'This PC', icon: thisPcIcon, selected: ref(false), action: () => openNewExplorer() },
-  { key: 'workExp', label: 'Work Experience', icon: workExpIcon, selected: ref(false), action: () => openWorkExpWindow() },
-  { key: 'projects', label: 'Projects', icon: projectsIcon, selected: ref(false), action: () => openProjectsWindow() },
+  { key: 'workExp', label: 'Work Experience', icon: workExpIcon, selected: ref(false), action: () => workExp.open() },
+  { key: 'projects', label: 'Projects', icon: projectsIcon, selected: ref(false), action: () => projects.open() },
   { key: 'essays', label: 'Essays', icon: essaysIcon, selected: ref(false), action: () => openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays') },
 ];
 
@@ -158,23 +139,23 @@ function onContextMenu(e: MouseEvent) {
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in workExpWindows"
+      v-for="id in workExp.ids.value"
       :key="id"
       :window-id="id"
       window-title="Work Experience"
       :window-icon="workExpIcon"
       :items="conversations.jobs"
-      @close="onWorkExpClose(id)"
+      @close="workExp.close(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <ConversationWindow
-      v-for="id in projectsWindows"
+      v-for="id in projects.ids.value"
       :key="id"
       :window-id="id"
       window-title="Projects"
       :window-icon="projectsIcon"
       :items="conversations.projects"
-      @close="onProjectsClose(id)"
+      @close="projects.close(id)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
