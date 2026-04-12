@@ -101,6 +101,27 @@
   "__comment": "projects is reverse chronological: newest first",
   "projects": [
     {
+      "slug": "toplines",
+      "title": "toplines, CLI Tool",
+      "conversation": [
+        { "role": "user", "message": "What's toplines?" },
+        {
+          "role": "assistant",
+          "message": "toplines is a CLI, that I built in April 2026, that finds the files with the most lines in your project. It respects .gitignore and skips binary/asset files by default, then gives you a ranked list of the biggest files."
+        },
+        { "role": "user", "message": "What was the tech stack?" },
+        {
+          "role": "assistant",
+          "message": "TypeScript running on Bun. It uses git ls-files under the hood to get the file list while respecting .gitignore, then counts lines concurrently across all files."
+        },
+{ "role": "user", "message": "Where can I check it out?" },
+        {
+          "role": "assistant",
+          "message": "Check it out on [GitHub](https://github.com/u9g/toplines)."
+        }
+      ]
+    },
+    {
       "slug": "promptlog",
       "title": "promptlog, Claude Code Plugin",
       "conversation": [
