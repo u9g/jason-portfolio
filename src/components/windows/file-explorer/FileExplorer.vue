@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from "../../../data/github-fs";
+import { rawUrl } from "./helpers";
+import MarkdownRender from "./MarkdownRender.vue";
 import fileExplorerIcon from "../../../assets/file-explorer.svg";
 import WindowFrame from "../WindowFrame.vue";
 import { useWindowManager } from "../../../composables/useWindowManager";
@@ -38,6 +40,12 @@ const fileContent = ref("");
 const fileName = ref("");
 const fileLoading = ref(false);
 const currentRepo = ref("jason-portfolio");
+const readmeContent = ref("");
+const readmeBaseUrl = computed(() => {
+  const dir = currentPath.value ? currentPath.value + "/" : "";
+  return rawUrl(dir, currentRepo.value);
+});
+const hasReadme = computed(() => readmeContent.value !== "");
 
 // History navigation
 const historyStack = ref<HistoryEntry[]>([]);
@@ -104,6 +112,7 @@ function showThisPC(record = true) {
   viewMode.value = "thispc";
   currentPath.value = "";
   entries.value = [];
+  readmeContent.value = "";
   loading.value = false;
   if (record) pushHistory({ view: "thispc" });
 }
@@ -111,6 +120,7 @@ function showThisPC(record = true) {
 async function showDrive(record = true) {
   viewMode.value = "drive";
   currentPath.value = "";
+  readmeContent.value = "";
   loading.value = true;
   error.value = "";
   if (record) pushHistory({ view: "drive" });
@@ -126,11 +136,18 @@ async function showDrive(record = true) {
 async function loadDir(path: string, record = true) {
   loading.value = true;
   error.value = "";
+  readmeContent.value = "";
   viewMode.value = "directory";
   try {
     entries.value = await fetchContents(path, currentRepo.value);
     currentPath.value = path;
     if (record) pushHistory({ view: "directory", repo: currentRepo.value, path });
+    const readme = entries.value.find((e) => e.name.toLowerCase() === "readme.md");
+    if (readme) {
+      fetchFileContent(readme.path, currentRepo.value)
+        .then((content) => { readmeContent.value = content; })
+        .catch(() => { /* ignore */ });
+    }
   } catch {
     error.value = "Failed to load directory";
   } finally {
@@ -150,6 +167,22 @@ async function openFile(entry: GHEntry, record = true) {
     fileContent.value = "Failed to load file content.";
   } finally {
     fileLoading.value = false;
+  }
+}
+
+function onContentClick(e: MouseEvent) {
+  const anchor = (e.target as HTMLElement).closest("a[data-internal]") as HTMLAnchorElement | null;
+  if (!anchor) return;
+  e.preventDefault();
+  const href = anchor.getAttribute("href") ?? "";
+  const dir = viewMode.value === "file"
+    ? currentPath.value.split("/").slice(0, -1).join("/")
+    : currentPath.value;
+  const resolved = dir ? dir + "/" + href : href;
+  if (/\.\w+$/.test(href)) {
+    openFile({ name: href.split("/").pop() ?? href, path: resolved, type: "file", size: 0 });
+  } else {
+    loadDir(resolved);
   }
 }
 
@@ -363,7 +396,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         @toggle-expand="onToggleExpand"
       />
 
-      <div class="content">
+      <div class="content" @click="onContentClick">
         <div v-if="loading" class="status-msg">Loading...</div>
         <div v-else-if="error" class="status-msg error">{{ error }}</div>
         <ThisPCView
@@ -379,6 +412,18 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
           :file-loading="fileLoading"
           :current-repo="currentRepo"
         />
+        <div v-else-if="hasReadme" class="dir-readme-split">
+          <div class="dir-readme-listing">
+            <DirectoryListing
+              :entries="entries"
+              :current-repo="currentRepo"
+              @entry-click="onEntryClick"
+            />
+          </div>
+          <div class="dir-readme-pane">
+            <MarkdownRender :source="readmeContent" :base-url="readmeBaseUrl" />
+          </div>
+        </div>
         <DirectoryListing
           v-else
           :entries="entries"
@@ -445,6 +490,30 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   color: #0d3c11;
   border-bottom-color: #0d3c11;
 }
+
+.dir-readme-split {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.dir-readme-listing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.dir-readme-pane {
+  flex: 1;
+  overflow-y: auto;
+  border-left: 1px solid #e0e0e0;
+  background: #fff;
+  padding: 12px;
+  min-width: 0;
+}
+
 
 .status-bar {
   height: 22px;

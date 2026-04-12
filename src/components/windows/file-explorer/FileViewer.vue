@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { renderMd } from "./markdown";
+import { rawUrl } from "./helpers";
+import MarkdownRender from "./MarkdownRender.vue";
 
 const props = defineProps<{
   fileName: string;
@@ -10,7 +11,10 @@ const props = defineProps<{
 }>();
 
 const isMarkdown = computed(() => props.fileName.endsWith(".md"));
-const renderedMarkdown = computed(() => isMarkdown.value ? renderMd(props.fileContent) : "");
+const mdBaseUrl = computed(() => {
+  const parts = props.fileName.includes("/") ? props.fileName.split("/").slice(0, -1).join("/") + "/" : "";
+  return rawUrl(parts, props.currentRepo);
+});
 
 const isSvg = computed(() => props.fileName.endsWith(".svg"));
 const svgDataUrl = computed(() => {
@@ -112,7 +116,7 @@ defineExpose({ isSvg, svgDataUrl });
   </div>
   <div v-else class="file-viewer">
     <pre v-if="fileLoading">Loading file...</pre>
-    <div v-else-if="isMarkdown" class="md-render" v-html="renderedMarkdown"></div>
+    <MarkdownRender v-else-if="isMarkdown" :source="fileContent" :base-url="mdBaseUrl" />
     <pre v-else>{{ fileContent }}</pre>
   </div>
 </template>
@@ -215,51 +219,4 @@ defineExpose({ isSvg, svgDataUrl });
   object-fit: contain;
 }
 
-.md-render {
-  color: #333;
-  font-size: 13px;
-  line-height: 1.6;
-  max-width: 800px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.md-render h1 { font-size: 1.8em; margin: 0.5em 0 0.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }
-.md-render h2 { font-size: 1.4em; margin: 0.5em 0 0.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }
-.md-render h3 { font-size: 1.2em; margin: 0.5em 0 0.3em; }
-.md-render h4 { font-size: 1.05em; margin: 0.4em 0 0.2em; }
-
-.md-render p { margin: 0.4em 0; }
-.md-render ul { margin: 0.3em 0; padding-left: 24px; }
-.md-render li { margin: 0.15em 0; }
-.md-render hr { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
-
-.md-render code {
-  background: #f0f0f0;
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 0.9em;
-}
-
-.md-render :deep(.md-code-block) {
-  background: #f6f6f6;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 10px 12px;
-  margin: 0.5em 0;
-  overflow-x: auto;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.md-render :deep(.md-code-block) code {
-  background: none;
-  padding: 0;
-  border-radius: 0;
-}
-
-.md-render a { color: #0078d4; text-decoration: none; }
-.md-render a:hover { text-decoration: underline; }
-.md-render strong { font-weight: 600; }
 </style>
