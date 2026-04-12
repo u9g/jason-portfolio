@@ -10,6 +10,8 @@ import WindowsDesktop from "./components/windows/WindowsDesktop.vue";
 import ResumePrint from "./components/print/ResumePrint.vue";
 import sunIcon from "./assets/sun.svg";
 import moonIcon from "./assets/moon.svg";
+import homeIcon from "./assets/home.svg";
+import windowsIcon from "./assets/windows-logo.svg";
 import conversations from "./data/conversations.json";
 import { essays, getEssay } from "./data/essays";
 
@@ -140,7 +142,12 @@ if (!isSSR) {
     "
   >
     <div v-if="!bannerDismissed" class="doc-banner">
-      <a href="/">View as document</a>
+      <a href="/">View as document
+        <img :src="homeIcon" class="home-icon" aria-hidden="true" />
+      </a>
+      <a href="/windows">View as Windows
+        <img :src="windowsIcon" class="windows-logo" aria-hidden="true" />
+      </a>
       <button class="banner-dismiss" @click="bannerDismissed = true">✕</button>
     </div>
     <div class="layout">
@@ -282,12 +289,41 @@ body,
 
 .doc-banner a {
   color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--text-muted);
+  padding-bottom: 1px;
 }
 
 .doc-banner a:hover {
   color: var(--text-bright);
+  border-bottom-color: var(--text-bright);
+}
+
+.home-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  vertical-align: middle;
+  margin-left: 2px;
+  filter: brightness(0) invert(0.75);
+}
+
+:root[data-theme="light"] .home-icon {
+  filter: brightness(0) invert(0.35);
+}
+
+.doc-banner a:hover .home-icon {
+  filter: brightness(0) invert(1);
+}
+
+:root[data-theme="light"] .doc-banner a:hover .home-icon {
+  filter: brightness(0) invert(0);
+}
+
+.windows-logo {
+  width: 0.7rem;
+  height: 0.7rem;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 
 .banner-dismiss {

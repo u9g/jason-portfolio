@@ -5,6 +5,7 @@ import { prUrl } from "../data/oss-repos";
 import { fetchRepoInfo, sortedRepos } from "../data/oss-github-info";
 import claudeIcon from "../assets/claude.svg";
 import resumeIcon from "../assets/resume.svg";
+import windowsIcon from "../assets/windows-logo.svg";
 import Arrow from "./shared/Arrow.vue";
 import EntryLogo from "./shared/EntryLogo.vue";
 import { essays } from "../data/essays";
@@ -301,17 +302,8 @@ onUnmounted(() => {
         /></a>
         <a href="/windows"
           >Make it look like Windows
-          <svg
-            class="windows-logo"
-            viewBox="0 0 88 88"
-            aria-hidden="true"
-          >
-            <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203z" fill="#00ADEF" />
-            <path d="M39.996 6.984L87.318 0v41.65l-47.318.376z" fill="#00ADEF" />
-            <path d="M35.67 45.931l.022 34.407L.014 75.455.003 45.978z" fill="#00ADEF" />
-            <path d="M87.326 46.25l-.008 41.348-47.326-6.678-.066-34.739z" fill="#00ADEF" />
-          </svg>
-        </a>
+          <img :src="windowsIcon" class="windows-logo" aria-hidden="true"
+        /></a>
         <button class="resume-banner-btn" @click="emit('print-resume')">
           <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
           Printable Resume
