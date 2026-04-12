@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { fetchContents, fetchFileContent, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 
-defineProps<{
+const props = defineProps<{
   open: boolean;
 }>();
 
 const emit = defineEmits<{
   close: [];
+  "dismiss-menus": [];
 }>();
 
 const currentPath = ref("");
@@ -116,7 +117,13 @@ watch(currentPath, (p) => {
   pathSegments.value = segs;
 }, { immediate: true });
 
-loadDir("");
+const hasLoaded = ref(false);
+watch(() => props.open, (isOpen) => {
+  if (isOpen && !hasLoaded.value) {
+    hasLoaded.value = true;
+    loadDir("");
+  }
+});
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -141,31 +148,74 @@ interface NavNode {
   icon: "pin" | "folder" | "pc" | "drive";
   path: string | null;
   expanded: boolean;
+  loaded: boolean;
   children?: NavNode[];
 }
 
 const navTree = ref<NavNode[]>([
   {
-    label: "Quick access", icon: "pin", path: null, expanded: true,
+    label: "Quick access", icon: "pin", path: null, expanded: true, loaded: true,
     children: [
-      { label: "src", icon: "folder", path: "src", expanded: false },
+      { label: "jason-portfolio", icon: "folder", path: "", expanded: false, loaded: false },
     ],
   },
   {
-    label: "This PC", icon: "pc", path: null, expanded: true,
+    label: "This PC", icon: "pc", path: null, expanded: true, loaded: true,
     children: [
-      { label: "jason-portfolio (D:)", icon: "drive", path: "", expanded: false },
+      { label: "Projects (D:)", icon: "drive", path: "", expanded: false, loaded: false },
     ],
   },
 ]);
 
-function onNavClick(node: NavNode) {
+async function loadNavChildren(node: NavNode) {
+  if (node.path === null || node.loaded) return;
+  try {
+    const contents = await fetchContents(node.path);
+    node.children = contents
+      .filter((e) => e.type === "dir")
+      .map((e) => ({
+        label: e.name,
+        icon: "folder" as const,
+        path: e.path,
+        expanded: false,
+        loaded: false,
+      }));
+    node.loaded = true;
+  } catch {
+    node.children = [];
+    node.loaded = true;
+  }
+}
+
+async function onNavClick(node: NavNode) {
   if (node.path !== null) {
     loadDir(node.path);
-  } else if (node.children) {
+    if (!node.loaded) {
+      await loadNavChildren(node);
+    }
+    node.expanded = true;
+  } else {
     node.expanded = !node.expanded;
   }
 }
+
+interface FlatNavItem {
+  node: NavNode;
+  depth: number;
+}
+
+function flattenNav(nodes: NavNode[], depth: number): FlatNavItem[] {
+  const result: FlatNavItem[] = [];
+  for (const node of nodes) {
+    result.push({ node, depth });
+    if (node.expanded && node.children) {
+      result.push(...flattenNav(node.children, depth + 1));
+    }
+  }
+  return result;
+}
+
+const flatNav = computed(() => flattenNav(navTree.value, 0));
 </script>
 
 <template>
@@ -174,7 +224,8 @@ function onNavClick(node: NavNode) {
       v-if="open"
       class="explorer-window"
       :style="{ left: posX + 'px', top: posY + 'px' }"
-      @click.stop
+      @click.stop="emit('dismiss-menus')"
+      @contextmenu.stop.prevent
     >
       <!-- Title bar -->
       <div class="title-bar" @mousedown="onMouseDown">
@@ -237,28 +288,37 @@ function onNavClick(node: NavNode) {
       <div class="body">
         <!-- Left navigation pane -->
         <div class="nav-pane">
-          <template v-for="node in navTree" :key="node.label">
-            <button class="nav-item depth-0" @click="onNavClick(node)">
-              <span class="nav-arrow" :class="{ expanded: node.expanded, hidden: !node.children }">›</span>
-              <svg v-if="node.icon === 'pin'" class="nav-icon" viewBox="0 0 16 16"><path d="M3 1l5 5-2 2 4 4 2-2 3 3-1 1-3-3-2 2-4-4-2 2z" fill="#e8b500"/></svg>
-              <svg v-else-if="node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
-              <img v-else-if="node.icon === 'folder'" :src="fileExplorerIcon" class="nav-icon" alt="" />
-              <span class="nav-label">{{ node.label }}</span>
-            </button>
-            <template v-if="node.expanded && node.children">
-              <button
-                v-for="child in node.children"
-                :key="child.label"
-                class="nav-item depth-1"
-                @click="onNavClick(child)"
-              >
-                <span class="nav-arrow hidden">›</span>
-                <svg v-if="child.icon === 'drive'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" rx="1" fill="#bbb" stroke="#999" stroke-width="0.5"/><rect x="2" y="9" width="3" height="1.5" rx="0.5" fill="#6a6"/></svg>
-                <img v-else :src="fileExplorerIcon" class="nav-icon" alt="" />
-                <span class="nav-label">{{ child.label }}</span>
-              </button>
-            </template>
-          </template>
+          <button
+            v-for="item in flatNav"
+            :key="item.depth + ':' + item.node.label + ':' + (item.node.path ?? '')"
+            class="nav-item"
+            :style="{ paddingLeft: (4 + item.depth * 20) + 'px' }"
+            @click="onNavClick(item.node)"
+          >
+            <span class="nav-arrow" :class="{ expanded: item.node.expanded, hidden: item.node.loaded && (!item.node.children || item.node.children.length === 0) }">›</span>
+            <svg v-if="item.node.icon === 'pin'" class="nav-icon" viewBox="0 0 16 16">
+              <defs>
+                <mask id="lines-mask">
+                  <rect width="16" height="16" fill="white" />
+                  <polygon points="9,1 11,6 16,6 12,9.5 13.5,15 9,11.5 4.5,15 6,9.5 2,6 7,6" fill="black" transform="matrix(1,0,-0.15,1,1.2,0)" />
+                </mask>
+              </defs>
+              <polygon points="9,1 11,6 16,6 12,9.5 13.5,15 9,11.5 4.5,15 6,9.5 2,6 7,6" fill="#3b8eea" transform="matrix(1,0,-0.15,1,1.2,0)"/>
+              <g mask="url(#lines-mask)" opacity="0.4">
+                <line x1="0" y1="3.5" x2="8" y2="3.5" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0.5" y1="5" x2="8" y2="5" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0.5" y1="6.5" x2="5.5" y2="6.5" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0" y1="8" x2="5" y2="8" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0.5" y1="9.5" x2="4.5" y2="9.5" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0.5" y1="11" x2="4" y2="11" stroke="#3b8eea" stroke-width="0.7" />
+                <line x1="0" y1="12.5" x2="3.5" y2="12.5" stroke="#3b8eea" stroke-width="0.7" />
+              </g>
+            </svg>
+            <svg v-else-if="item.node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
+            <svg v-else-if="item.node.icon === 'drive'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" rx="1" fill="#bbb" stroke="#999" stroke-width="0.5"/><rect x="2" y="9" width="3" height="1.5" rx="0.5" fill="#6a6"/></svg>
+            <img v-else :src="fileExplorerIcon" class="nav-icon" alt="" />
+            <span class="nav-label">{{ item.node.label }}</span>
+          </button>
         </div>
 
         <!-- Main content -->
@@ -498,14 +558,6 @@ function onNavClick(node: NavNode) {
   color: #333;
   text-align: left;
   white-space: nowrap;
-}
-
-.nav-item.depth-0 {
-  padding-left: 4px;
-}
-
-.nav-item.depth-1 {
-  padding-left: 24px;
 }
 
 .nav-item:hover {

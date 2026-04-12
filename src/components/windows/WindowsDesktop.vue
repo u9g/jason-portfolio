@@ -88,7 +88,7 @@ function onContextMenu(e: MouseEvent) {
         @dblclick.stop="explorerOpen = true; iconSelected = false"
       />
     </div>
-    <FileExplorer :open="explorerOpen" @close="explorerOpen = false" />
+    <FileExplorer :open="explorerOpen" @close="explorerOpen = false" @dismiss-menus="contextMenuOpen = false; startMenuOpen = false" />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
     <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
