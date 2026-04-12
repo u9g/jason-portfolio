@@ -322,19 +322,10 @@ async function loadDriveNavChildren(node: NavNode) {
 async function onNavClick(node: NavNode) {
   if (node.icon === "pc") {
     showThisPC();
-    node.expanded = !node.expanded;
   } else if (node.path === "__drive__") {
     showDrive();
-    if (!node.loaded) {
-      await loadDriveNavChildren(node);
-    }
-    node.expanded = true;
   } else if (node.path !== null) {
     loadDir(node.path);
-    if (!node.loaded) {
-      await loadNavChildren(node);
-    }
-    node.expanded = true;
   } else {
     node.expanded = !node.expanded;
   }
@@ -425,7 +416,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             <span
               class="nav-arrow"
               :class="{ expanded: item.node.expanded, hidden: item.node.loaded && (!item.node.children || item.node.children.length === 0) }"
-              @click.stop="item.node.expanded = !item.node.expanded; if (item.node.path === '__drive__' && !item.node.loaded) loadDriveNavChildren(item.node)"
+              @click.stop="item.node.expanded = !item.node.expanded; if (item.node.expanded && !item.node.loaded) { if (item.node.path === '__drive__') loadDriveNavChildren(item.node); else if (item.node.path !== null) loadNavChildren(item.node); }"
             >›</span>
             <svg v-if="item.node.icon === 'pin'" class="nav-icon" viewBox="0 0 16 16">
               <defs>
