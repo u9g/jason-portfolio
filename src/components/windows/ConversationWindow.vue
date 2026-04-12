@@ -224,7 +224,7 @@ watch(selectedSlug, () => {
   display: inline-block;
   width: 10px;
   height: 10px;
-  vertical-align: middle;
+  vertical-align: baseline;
 }
 
 .msg-answer :deep(.arrow svg) {
