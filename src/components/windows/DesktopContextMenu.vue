@@ -37,7 +37,7 @@ const position = computed(() => {
       class="context-menu"
       :style="position"
       @click.stop
-      @contextmenu.prevent.stop
+      @contextmenu.prevent
     >
       <button class="ctx-item" @click="emit('prev-background'); emit('close')">
         <svg class="ctx-icon" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>

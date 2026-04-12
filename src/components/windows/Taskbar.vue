@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import startIcon from "../../assets/windows-start.svg";
-import type { WindowState } from "../../composables/useWindowManager";
+import type { TaskbarEntry } from "../../composables/useWindowManager";
 
 defineProps<{
   startMenuOpen: boolean;
-  openWindows: WindowState[];
+  openWindows: TaskbarEntry[];
 }>();
 
 const emit = defineEmits<{

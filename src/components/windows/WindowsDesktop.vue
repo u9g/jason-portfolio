@@ -64,10 +64,8 @@ const wm = useWindowManager();
 const explorers = ref<ExplorerConfig[]>([]);
 
 function openNewExplorer(initialRepo?: string, initialFile?: string) {
-  const id = wm.createWindow(
-    initialFile ? initialFile.split("/").pop() ?? "File Explorer" : "File Explorer",
-    fileExplorerIcon,
-  );
+  const title = initialFile ? initialFile.split("/").pop() ?? "File Explorer" : "File Explorer";
+  const id = wm.createWindow(title, fileExplorerIcon);
   explorers.value.push({ windowId: id, initialRepo, initialFile });
 }
 

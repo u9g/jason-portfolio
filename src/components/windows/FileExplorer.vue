@@ -211,6 +211,18 @@ const svgDataUrl = computed(() => {
   if (!isSvg.value || !fileContent.value) return "";
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(fileContent.value)))}`;
 });
+const windowIcon = computed(() => isSvg.value && svgDataUrl.value ? svgDataUrl.value : fileExplorerIcon);
+
+watch(windowTitle, (t) => {
+  const w = getWindow(props.windowId);
+  if (w) w.title = t;
+}, { immediate: true });
+
+watch(windowIcon, (i) => {
+  const w = getWindow(props.windowId);
+  if (w) w.icon = i;
+}, { immediate: true });
+
 const svgLines = computed(() => fileContent.value.split("\n"));
 const svgPreviewRef = ref<HTMLElement | null>(null);
 const hoveredLine = ref(-1);
@@ -522,7 +534,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     :focused="wState.focused"
     :z-index="wState.zIndex"
     :title="windowTitle"
-    :icon="fileExplorerIcon"
+    :icon="windowIcon"
     @close="emit('close')"
     @minimize="minimizeWindow(windowId)"
     @focus="focusWindow(windowId)"

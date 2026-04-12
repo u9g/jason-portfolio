@@ -179,7 +179,7 @@ onUnmounted(() => {
       :style="{ ...snapStyle, zIndex: zIndex ?? 15 }"
       @mousedown="emit('focus')"
       @click.stop="emit('dismiss-menus')"
-      @contextmenu.stop.prevent
+      @contextmenu.prevent
     >
       <div class="title-bar" @mousedown="onTitleBarMouseDown" @dblclick="onTitleBarDblClick">
         <img v-if="icon" :src="icon" class="title-icon" alt="" />

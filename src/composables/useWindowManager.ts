@@ -10,26 +10,19 @@ export interface WindowState {
   zIndex: number;
 }
 
+export interface TaskbarEntry {
+  id: string;
+  title: string;
+  icon: string;
+  focused: boolean;
+}
+
 const windows = reactive(new Map<string, WindowState>());
 const registrationOrder = ref<string[]>([]);
 let topZ = 15;
 let nextId = 0;
 
 export function useWindowManager() {
-  function registerWindow(id: string, title: string, icon: string) {
-    if (windows.has(id)) return;
-    windows.set(id, {
-      id,
-      title,
-      icon,
-      open: false,
-      minimized: false,
-      focused: false,
-      zIndex: topZ,
-    });
-    registrationOrder.value.push(id);
-  }
-
   function createWindow(title: string, icon: string): string {
     const id = `win-${nextId++}`;
     windows.set(id, {
@@ -109,10 +102,18 @@ export function useWindowManager() {
     }
   }
 
-  const openWindows = computed(() =>
+  const openWindows = computed<TaskbarEntry[]>(() =>
     registrationOrder.value
       .filter((id) => windows.get(id)?.open)
-      .map((id) => windows.get(id)!)
+      .map((id) => {
+        const w = windows.get(id)!;
+        return {
+          id: w.id,
+          title: w.title,
+          icon: w.icon,
+          focused: w.focused,
+        };
+      })
   );
 
   function getWindow(id: string) {
@@ -121,7 +122,6 @@ export function useWindowManager() {
 
   return {
     windows,
-    registerWindow,
     createWindow,
     openWindow,
     closeWindow,
