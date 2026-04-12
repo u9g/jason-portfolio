@@ -42,7 +42,7 @@ export async function fetchContents(path: string, repo = "jason-portfolio"): Pro
   const key = `${repo}:${path || "__root__"}`;
   if (key in cache) return cache[key];
 
-  const fullRepo = `${USER}/${repo}`;
+  const fullRepo = repo.includes("/") ? repo : `${USER}/${repo}`;
   const url = path
     ? `https://api.github.com/repos/${fullRepo}/contents/${path}`
     : `https://api.github.com/repos/${fullRepo}/contents`;
@@ -111,8 +111,22 @@ export async function fetchUserRepos(): Promise<GHEntry[]> {
   return entries;
 }
 
+export interface PinnedRepo {
+  name: string;
+  owner: string;
+}
+
+export const PINNED_REPOS: PinnedRepo[] = [
+  { name: "Utils", owner: "u9g" },
+  { name: "promptlog", owner: "u9g" },
+  { name: "mineflayer", owner: "PrismarineJS" },
+  { name: "oxc", owner: "nicolo-ribaudo" },
+  { name: "uno-royale", owner: "u9g" },
+  { name: "jason-portfolio", owner: "u9g" },
+];
+
 export async function fetchFileContent(path: string, repo = "jason-portfolio"): Promise<string> {
-  const fullRepo = `${USER}/${repo}`;
+  const fullRepo = repo.includes("/") ? repo : `${USER}/${repo}`;
   const res = await fetch(
     `https://api.github.com/repos/${fullRepo}/contents/${path}`,
   );

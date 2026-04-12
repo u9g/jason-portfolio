@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from "../../data/github-fs";
+import { fetchContents, fetchFileContent, fetchUserRepos, PINNED_REPOS, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import WindowFrame from "./WindowFrame.vue";
 
@@ -216,7 +216,7 @@ watch(currentPath, (p) => {
   if (p !== "__thispc__") {
     segs.push({ label: "Projects (D:)", path: "__drive__" });
     if (p !== "__drive__") {
-      segs.push({ label: currentRepo.value, path: "" });
+      segs.push({ label: currentRepo.value.split("/").pop() ?? currentRepo.value, path: "" });
     }
     if (p && !p.startsWith("__")) {
       const parts = p.split("/");
@@ -462,17 +462,14 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               Folders
             </button>
             <div class="folder-grid">
-              <button class="folder-tile" @click="loadDir('src')">
+              <button
+                v-for="repo in PINNED_REPOS"
+                :key="repo.owner + '/' + repo.name"
+                class="folder-tile"
+                @click="currentRepo = repo.owner + '/' + repo.name; loadDir('')"
+              >
                 <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
-                <span class="folder-tile-label">src</span>
-              </button>
-              <button class="folder-tile" @click="loadDir('public')">
-                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
-                <span class="folder-tile-label">public</span>
-              </button>
-              <button class="folder-tile" @click="loadDir('scripts')">
-                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
-                <span class="folder-tile-label">scripts</span>
+                <span class="folder-tile-label">{{ repo.name }}</span>
               </button>
             </div>
             <button class="section-header">
