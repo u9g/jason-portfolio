@@ -23,7 +23,7 @@ const emit = defineEmits<{
 }>();
 
 const { getWindow, focusWindow, minimizeWindow } = useWindowManager();
-const defaultState = { open: false, minimized: false, focused: false, zIndex: 15 };
+const defaultState = { open: false, minimized: false, focused: false, zIndex: 15, initialX: 100, initialY: 60 };
 const wState = computed(() => getWindow(props.windowId) ?? defaultState);
 
 const currentPath = ref("");
@@ -328,6 +328,8 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     :minimized="wState.minimized"
     :focused="wState.focused"
     :z-index="wState.zIndex"
+    :initial-x="wState.initialX"
+    :initial-y="wState.initialY"
     :title="windowTitle"
     :icon="windowIcon"
     @close="emit('close')"

@@ -8,6 +8,8 @@ export interface WindowState {
   minimized: boolean;
   focused: boolean;
   zIndex: number;
+  initialX: number;
+  initialY: number;
 }
 
 export interface TaskbarEntry {
@@ -21,10 +23,17 @@ const windows = reactive(new Map<string, WindowState>());
 const registrationOrder = ref<string[]>([]);
 let topZ = 15;
 let nextId = 0;
+let cascadeIndex = 0;
+const CASCADE_OFFSET = 30;
+const CASCADE_MAX = 8;
+const CASCADE_BASE_X = 100;
+const CASCADE_BASE_Y = 60;
 
 export function useWindowManager() {
   function createWindow(title: string, icon: string): string {
     const id = `win-${nextId++}`;
+    const step = cascadeIndex % CASCADE_MAX;
+    cascadeIndex++;
     windows.set(id, {
       id,
       title,
@@ -33,6 +42,8 @@ export function useWindowManager() {
       minimized: false,
       focused: false,
       zIndex: topZ,
+      initialX: CASCADE_BASE_X + step * CASCADE_OFFSET,
+      initialY: CASCADE_BASE_Y + step * CASCADE_OFFSET,
     });
     registrationOrder.value.push(id);
     focusWindow(id);
