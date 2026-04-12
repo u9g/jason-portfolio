@@ -74,11 +74,13 @@ export function renderMd(src: string, baseUrl?: string): string {
   const lines = html.split("\n");
   const out: string[] = [];
   let listDepth = 0;
+  const indentStack: number[] = [];
   let inCodeBlock = false;
   let inTable = false;
 
   function closeLists() {
     while (listDepth > 0) { out.push("</ul>"); listDepth--; }
+    indentStack.length = 0;
   }
 
   for (const line of lines) {
@@ -110,7 +112,17 @@ export function renderMd(src: string, baseUrl?: string): string {
     const listMatch = line.match(/^(\s*)([-*])\s+(.*)/);
     if (listMatch) {
       const indent = listMatch[1].length;
-      const depth = Math.floor(indent / 2) + 1;
+      let depth: number;
+      if (listDepth === 0 || indent > indentStack[indentStack.length - 1]) {
+        depth = listDepth + 1;
+        indentStack.push(indent);
+      } else {
+        // Find the matching depth for this indent level
+        depth = indentStack.findIndex(i => i >= indent) + 1;
+        if (depth === 0) depth = 1;
+        indentStack.length = depth;
+        indentStack[depth - 1] = indent;
+      }
       while (listDepth < depth) { out.push("<ul>"); listDepth++; }
       while (listDepth > depth) { out.push("</ul>"); listDepth--; }
       out.push(`<li>${inlineMarkdown(listMatch[3])}</li>`);
