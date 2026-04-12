@@ -4,6 +4,16 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 type SnapZone = "max" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | null;
 type MaxState = "max" | null;
 
+const SNAP_GEOMETRY: Record<string, { x: number; y: number; w: number; h: number }> = {
+  max:            { x: 0,   y: 0,   w: 1,   h: 1 },
+  left:           { x: 0,   y: 0,   w: 0.5, h: 1 },
+  right:          { x: 0.5, y: 0,   w: 0.5, h: 1 },
+  "top-left":     { x: 0,   y: 0,   w: 0.5, h: 0.5 },
+  "top-right":    { x: 0.5, y: 0,   w: 0.5, h: 0.5 },
+  "bottom-left":  { x: 0,   y: 0.5, w: 0.5, h: 0.5 },
+  "bottom-right": { x: 0.5, y: 0.5, w: 0.5, h: 0.5 },
+};
+
 const props = defineProps<{
   open: boolean;
   title: string;
@@ -26,12 +36,6 @@ const posX = ref(100);
 const posY = ref(60);
 const winW = ref(750);
 const winH = ref(500);
-let dragPending = false;
-let dragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
 let preSnapPos = { x: 0, y: 0 };
 const DRAG_THRESHOLD = 4;
 const EDGE = 8;
@@ -40,15 +44,21 @@ const TASKBAR = 40;
 const MIN_W = 300;
 const MIN_H = 200;
 
+const drag = { pending: false, active: false, startX: 0, startY: 0, offsetX: 0, offsetY: 0 };
+
 type ResizeDir = "top" | "bottom" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
-let resizing = false;
-let resizeDir: ResizeDir = "right";
-let resizeStartX = 0;
-let resizeStartY = 0;
-let resizeStartW = 0;
-let resizeStartH = 0;
-let resizeStartPosX = 0;
-let resizeStartPosY = 0;
+const resizeDirs: ResizeDir[] = ["top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"];
+const RESIZE_SIGN: Record<ResizeDir, { dx: number; dy: number; dw: number; dh: number }> = {
+  right:          { dx: 0, dy: 0, dw: 1,  dh: 0 },
+  left:           { dx: 1, dy: 0, dw: -1, dh: 0 },
+  bottom:         { dx: 0, dy: 0, dw: 0,  dh: 1 },
+  top:            { dx: 0, dy: 1, dw: 0,  dh: -1 },
+  "top-left":     { dx: 1, dy: 1, dw: -1, dh: -1 },
+  "top-right":    { dx: 0, dy: 1, dw: 1,  dh: -1 },
+  "bottom-left":  { dx: 1, dy: 0, dw: -1, dh: 1 },
+  "bottom-right": { dx: 0, dy: 0, dw: 1,  dh: 1 },
+};
+const resize = { active: false, dir: "right" as ResizeDir, startX: 0, startY: 0, startW: 0, startH: 0, startPosX: 0, startPosY: 0 };
 
 function detectSnapZone(x: number, y: number): SnapZone {
   const w = window.innerWidth;
@@ -83,107 +93,90 @@ const snapStyle = computed(() => {
 
 const previewStyle = computed(() => {
   if (!snapPreview.value) return null;
-  const h = "calc(100vh - 40px)";
-  const halfH = "calc((100vh - 40px) / 2)";
-  switch (snapPreview.value) {
-    case "max": return { left: "0", top: "0", width: "100vw", height: h };
-    case "left": return { left: "0", top: "0", width: "50vw", height: h };
-    case "right": return { left: "50vw", top: "0", width: "50vw", height: h };
-    case "top-left": return { left: "0", top: "0", width: "50vw", height: halfH };
-    case "top-right": return { left: "50vw", top: "0", width: "50vw", height: halfH };
-    case "bottom-left": return { left: "0", top: halfH, width: "50vw", height: halfH };
-    case "bottom-right": return { left: "50vw", top: halfH, width: "50vw", height: halfH };
-  }
+  const g = SNAP_GEOMETRY[snapPreview.value];
+  return {
+    left: `${g.x * 100}vw`,
+    top: `calc((100vh - ${TASKBAR}px) * ${g.y})`,
+    width: `${g.w * 100}vw`,
+    height: `calc((100vh - ${TASKBAR}px) * ${g.h})`,
+  };
 });
 
 function applySnapZone(zone: SnapZone) {
+  if (!zone || zone === "max") return;
   const vw = window.innerWidth;
   const vh = window.innerHeight - TASKBAR;
-  switch (zone) {
-    case "left":         posX.value = 0;      posY.value = 0;      winW.value = vw / 2; winH.value = vh; break;
-    case "right":        posX.value = vw / 2; posY.value = 0;      winW.value = vw / 2; winH.value = vh; break;
-    case "top-left":     posX.value = 0;      posY.value = 0;      winW.value = vw / 2; winH.value = vh / 2; break;
-    case "top-right":    posX.value = vw / 2; posY.value = 0;      winW.value = vw / 2; winH.value = vh / 2; break;
-    case "bottom-left":  posX.value = 0;      posY.value = vh / 2; winW.value = vw / 2; winH.value = vh / 2; break;
-    case "bottom-right": posX.value = vw / 2; posY.value = vh / 2; winW.value = vw / 2; winH.value = vh / 2; break;
-  }
+  const g = SNAP_GEOMETRY[zone];
+  posX.value = g.x * vw;
+  posY.value = g.y * vh;
+  winW.value = g.w * vw;
+  winH.value = g.h * vh;
 }
 
 function onTitleBarMouseDown(e: MouseEvent) {
-  dragPending = true;
-  dragging = false;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
+  drag.pending = true;
+  drag.active = false;
+  drag.startX = e.clientX;
+  drag.startY = e.clientY;
   if (!snap.value) {
-    dragOffsetX = e.clientX - posX.value;
-    dragOffsetY = e.clientY - posY.value;
+    drag.offsetX = e.clientX - posX.value;
+    drag.offsetY = e.clientY - posY.value;
   }
 }
 
 function onResizeMouseDown(dir: ResizeDir, e: MouseEvent) {
   e.preventDefault();
-  resizing = true;
-  resizeDir = dir;
-  resizeStartX = e.clientX;
-  resizeStartY = e.clientY;
-  resizeStartW = winW.value;
-  resizeStartH = winH.value;
-  resizeStartPosX = posX.value;
-  resizeStartPosY = posY.value;
+  resize.active = true;
+  resize.dir = dir;
+  resize.startX = e.clientX;
+  resize.startY = e.clientY;
+  resize.startW = winW.value;
+  resize.startH = winH.value;
+  resize.startPosX = posX.value;
+  resize.startPosY = posY.value;
 }
 
 function onMouseMove(e: MouseEvent) {
-  if (resizing) {
-    const dx = e.clientX - resizeStartX;
-    const dy = e.clientY - resizeStartY;
-    const dir = resizeDir;
-    if (dir.includes("right")) {
-      winW.value = Math.max(MIN_W, resizeStartW + dx);
-    }
-    if (dir.includes("left")) {
-      const newW = Math.max(MIN_W, resizeStartW - dx);
-      posX.value = resizeStartPosX + resizeStartW - newW;
-      winW.value = newW;
-    }
-    if (dir.includes("bottom")) {
-      winH.value = Math.max(MIN_H, resizeStartH + dy);
-    }
-    if (dir === "top" || dir === "top-left" || dir === "top-right") {
-      const newH = Math.max(MIN_H, resizeStartH - dy);
-      posY.value = resizeStartPosY + resizeStartH - newH;
-      winH.value = newH;
-    }
+  if (resize.active) {
+    const dx = e.clientX - resize.startX;
+    const dy = e.clientY - resize.startY;
+    const s = RESIZE_SIGN[resize.dir];
+    const newW = Math.max(MIN_W, resize.startW + s.dw * dx);
+    const newH = Math.max(MIN_H, resize.startH + s.dh * dy);
+    posX.value = resize.startPosX + s.dx * (resize.startW - newW);
+    posY.value = resize.startPosY + s.dy * (resize.startH - newH);
+    winW.value = newW;
+    winH.value = newH;
     return;
   }
-  if (!dragPending && !dragging) return;
-  if (dragPending && !dragging) {
-    const dx = e.clientX - dragStartX;
-    const dy = e.clientY - dragStartY;
+  if (!drag.pending && !drag.active) return;
+  if (drag.pending && !drag.active) {
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
     if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
-    dragging = true;
-    dragPending = false;
+    drag.active = true;
+    drag.pending = false;
     if (snap.value === "max") {
-      // Restore from maximized: place window so cursor is proportionally on the title bar
       const restoredWidth = winW.value;
-      const fractionX = dragStartX / window.innerWidth;
+      const fractionX = drag.startX / window.innerWidth;
       posX.value = e.clientX - fractionX * restoredWidth;
-      posY.value = e.clientY - dragStartY;
-      dragOffsetX = e.clientX - posX.value;
-      dragOffsetY = e.clientY - posY.value;
+      posY.value = e.clientY - drag.startY;
+      drag.offsetX = e.clientX - posX.value;
+      drag.offsetY = e.clientY - posY.value;
       snap.value = null;
     }
   }
-  posX.value = e.clientX - dragOffsetX;
-  posY.value = e.clientY - dragOffsetY;
+  posX.value = e.clientX - drag.offsetX;
+  posY.value = e.clientY - drag.offsetY;
   snapPreview.value = detectSnapZone(e.clientX, e.clientY);
 }
 
 function onMouseUp(e: MouseEvent) {
-  if (resizing) {
-    resizing = false;
+  if (resize.active) {
+    resize.active = false;
     return;
   }
-  if (dragging) {
+  if (drag.active) {
     const zone = detectSnapZone(e.clientX, e.clientY);
     if (zone === "max") {
       preSnapPos = { x: posX.value, y: posY.value };
@@ -192,8 +185,8 @@ function onMouseUp(e: MouseEvent) {
       applySnapZone(zone);
     }
   }
-  dragging = false;
-  dragPending = false;
+  drag.active = false;
+  drag.pending = false;
   snapPreview.value = null;
 }
 
@@ -239,14 +232,9 @@ onUnmounted(() => {
     >
       <!-- Resize handles -->
       <template v-if="snap !== 'max'">
-        <div class="resize-handle resize-top" @mousedown.stop="onResizeMouseDown('top', $event)" />
-        <div class="resize-handle resize-bottom" @mousedown.stop="onResizeMouseDown('bottom', $event)" />
-        <div class="resize-handle resize-left" @mousedown.stop="onResizeMouseDown('left', $event)" />
-        <div class="resize-handle resize-right" @mousedown.stop="onResizeMouseDown('right', $event)" />
-        <div class="resize-handle resize-top-left" @mousedown.stop="onResizeMouseDown('top-left', $event)" />
-        <div class="resize-handle resize-top-right" @mousedown.stop="onResizeMouseDown('top-right', $event)" />
-        <div class="resize-handle resize-bottom-left" @mousedown.stop="onResizeMouseDown('bottom-left', $event)" />
-        <div class="resize-handle resize-bottom-right" @mousedown.stop="onResizeMouseDown('bottom-right', $event)" />
+        <div v-for="dir in resizeDirs" :key="dir"
+             :class="['resize-handle', `resize-${dir}`]"
+             @mousedown.stop="onResizeMouseDown(dir, $event)" />
       </template>
       <div class="title-bar" @mousedown="onTitleBarMouseDown" @dblclick="onTitleBarDblClick">
         <img v-if="icon" :src="icon" class="title-icon" alt="" />
