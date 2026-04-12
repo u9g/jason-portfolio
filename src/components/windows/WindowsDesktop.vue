@@ -105,19 +105,11 @@ function onProjectsClose(windowId: string) {
   projectsWindows.value = projectsWindows.value.filter((id) => id !== windowId);
 }
 
-const iconSelected = ref(false);
-
-const workExpSelected = ref(false);
-const projectsSelected = ref(false);
-const essaysSelected = ref(false);
+const selectedIcon = ref<string | null>(null);
 const startMenuOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
 const contextMenuY = ref(0);
-
-function toggleIcon() {
-  iconSelected.value = !iconSelected.value;
-}
 
 function onContextMenu(e: MouseEvent) {
   const el = e.target as HTMLElement;
@@ -130,7 +122,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; workExpSelected = false; projectsSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="selectedIcon = null; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -142,30 +134,30 @@ function onContextMenu(e: MouseEvent) {
       <DesktopIcon
         label="This PC"
         :icon="thisPcIcon"
-        :selected="iconSelected"
-        @click.stop="toggleIcon"
-        @dblclick.stop="openNewExplorer(); iconSelected = false"
+        :selected="selectedIcon === 'thisPc'"
+        @click.stop="selectedIcon = selectedIcon === 'thisPc' ? null : 'thisPc'"
+        @dblclick.stop="openNewExplorer(); selectedIcon = null"
       />
       <DesktopIcon
         label="Work Experience"
         :icon="workExpIcon"
-        :selected="workExpSelected"
-        @click.stop="workExpSelected = !workExpSelected"
-        @dblclick.stop="openWorkExpWindow(); workExpSelected = false"
+        :selected="selectedIcon === 'workExp'"
+        @click.stop="selectedIcon = selectedIcon === 'workExp' ? null : 'workExp'"
+        @dblclick.stop="openWorkExpWindow(); selectedIcon = null"
       />
       <DesktopIcon
         label="Projects"
         :icon="projectsIcon"
-        :selected="projectsSelected"
-        @click.stop="projectsSelected = !projectsSelected"
-        @dblclick.stop="openProjectsWindow(); projectsSelected = false"
+        :selected="selectedIcon === 'projects'"
+        @click.stop="selectedIcon = selectedIcon === 'projects' ? null : 'projects'"
+        @dblclick.stop="openProjectsWindow(); selectedIcon = null"
       />
       <DesktopIcon
         label="Essays"
         :icon="essaysIcon"
-        :selected="essaysSelected"
-        @click.stop="essaysSelected = !essaysSelected"
-        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); essaysSelected = false"
+        :selected="selectedIcon === 'essays'"
+        @click.stop="selectedIcon = selectedIcon === 'essays' ? null : 'essays'"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); selectedIcon = null"
       />
     </div>
     <FileExplorer
