@@ -7,7 +7,14 @@ import { formatSize, getFileType, rawUrl } from "./helpers";
 const props = defineProps<{
   entries: GHEntry[];
   currentRepo: string;
+  isDrive?: boolean;
 }>();
+
+function formatDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
 
 const emit = defineEmits<{
   "entry-click": [entry: GHEntry];
@@ -18,7 +25,7 @@ const emit = defineEmits<{
   <div class="column-headers">
     <span class="col-name">Name</span>
     <span class="col-type">Type</span>
-    <span class="col-size">Size</span>
+    <span class="col-size">{{ isDrive ? 'Last Commit' : 'Size' }}</span>
   </div>
   <div class="file-list">
     <button
@@ -33,8 +40,8 @@ const emit = defineEmits<{
         <img v-else :src="fileTextIcon" class="entry-icon" alt="" />
         <span class="entry-label">{{ entry.name }}<svg v-if="entry.path === '__repo__:jason-portfolio'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
       </span>
-      <span class="col-type">{{ entry.type === 'dir' ? 'File folder' : getFileType(entry.name) }}</span>
-      <span class="col-size">{{ entry.type === 'file' ? formatSize(entry.size) : '' }}</span>
+      <span class="col-type">{{ isDrive ? 'Git Repository' : entry.type === 'dir' ? 'File folder' : getFileType(entry.name) }}</span>
+      <span class="col-size">{{ isDrive ? formatDate(entry.pushedAt) : entry.type === 'file' ? formatSize(entry.size) : '' }}</span>
     </button>
   </div>
 </template>

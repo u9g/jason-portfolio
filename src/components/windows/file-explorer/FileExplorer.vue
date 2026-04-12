@@ -417,6 +417,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             <DirectoryListing
               :entries="entries"
               :current-repo="currentRepo"
+              :is-drive="viewMode === 'drive'"
               @entry-click="onEntryClick"
             />
           </div>
@@ -428,6 +429,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
           v-else
           :entries="entries"
           :current-repo="currentRepo"
+          :is-drive="viewMode === 'drive'"
           @entry-click="onEntryClick"
         />
       </div>

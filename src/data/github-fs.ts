@@ -3,6 +3,7 @@ export interface GHEntry {
   path: string;
   type: "file" | "dir";
   size: number;
+  pushedAt?: string;
 }
 
 const USER = "u9g";
@@ -74,7 +75,7 @@ export async function fetchUserRepos(): Promise<GHEntry[]> {
     cache[key].sort((a, b) => {
       if (a.name === "jason-portfolio") return -1;
       if (b.name === "jason-portfolio") return 1;
-      return a.name.localeCompare(b.name);
+      return (b.pushedAt ?? "").localeCompare(a.pushedAt ?? "");
     });
     return cache[key];
   }
@@ -86,7 +87,7 @@ export async function fetchUserRepos(): Promise<GHEntry[]> {
       `https://api.github.com/users/${USER}/repos?per_page=100&page=${page}&sort=updated`,
     );
     if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-    const data = await res.json() as { name: string; size: number }[];
+    const data = await res.json() as { name: string; size: number; pushed_at: string }[];
     if (data.length === 0) break;
     for (const repo of data) {
       entries.push({
@@ -94,6 +95,7 @@ export async function fetchUserRepos(): Promise<GHEntry[]> {
         path: `__repo__:${repo.name}`,
         type: "dir",
         size: repo.size,
+        pushedAt: repo.pushed_at,
       });
     }
     if (data.length < 100) break;
@@ -104,7 +106,8 @@ export async function fetchUserRepos(): Promise<GHEntry[]> {
     // jason-portfolio always first
     if (a.name === "jason-portfolio") return -1;
     if (b.name === "jason-portfolio") return 1;
-    return a.name.localeCompare(b.name);
+    // Sort by pushed_at descending (most recent first)
+    return (b.pushedAt ?? "").localeCompare(a.pushedAt ?? "");
   });
   cache[key] = entries;
   saveCache(cache);
