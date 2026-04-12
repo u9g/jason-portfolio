@@ -7,6 +7,7 @@ import DesktopContextMenu from "./DesktopContextMenu.vue";
 import FileExplorer from "./FileExplorer.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
+import folderFullIcon from "../../assets/folder-full.png";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -58,15 +59,16 @@ interface ExplorerConfig {
   windowId: string;
   initialRepo?: string;
   initialFile?: string;
+  initialDir?: string;
 }
 
 const wm = useWindowManager();
 const explorers = ref<ExplorerConfig[]>([]);
 
-function openNewExplorer(initialRepo?: string, initialFile?: string) {
-  const title = initialFile ? initialFile.split("/").pop() ?? "File Explorer" : "File Explorer";
+function openNewExplorer(initialRepo?: string, initialFile?: string, initialDir?: string) {
+  const title = initialFile ? initialFile.split("/").pop() ?? "File Explorer" : initialDir ? initialDir.split("/").pop() ?? "File Explorer" : "File Explorer";
   const id = wm.createWindow(title, fileExplorerIcon);
-  explorers.value.push({ windowId: id, initialRepo, initialFile });
+  explorers.value.push({ windowId: id, initialRepo, initialFile, initialDir });
 }
 
 function onExplorerClose(windowId: string) {
@@ -76,6 +78,7 @@ function onExplorerClose(windowId: string) {
 
 const iconSelected = ref(false);
 const faviconSelected = ref(false);
+const essaysSelected = ref(false);
 const startMenuOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
@@ -96,7 +99,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -119,6 +122,13 @@ function onContextMenu(e: MouseEvent) {
         @click.stop="faviconSelected = !faviconSelected"
         @dblclick.stop="openNewExplorer('u9g/jason-portfolio', 'public/favicon.svg'); faviconSelected = false"
       />
+      <DesktopIcon
+        label="Essays"
+        :icon="folderFullIcon"
+        :selected="essaysSelected"
+        @click.stop="essaysSelected = !essaysSelected"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays'); essaysSelected = false"
+      />
     </div>
     <FileExplorer
       v-for="cfg in explorers"
@@ -126,6 +136,7 @@ function onContextMenu(e: MouseEvent) {
       :window-id="cfg.windowId"
       :initial-repo="cfg.initialRepo"
       :initial-file="cfg.initialFile"
+      :initial-dir="cfg.initialDir"
       @close="onExplorerClose(cfg.windowId)"
       @dismiss-menus="contextMenuOpen = false; startMenuOpen = false"
     />

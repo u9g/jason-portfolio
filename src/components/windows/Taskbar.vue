@@ -78,7 +78,7 @@ onUnmounted(() => {
   backdrop-filter: blur(30px) saturate(1.5);
   display: flex;
   align-items: center;
-  z-index: 10;
+  z-index: 9999;
   font-family: "Segoe UI", -apple-system, sans-serif;
 }
 

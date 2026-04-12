@@ -64,7 +64,7 @@ const position = computed(() => {
   background: rgba(43, 43, 43, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.7);
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
-  z-index: 25;
+  z-index: 10001;
   font-family: "Segoe UI", -apple-system, sans-serif;
   color: white;
 }

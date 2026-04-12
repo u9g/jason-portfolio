@@ -12,6 +12,7 @@ const props = defineProps<{
   windowId: string;
   initialRepo?: string;
   initialFile?: string;
+  initialDir?: string;
 }>();
 
 const emit = defineEmits<{
@@ -200,7 +201,7 @@ function inlineMarkdown(text: string): string {
     .replace(/__([^_]+)__/g, "<strong>$1</strong>")
     .replace(/_([^_]+)_/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    .replace(/\[((?:[^\[\]]|\[[^\]]*\])*)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
 }
 
 const renderedMarkdown = computed(() => isMarkdown.value ? renderMd(fileContent.value) : "");
@@ -413,6 +414,8 @@ watch(() => wState.value.open, (isOpen) => {
     if (props.initialRepo) currentRepo.value = props.initialRepo;
     if (props.initialFile) {
       openFile({ name: props.initialFile.split("/").pop() ?? props.initialFile, path: props.initialFile, type: "file", size: 0 });
+    } else if (props.initialDir) {
+      loadDir(props.initialDir);
     } else {
       loadDir("");
     }
@@ -1095,6 +1098,8 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   font-size: 13px;
   line-height: 1.6;
   max-width: 800px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .md-render h1 { font-size: 1.8em; margin: 0.5em 0 0.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }

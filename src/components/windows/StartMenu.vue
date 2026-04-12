@@ -101,7 +101,7 @@ const tiles = [
   height: 500px;
   background: rgba(0, 40, 80, 0.3);
   backdrop-filter: blur(30px) saturate(1.5);
-  z-index: 20;
+  z-index: 10000;
   font-family: "Segoe UI", -apple-system, sans-serif;
   color: white;
   transform-origin: bottom left;
