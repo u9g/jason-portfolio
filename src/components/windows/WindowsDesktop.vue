@@ -10,12 +10,22 @@ import wallpaper5 from "../../assets/wallpaper5.jpg";
 
 const wallpapers = [wallpaper1, wallpaper2, wallpaper3, wallpaper4, wallpaper5];
 const currentWallpaper = ref(0);
+const nextWallpaper = ref(1);
+const transitioning = ref(false);
 let timer: ReturnType<typeof setInterval> | undefined;
 
+function advance() {
+  nextWallpaper.value = (currentWallpaper.value + 1) % wallpapers.length;
+  transitioning.value = true;
+}
+
+function onTransitionEnd() {
+  currentWallpaper.value = nextWallpaper.value;
+  transitioning.value = false;
+}
+
 onMounted(() => {
-  timer = setInterval(() => {
-    currentWallpaper.value = (currentWallpaper.value + 1) % wallpapers.length;
-  }, 60000);
+  timer = setInterval(advance, 60000);
 });
 
 onUnmounted(() => {
@@ -30,7 +40,14 @@ function toggleIcon() {
 </script>
 
 <template>
-  <div class="win-desktop" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" @click="iconSelected = false">
+  <div class="win-desktop" @click="iconSelected = false">
+    <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
+    <div
+      class="wallpaper-layer wallpaper-next"
+      :class="{ 'wallpaper-visible': transitioning }"
+      :style="{ backgroundImage: `url(${wallpapers[nextWallpaper]})` }"
+      @transitionend="onTransitionEnd"
+    />
     <div class="desktop-icons">
       <DesktopIcon
         label="File Explorer"
@@ -48,11 +65,26 @@ function toggleIcon() {
   height: 100vh;
   position: relative;
   overflow: hidden;
+}
+
+.wallpaper-layer {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
 }
 
+.wallpaper-next {
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+.wallpaper-visible {
+  opacity: 1;
+}
+
 .desktop-icons {
+  position: relative;
   padding: 8px;
   display: flex;
   flex-direction: column;
