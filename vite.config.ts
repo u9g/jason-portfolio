@@ -6,7 +6,7 @@ function claudeRoutePlugin(): Plugin {
     name: "claude-route",
     configureServer(server) {
       server.middlewares.use((req, _res, next) => {
-        if (req.url?.startsWith("/claude")) {
+        if (req.url?.startsWith("/claude") || req.url?.startsWith("/windows")) {
           req.url = "/index.html";
         }
         next();

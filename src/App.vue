@@ -6,6 +6,7 @@ import About from "./components/claude/pages/About.vue";
 import OSSContributions from "./components/claude/pages/OSSContributions.vue";
 import Essays from "./components/claude/pages/Essays.vue";
 import DocumentView from "./components/DocumentView.vue";
+import WindowsDesktop from "./components/windows/WindowsDesktop.vue";
 import ResumePrint from "./components/print/ResumePrint.vue";
 import sunIcon from "./assets/sun.svg";
 import moonIcon from "./assets/moon.svg";
@@ -51,6 +52,7 @@ function toggleTheme(e: MouseEvent) {
 const initialPath = inject<string>("initialPath", "/");
 const pathname = initialPath.replace(/\/+$/, "") || "/";
 const isDocumentMode = pathname === "/" || pathname === "/index.html";
+const isWindowsMode = pathname === "/windows";
 
 const DEFAULT_SLUG = "about";
 
@@ -92,6 +94,7 @@ const SITE_NAME = "Jason";
 
 const pageTitle = computed(() => {
   if (isDocumentMode) return `${SITE_NAME}'s Portfolio`;
+  if (isWindowsMode) return SITE_NAME;
   if (currentSlug.value === "about") return `About | ${SITE_NAME}`;
   if (currentSlug.value === "oss") return `OSS | ${SITE_NAME}`;
   const essay = getEssay(currentSlug.value);
@@ -113,6 +116,7 @@ if (!isSSR) {
 <template>
   <ResumePrint ref="resumePrint" />
   <button
+    v-if="!isWindowsMode"
     class="theme-fab"
     :aria-label="
       theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
@@ -125,6 +129,7 @@ if (!isSSR) {
     v-if="isDocumentMode"
     @print-resume="resumePrint?.printResume()"
   />
+  <WindowsDesktop v-else-if="isWindowsMode" />
   <div
     class="layout-wrap"
     v-else-if="

@@ -299,6 +299,19 @@ onUnmounted(() => {
           >Make it look like Claude
           <img :src="claudeIcon" class="claude-logo" aria-hidden="true"
         /></a>
+        <a href="/windows"
+          >Make it look like Windows
+          <svg
+            class="windows-logo"
+            viewBox="0 0 88 88"
+            aria-hidden="true"
+          >
+            <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203z" fill="#00ADEF" />
+            <path d="M39.996 6.984L87.318 0v41.65l-47.318.376z" fill="#00ADEF" />
+            <path d="M35.67 45.931l.022 34.407L.014 75.455.003 45.978z" fill="#00ADEF" />
+            <path d="M87.326 46.25l-.008 41.348-47.326-6.678-.066-34.739z" fill="#00ADEF" />
+          </svg>
+        </a>
         <button class="resume-banner-btn" @click="emit('print-resume')">
           <img :src="resumeIcon" class="resume-icon" aria-hidden="true" />
           Printable Resume
@@ -609,6 +622,13 @@ onUnmounted(() => {
 .claude-logo {
   width: 0.75rem;
   height: 0.75rem;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+.windows-logo {
+  width: 0.7rem;
+  height: 0.7rem;
   vertical-align: middle;
   margin-left: 2px;
 }
