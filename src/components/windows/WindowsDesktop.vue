@@ -4,7 +4,7 @@ import DesktopIcon from "./DesktopIcon.vue";
 import Taskbar from "./Taskbar.vue";
 import StartMenu from "./StartMenu.vue";
 import DesktopContextMenu from "./DesktopContextMenu.vue";
-import FileExplorer from "./FileExplorer.vue";
+import FileExplorer from "./file-explorer/FileExplorer.vue";
 import { useWindowManager } from "../../composables/useWindowManager";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import folderFullIcon from "../../assets/folder-full.png";
@@ -79,6 +79,8 @@ function onExplorerClose(windowId: string) {
 
 const iconSelected = ref(false);
 const faviconSelected = ref(false);
+const workExpSelected = ref(false);
+const projectsSelected = ref(false);
 const essaysSelected = ref(false);
 const startMenuOpen = ref(false);
 const contextMenuOpen = ref(false);
@@ -100,7 +102,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; workExpSelected = false; projectsSelected = false; essaysSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -115,6 +117,20 @@ function onContextMenu(e: MouseEvent) {
         :selected="iconSelected"
         @click.stop="toggleIcon"
         @dblclick.stop="openNewExplorer(); iconSelected = false"
+      />
+      <DesktopIcon
+        label="Work Experience"
+        :icon="folderFullIcon"
+        :selected="workExpSelected"
+        @click.stop="workExpSelected = !workExpSelected"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/work-experience'); workExpSelected = false"
+      />
+      <DesktopIcon
+        label="Projects"
+        :icon="folderFullIcon"
+        :selected="projectsSelected"
+        @click.stop="projectsSelected = !projectsSelected"
+        @dblclick.stop="openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/projects'); projectsSelected = false"
       />
       <DesktopIcon
         label="Essays"
