@@ -10,10 +10,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: [];
+  "next-background": [];
+  "prev-background": [];
 }>();
 
 const menuWidth = 200;
-const menuHeight = 36;
+const menuHeight = 64;
 
 const position = computed(() => {
   const left =
@@ -37,8 +39,17 @@ const position = computed(() => {
       @click.stop
       @contextmenu.prevent.stop
     >
+      <button class="ctx-item" @click="emit('prev-background'); emit('close')">
+        <svg class="ctx-icon" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+        Previous background
+      </button>
+      <button class="ctx-item" @click="emit('next-background'); emit('close')">
+        <svg class="ctx-icon" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5"><path d="M6 3l5 5-5 5"/></svg>
+        Next background
+      </button>
+      <div class="ctx-divider" />
       <a class="ctx-item" href="/">
-        <img :src="homeIcon" class="ctx-icon" aria-hidden="true" />
+        <img :src="homeIcon" class="ctx-icon ctx-icon-img" aria-hidden="true" />
         Exit to Document Mode
       </a>
     </div>
@@ -73,7 +84,7 @@ const position = computed(() => {
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 3px 28px 3px 8px;
+  padding: 3px 28px 3px 28px;
   background: transparent;
   border: none;
   color: white;
@@ -87,7 +98,17 @@ const position = computed(() => {
 .ctx-icon {
   width: 14px;
   height: 14px;
+  margin-left: -20px;
+}
+
+.ctx-icon.ctx-icon-img {
   filter: brightness(0) invert(1);
+}
+
+.ctx-divider {
+  height: 1px;
+  margin: 4px 0;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .ctx-item:hover {

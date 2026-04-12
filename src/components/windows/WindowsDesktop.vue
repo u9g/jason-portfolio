@@ -16,9 +16,22 @@ const nextWallpaper = ref(1);
 const transitioning = ref(false);
 let timer: ReturnType<typeof setInterval> | undefined;
 
-function advance() {
-  nextWallpaper.value = (currentWallpaper.value + 1) % wallpapers.length;
+function switchWallpaper(index: number) {
+  if (transitioning.value) {
+    currentWallpaper.value = nextWallpaper.value;
+    transitioning.value = false;
+    void document.querySelector('.wallpaper-next')?.offsetWidth;
+  }
+  nextWallpaper.value = index;
   transitioning.value = true;
+}
+
+function advance() {
+  switchWallpaper((currentWallpaper.value + 1) % wallpapers.length);
+}
+
+function goBack() {
+  switchWallpaper((currentWallpaper.value - 1 + wallpapers.length) % wallpapers.length);
 }
 
 function onTransitionEnd() {
@@ -72,7 +85,7 @@ function onContextMenu(e: MouseEvent) {
         @click.stop="toggleIcon"
       />
     </div>
-    <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" />
+    <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
     <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
   </div>
