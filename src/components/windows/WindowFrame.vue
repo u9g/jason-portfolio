@@ -18,6 +18,7 @@ const emit = defineEmits<{
   minimize: [];
   focus: [];
   "dismiss-menus": [];
+  mouseup: [e: MouseEvent];
 }>();
 
 const snap = ref<MaxState>(null);
@@ -234,6 +235,7 @@ onUnmounted(() => {
       :class="{ snapped: !!snap, unfocused: focused === false }"
       :style="{ ...snapStyle, zIndex: zIndex ?? 15 }"
       @mousedown="emit('focus')"
+      @mouseup="emit('mouseup', $event)"
       @click.stop="emit('dismiss-menus')"
       @contextmenu.prevent
     >
