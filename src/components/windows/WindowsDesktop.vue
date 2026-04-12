@@ -141,6 +141,7 @@ function onContextMenu(e: MouseEvent) {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
 .wallpaper-layer {

@@ -259,7 +259,6 @@ onUnmounted(() => {
   padding: 0 4px 0 10px;
   cursor: default;
   flex-shrink: 0;
-  user-select: none;
   border-bottom: 1px solid #e0e0e0;
 }
 

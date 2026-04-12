@@ -22,7 +22,6 @@ defineProps<{
   padding: 0;
   border-radius: 2px;
   cursor: default;
-  user-select: none;
   border: 1px solid transparent;
 }
 

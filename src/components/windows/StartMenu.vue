@@ -222,7 +222,6 @@ const tiles = [
   padding: 8px 10px;
   font-size: 12px;
   cursor: pointer;
-  user-select: none;
   text-decoration: none;
   color: white;
 }
