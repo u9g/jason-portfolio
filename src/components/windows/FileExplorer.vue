@@ -21,6 +21,7 @@ const viewingFile = ref(false);
 const fileContent = ref("");
 const fileName = ref("");
 const fileLoading = ref(false);
+const viewingThisPC = ref(false);
 
 const posX = ref(100);
 const posY = ref(60);
@@ -54,10 +55,19 @@ onUnmounted(() => {
   window.removeEventListener("mouseup", onMouseUp);
 });
 
+function showThisPC() {
+  viewingThisPC.value = true;
+  viewingFile.value = false;
+  currentPath.value = "__thispc__";
+  entries.value = [];
+  loading.value = false;
+}
+
 async function loadDir(path: string) {
   loading.value = true;
   error.value = "";
   viewingFile.value = false;
+  viewingThisPC.value = false;
   try {
     entries.value = await fetchContents(path);
     currentPath.value = path;
@@ -94,6 +104,11 @@ function goUp() {
     viewingFile.value = false;
     return;
   }
+  if (viewingThisPC.value) return;
+  if (currentPath.value === "") {
+    showThisPC();
+    return;
+  }
   const parts = currentPath.value.split("/");
   parts.pop();
   loadDir(parts.join("/"));
@@ -103,15 +118,19 @@ const pathSegments = ref<{ label: string; path: string }[]>([]);
 
 watch(currentPath, (p) => {
   const segs: { label: string; path: string }[] = [
-    { label: "jason-portfolio", path: "" },
+    { label: "This PC", path: "__thispc__" },
   ];
-  if (p) {
-    const parts = p.split("/");
-    for (let i = 0; i < parts.length; i++) {
-      segs.push({
-        label: parts[i],
-        path: parts.slice(0, i + 1).join("/"),
-      });
+  if (p !== "__thispc__") {
+    segs.push({ label: "Projects (D:)", path: "__drive__" });
+    segs.push({ label: "jason-portfolio", path: "" });
+    if (p && !p.startsWith("__")) {
+      const parts = p.split("/");
+      for (let i = 0; i < parts.length; i++) {
+        segs.push({
+          label: parts[i],
+          path: parts.slice(0, i + 1).join("/"),
+        });
+      }
     }
   }
   pathSegments.value = segs;
@@ -188,7 +207,10 @@ async function loadNavChildren(node: NavNode) {
 }
 
 async function onNavClick(node: NavNode) {
-  if (node.path !== null) {
+  if (node.icon === "pc") {
+    showThisPC();
+    node.expanded = !node.expanded;
+  } else if (node.path !== null) {
     loadDir(node.path);
     if (!node.loaded) {
       await loadNavChildren(node);
@@ -252,7 +274,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         <div class="nav-buttons">
           <button
             class="nav-btn"
-            :disabled="currentPath === '' && !viewingFile"
+            :disabled="viewingThisPC"
             @click="goUp"
             aria-label="Back"
           >
@@ -267,7 +289,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
           </button>
           <button
             class="nav-btn"
-            :disabled="currentPath === '' && !viewingFile"
+            :disabled="viewingThisPC"
             @click="goUp"
             aria-label="Up"
           >
@@ -277,10 +299,10 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
           </button>
         </div>
         <div class="address-bar">
-          <img :src="fileExplorerIcon" class="address-icon" alt="" />
+          <svg class="address-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
           <template v-for="(seg, i) in pathSegments" :key="seg.path">
             <span v-if="i > 0" class="path-sep">›</span>
-            <button class="path-segment" @click="loadDir(seg.path)">{{ seg.label }}</button>
+            <button class="path-segment" @click="seg.path === '__thispc__' ? showThisPC() : loadDir(seg.path === '__drive__' ? '' : seg.path)">{{ seg.label }}</button>
           </template>
         </div>
       </div>
@@ -325,6 +347,46 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         <div class="content">
           <div v-if="loading" class="status-msg">Loading...</div>
           <div v-else-if="error" class="status-msg error">{{ error }}</div>
+          <div v-else-if="viewingThisPC" class="this-pc-view">
+            <button class="section-header">
+              <span class="section-arrow">▾</span>
+              Folders
+            </button>
+            <div class="folder-grid">
+              <button class="folder-tile" @click="loadDir('src')">
+                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
+                <span class="folder-tile-label">src</span>
+              </button>
+              <button class="folder-tile" @click="loadDir('public')">
+                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
+                <span class="folder-tile-label">public</span>
+              </button>
+              <button class="folder-tile" @click="loadDir('scripts')">
+                <img :src="fileExplorerIcon" class="folder-tile-icon" alt="" />
+                <span class="folder-tile-label">scripts</span>
+              </button>
+            </div>
+            <button class="section-header">
+              <span class="section-arrow">▾</span>
+              Devices and drives
+            </button>
+            <div class="drive-grid">
+              <button class="drive-tile" @click="loadDir('')">
+                <svg class="drive-tile-icon" viewBox="0 0 48 48">
+                  <rect x="2" y="10" width="44" height="28" rx="3" fill="#c0c0c0" stroke="#999" stroke-width="1" />
+                  <rect x="5" y="30" width="10" height="5" rx="1.5" fill="#6a6" />
+                  <rect x="6" y="14" width="36" height="12" rx="1" fill="#e8e8e8" />
+                </svg>
+                <div class="drive-tile-info">
+                  <span class="drive-tile-label">Projects (D:)</span>
+                  <div class="drive-bar">
+                    <div class="drive-bar-fill"></div>
+                  </div>
+                  <span class="drive-tile-space">∞ GB free of ∞ GB</span>
+                </div>
+              </button>
+            </div>
+          </div>
           <div v-else-if="viewingFile" class="file-viewer">
             <pre v-if="fileLoading">Loading file...</pre>
             <pre v-else>{{ fileContent }}</pre>
@@ -706,6 +768,140 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   white-space: pre-wrap;
   word-break: break-all;
   line-height: 1.5;
+}
+
+/* This PC view */
+.this-pc-view {
+  padding: 8px 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: #0078d4;
+  cursor: pointer;
+  padding: 6px 0;
+  width: 100%;
+  text-align: left;
+}
+
+.section-header:hover {
+  color: #005a9e;
+}
+
+.section-arrow {
+  font-size: 10px;
+  color: #666;
+}
+
+.folder-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.folder-tile {
+  width: 130px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.folder-tile:hover {
+  background: #e8f0fe;
+  border-color: #c0d0e8;
+}
+
+.folder-tile-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.folder-tile-label {
+  font-size: 12px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drive-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.drive-tile {
+  width: 260px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drive-tile:hover {
+  background: #e8f0fe;
+  border-color: #c0d0e8;
+}
+
+.drive-tile-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.drive-tile-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.drive-tile-label {
+  font-size: 12px;
+  color: #333;
+}
+
+.drive-bar {
+  width: 100%;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.drive-bar-fill {
+  width: 35%;
+  height: 100%;
+  background: #0078d4;
+}
+
+.drive-tile-space {
+  font-size: 11px;
+  color: #888;
 }
 
 /* Status bar */
