@@ -20,6 +20,8 @@ const props = defineProps<{
   zIndex?: number;
   focused?: boolean;
   minimized?: boolean;
+  initialX?: number;
+  initialY?: number;
 }>();
 
 const emit = defineEmits<{
@@ -31,8 +33,8 @@ const emit = defineEmits<{
 
 const snap = ref<SnapZone>(null);
 const snapPreview = ref<SnapZone>(null);
-const posX = ref(100);
-const posY = ref(60);
+const posX = ref(props.initialX ?? 100);
+const posY = ref(props.initialY ?? 60);
 const winW = ref(750);
 const winH = ref(500);
 let preSnap = { x: 0, y: 0, w: 750, h: 500 };
