@@ -10,6 +10,7 @@ import NavigationPane from "./NavigationPane.vue";
 import ThisPCView from "./ThisPCView.vue";
 import DirectoryListing from "./DirectoryListing.vue";
 import FileViewer from "./FileViewer.vue";
+import Arrow from "../../shared/Arrow.vue";
 
 const props = defineProps<{
   windowId: string;
@@ -337,6 +338,13 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     @focus="focusWindow(windowId)"
     @mouseup="onMouseButton"
   >
+    <div v-if="viewMode === 'drive'" class="info-bar">
+      <svg class="info-bar-icon" viewBox="0 0 16 16" width="14" height="14">
+        <circle cx="8" cy="8" r="7" fill="#fff" stroke="#2e7d32" stroke-width="1.5"/>
+        <text x="8" y="12" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">i</text>
+      </svg><span>This is a list of Jason's Github Repositories, equivalent to <a href="https://github.com/u9g?tab=repositories" target="_blank" class="info-bar-link">github.com/u9g <Arrow /></a></span>
+    </div>
+
     <ExplorerToolbar
       :can-go-back="canGoBack"
       :can-go-forward="canGoForward"
@@ -409,6 +417,33 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
 
 .status-msg.error {
   color: #c00;
+}
+
+.info-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #dff6dd;
+  border-bottom: 1px solid #b7dfb9;
+  color: #1b5e20;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.info-bar-icon {
+  flex-shrink: 0;
+}
+
+.info-bar-link {
+  color: #1b5e20;
+  text-decoration: none;
+  border-bottom: 1px solid #1b5e20;
+}
+
+.info-bar-link:hover {
+  color: #0d3c11;
+  border-bottom-color: #0d3c11;
 }
 
 .status-bar {
