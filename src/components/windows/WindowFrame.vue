@@ -15,26 +15,41 @@ const emit = defineEmits<{
 const maximized = ref(false);
 const posX = ref(100);
 const posY = ref(60);
+let dragPending = false;
 let dragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 let preMaxPos = { x: 0, y: 0 };
+const DRAG_THRESHOLD = 4;
 
 function onTitleBarMouseDown(e: MouseEvent) {
   if (maximized.value) return;
-  dragging = true;
+  dragPending = true;
+  dragging = false;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
   dragOffsetX = e.clientX - posX.value;
   dragOffsetY = e.clientY - posY.value;
 }
 
 function onMouseMove(e: MouseEvent) {
-  if (!dragging) return;
+  if (!dragPending && !dragging) return;
+  if (dragPending && !dragging) {
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+    dragging = true;
+    dragPending = false;
+  }
   posX.value = e.clientX - dragOffsetX;
   posY.value = e.clientY - dragOffsetY;
 }
 
 function onMouseUp() {
   dragging = false;
+  dragPending = false;
 }
 
 function toggleMaximize() {

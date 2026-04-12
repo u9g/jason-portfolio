@@ -109,8 +109,8 @@ function goForward() {
 }
 
 function onMouseButton(e: MouseEvent) {
-  if (e.button === 3) goBack();
-  else if (e.button === 4) goForward();
+  if (e.button === 3) { e.stopPropagation(); goBack(); }
+  else if (e.button === 4) { e.stopPropagation(); goForward(); }
 }
 
 const windowTitle = computed(() => viewingFile.value ? fileName.value : "File Explorer");
@@ -357,7 +357,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     :icon="fileExplorerIcon"
     @close="emit('close')"
     @dismiss-menus="emit('dismiss-menus')"
-    @mouseup.stop="onMouseButton"
+    @mouseup="onMouseButton"
   >
 
       <!-- Navigation toolbar -->
