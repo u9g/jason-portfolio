@@ -129,7 +129,7 @@ if (!isSSR) {
     v-if="isDocumentMode"
     @print-resume="resumePrint?.printResume()"
   />
-  <WindowsDesktop v-else-if="isWindowsMode" />
+  <WindowsDesktop v-else-if="isWindowsMode" @print-resume="resumePrint?.printResume()" />
   <div
     class="layout-wrap"
     v-else-if="

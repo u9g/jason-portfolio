@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import DesktopIcon from "./DesktopIcon.vue";
 import Taskbar from "./Taskbar.vue";
+import StartMenu from "./StartMenu.vue";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -32,7 +33,12 @@ onUnmounted(() => {
   clearInterval(timer);
 });
 
+const emit = defineEmits<{
+  "print-resume": [];
+}>();
+
 const iconSelected = ref(false);
+const startMenuOpen = ref(false);
 
 function toggleIcon() {
   iconSelected.value = !iconSelected.value;
@@ -40,7 +46,7 @@ function toggleIcon() {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false">
+  <div class="win-desktop" @click="iconSelected = false; startMenuOpen = false">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -55,7 +61,8 @@ function toggleIcon() {
         @click.stop="toggleIcon"
       />
     </div>
-    <Taskbar />
+    <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
+    <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
   </div>
 </template>
 

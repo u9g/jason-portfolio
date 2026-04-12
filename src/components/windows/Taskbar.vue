@@ -2,6 +2,14 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import startIcon from "../../assets/windows-start.svg";
 
+defineProps<{
+  startMenuOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+  "toggle-start-menu": [];
+}>();
+
 const time = ref("");
 const date = ref("");
 let timer: ReturnType<typeof setInterval> | undefined;
@@ -31,7 +39,7 @@ onUnmounted(() => {
 
 <template>
   <div class="taskbar">
-    <button class="start-button" aria-label="Start">
+    <button class="start-button" :class="{ active: startMenuOpen }" aria-label="Start" @click.stop="emit('toggle-start-menu')">
       <img :src="startIcon" alt="" class="start-icon" />
     </button>
     <div class="taskbar-spacer"></div>
@@ -77,6 +85,10 @@ onUnmounted(() => {
 
 .start-button:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.start-button.active {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .start-button:hover .start-icon {
