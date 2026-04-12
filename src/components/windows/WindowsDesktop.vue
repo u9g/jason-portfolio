@@ -4,6 +4,7 @@ import DesktopIcon from "./DesktopIcon.vue";
 import Taskbar from "./Taskbar.vue";
 import StartMenu from "./StartMenu.vue";
 import DesktopContextMenu from "./DesktopContextMenu.vue";
+import FileExplorer from "./FileExplorer.vue";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -20,7 +21,7 @@ function switchWallpaper(index: number) {
   if (transitioning.value) {
     currentWallpaper.value = nextWallpaper.value;
     transitioning.value = false;
-    void document.querySelector('.wallpaper-next')?.offsetWidth;
+    void (document.querySelector('.wallpaper-next') as HTMLElement | null)?.offsetWidth;
   }
   nextWallpaper.value = index;
   transitioning.value = true;
@@ -53,6 +54,7 @@ const emit = defineEmits<{
 
 const iconSelected = ref(false);
 const startMenuOpen = ref(false);
+const explorerOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
 const contextMenuY = ref(0);
@@ -83,8 +85,10 @@ function onContextMenu(e: MouseEvent) {
         label="File Explorer"
         :selected="iconSelected"
         @click.stop="toggleIcon"
+        @dblclick.stop="explorerOpen = true; iconSelected = false"
       />
     </div>
+    <FileExplorer :open="explorerOpen" @close="explorerOpen = false" />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
     <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
