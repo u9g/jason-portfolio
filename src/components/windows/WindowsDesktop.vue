@@ -14,6 +14,7 @@ import essaysIcon from "../../assets/essays.svg";
 import thisPcIcon from "../../assets/this-pc.svg";
 import workExpIcon from "../../assets/work-experience.svg";
 import projectsIcon from "../../assets/projects.svg";
+import linkedinIcon from "../../assets/linkedin.svg";
 
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
@@ -96,6 +97,7 @@ const desktopIcons = [
   { key: 'workExp', label: 'Work Experience', icon: workExpIcon, selected: ref(false), action: () => workExp.open() },
   { key: 'projects', label: 'Projects', icon: projectsIcon, selected: ref(false), action: () => projects.open() },
   { key: 'essays', label: 'Essays', icon: essaysIcon, selected: ref(false), action: () => openNewExplorer('u9g/jason-portfolio', undefined, 'src/data/essays') },
+  { key: 'contact', label: 'Contact Me', icon: linkedinIcon, selected: ref(false), action: () => window.open('https://www.linkedin.com/in/jason-lernerman/', '_blank') },
 ];
 
 function onDesktopClick(e: MouseEvent) {

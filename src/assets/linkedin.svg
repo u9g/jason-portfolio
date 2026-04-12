@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Envelope body -->
+  <rect x="1.5" y="3.5" width="13" height="9" rx="0.5" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.4"/>
+  <!-- Flap -->
+  <path d="M1.5 3.5 L8 9 L14.5 3.5" fill="none" stroke="#4a8ab5" stroke-width="0.6" stroke-linejoin="round"/>
+  <!-- Bottom fold lines -->
+  <line x1="1.5" y1="12.5" x2="5.5" y2="8.5" stroke="#4a8ab5" stroke-width="0.4"/>
+  <line x1="14.5" y1="12.5" x2="10.5" y2="8.5" stroke="#4a8ab5" stroke-width="0.4"/>
+
+</svg>
