@@ -6,6 +6,8 @@ import WindowFrame from "./WindowFrame.vue";
 
 const props = defineProps<{
   open: boolean;
+  initialRepo?: string;
+  initialFile?: string;
 }>();
 
 const emit = defineEmits<{
@@ -202,8 +204,71 @@ function rawUrl(path: string): string {
 const isSvg = computed(() => fileName.value.endsWith(".svg"));
 const svgDataUrl = computed(() => {
   if (!isSvg.value || !fileContent.value) return "";
-  return `data:image/svg+xml;base64,${btoa(fileContent.value)}`;
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(fileContent.value)))}`;
 });
+const svgLines = computed(() => fileContent.value.split("\n"));
+const svgPreviewRef = ref<HTMLElement | null>(null);
+const hoveredLine = ref(-1);
+const highlightBox = ref<{ x: number; y: number; w: number; h: number } | null>(null);
+
+function onSvgLineHover(lineIndex: number) {
+  hoveredLine.value = lineIndex;
+  highlightBox.value = null;
+
+  const container = svgPreviewRef.value;
+  if (!container) return;
+  const svgEl = container.querySelector(".svg-hidden-render svg");
+  if (!svgEl) return;
+
+  const line = svgLines.value[lineIndex];
+  if (!line) return;
+
+  // Match an opening tag on this line
+  const tagMatch = line.match(/<(\w+)[\s/>]/);
+  if (!tagMatch) return;
+  const tagName = tagMatch[1].toLowerCase();
+  if (tagName === "svg" || tagName === "defs" || tagName === "mask" || tagName === "clippath" || tagName === "lineargradient" || tagName === "radialgradient" || tagName === "stop" || tagName === "pattern" || tagName === "symbol" || tagName === "marker") return;
+
+  // Count how many elements of this tag appear before this line
+  let count = 0;
+  for (let i = 0; i < lineIndex; i++) {
+    const m = svgLines.value[i].match(/<(\w+)[\s/>]/);
+    if (m && m[1].toLowerCase() === tagName) count++;
+  }
+
+  // Find the nth element of this tag type
+  const matches = svgEl.querySelectorAll(tagName);
+  const el = matches[count];
+  if (!el) return;
+
+  try {
+    const bbox = (el as SVGGraphicsElement).getBBox();
+    const imgEl = container.querySelector(".svg-preview-img") as HTMLElement | null;
+    if (!imgEl) return;
+    const imgRect = imgEl.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    const svgViewBox = (svgEl as SVGSVGElement).viewBox.baseVal;
+    const vbW = svgViewBox.width || imgRect.width;
+    const vbH = svgViewBox.height || imgRect.height;
+    const scaleX = imgRect.width / vbW;
+    const scaleY = imgRect.height / vbH;
+
+    highlightBox.value = {
+      x: (bbox.x * scaleX) + imgRect.left - containerRect.left,
+      y: (bbox.y * scaleY) + imgRect.top - containerRect.top,
+      w: bbox.width * scaleX,
+      h: bbox.height * scaleY,
+    };
+  } catch {
+    // getBBox can fail on hidden elements
+  }
+}
+
+function onSvgLineLeave() {
+  hoveredLine.value = -1;
+  highlightBox.value = null;
+}
 
 function showThisPC() {
   viewingThisPC.value = true;
@@ -325,7 +390,12 @@ const hasLoaded = ref(false);
 watch(() => props.open, (isOpen) => {
   if (isOpen && !hasLoaded.value) {
     hasLoaded.value = true;
-    loadDir("");
+    if (props.initialRepo) currentRepo.value = props.initialRepo;
+    if (props.initialFile) {
+      openFile({ name: props.initialFile.split("/").pop() ?? props.initialFile, path: props.initialFile, type: "file", size: 0 });
+    } else {
+      loadDir("");
+    }
   }
 });
 
@@ -575,11 +645,30 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             </div>
           </div>
           <div v-else-if="viewingFile && isSvg && !fileLoading" class="svg-split">
-            <div class="svg-preview">
+            <div class="svg-preview" ref="svgPreviewRef">
               <img :src="svgDataUrl" alt="" class="svg-preview-img" />
+              <div class="svg-hidden-render" v-html="fileContent"></div>
+              <div
+                v-if="highlightBox"
+                class="svg-highlight"
+                :style="{
+                  left: highlightBox.x + 'px',
+                  top: highlightBox.y + 'px',
+                  width: highlightBox.w + 'px',
+                  height: highlightBox.h + 'px',
+                }"
+              ></div>
             </div>
             <div class="svg-code">
-              <pre>{{ fileContent }}</pre>
+              <pre><span
+                v-for="(line, i) in svgLines"
+                :key="i"
+                class="svg-code-line"
+                :class="{ 'svg-code-line-active': hoveredLine === i }"
+                @mouseenter="onSvgLineHover(i)"
+                @mouseleave="onSvgLineLeave"
+              >{{ line }}
+</span></pre>
             </div>
           </div>
           <div v-else-if="viewingFile" class="file-viewer">
@@ -918,6 +1007,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   border-right: 1px solid #e0e0e0;
   padding: 16px;
   overflow: auto;
+  position: relative;
 }
 
 .svg-preview-img {
@@ -925,11 +1015,44 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   max-height: 100%;
 }
 
+.svg-hidden-render {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.svg-hidden-render :deep(svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.svg-highlight {
+  position: absolute;
+  border: 2px solid red;
+  pointer-events: none;
+  border-radius: 1px;
+}
+
 .svg-code {
   flex: 1;
   overflow: auto;
   padding: 12px;
   background: #fff;
+}
+
+.svg-code-line {
+  display: block;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.svg-code-line:hover,
+.svg-code-line-active {
+  background: #e8f0fe;
 }
 
 .svg-code pre {

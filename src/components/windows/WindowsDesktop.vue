@@ -53,8 +53,10 @@ const emit = defineEmits<{
 }>();
 
 const iconSelected = ref(false);
+const faviconSelected = ref(false);
 const startMenuOpen = ref(false);
 const explorerOpen = ref(false);
+const faviconExplorerOpen = ref(false);
 const contextMenuOpen = ref(false);
 const contextMenuX = ref(0);
 const contextMenuY = ref(0);
@@ -72,7 +74,7 @@ function onContextMenu(e: MouseEvent) {
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
+  <div class="win-desktop" @click="iconSelected = false; faviconSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -87,8 +89,17 @@ function onContextMenu(e: MouseEvent) {
         @click.stop="toggleIcon"
         @dblclick.stop="explorerOpen = true; iconSelected = false"
       />
+      <DesktopIcon
+        label="favicon.svg"
+        icon="/favicon.svg"
+        class="favicon-icon"
+        :selected="faviconSelected"
+        @click.stop="faviconSelected = !faviconSelected"
+        @dblclick.stop="faviconExplorerOpen = true; faviconSelected = false"
+      />
     </div>
     <FileExplorer :open="explorerOpen" @close="explorerOpen = false" @dismiss-menus="contextMenuOpen = false; startMenuOpen = false" />
+    <FileExplorer :open="faviconExplorerOpen" initial-repo="u9g/jason-portfolio" initial-file="public/favicon.svg" @close="faviconExplorerOpen = false" @dismiss-menus="contextMenuOpen = false; startMenuOpen = false" />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
     <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />

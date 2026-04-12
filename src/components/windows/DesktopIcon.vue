@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import defaultIcon from "../../assets/file-explorer.svg";
+
 defineProps<{
   label: string;
   selected: boolean;
+  icon?: string;
 }>();
 </script>
 
 <template>
   <div class="desktop-icon" :class="{ selected }">
-    <img src="../../assets/file-explorer.svg" alt="" class="icon-image" />
+    <img :src="icon ?? defaultIcon" alt="" class="icon-image" />
     <span class="icon-label">{{ label }}</span>
   </div>
 </template>
