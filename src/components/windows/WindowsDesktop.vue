@@ -135,7 +135,7 @@ function onContextMenu(e: MouseEvent) {
         :label="di.label"
         :icon="di.icon"
         :selected="di.selected.value"
-        @click.stop="di.selected.value = !di.selected.value"
+        @click.stop="desktopIcons.forEach(d => d.selected.value = false); di.selected.value = true"
         @dblclick.stop="di.action(); di.selected.value = false"
       />
     </div>
@@ -167,7 +167,7 @@ function onContextMenu(e: MouseEvent) {
       @close="projects.close(id)"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
-    <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" @open-work-experience="workExp.open(); startMenuOpen = false" @open-projects="projects.open(); startMenuOpen = false" />
+    <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" @open-file-explorer="openNewExplorer(); startMenuOpen = false" @open-work-experience="workExp.open(); startMenuOpen = false" @open-projects="projects.open(); startMenuOpen = false" />
     <Taskbar :start-menu-open="startMenuOpen" :open-windows="wm.openWindows.value" @toggle-start-menu="startMenuOpen = !startMenuOpen" @taskbar-click="wm.toggleTaskbarWindow" />
   </div>
 </template>

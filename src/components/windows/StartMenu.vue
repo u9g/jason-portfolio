@@ -13,6 +13,7 @@ const emit = defineEmits<{
   "print-resume": [];
   "open-work-experience": [];
   "open-projects": [];
+  "open-file-explorer": [];
 }>();
 
 const tiles = [
@@ -62,6 +63,7 @@ const tiles = [
         <button
           class="app-item slide-up"
           :style="{ animationDelay: '0ms' }"
+          @click="emit('open-file-explorer')"
         >
           <img :src="fileExplorerIcon" alt="" class="app-icon-img" />
           <span class="app-name">File Explorer</span>
