@@ -114,6 +114,96 @@ function onMouseButton(e: MouseEvent) {
 }
 
 const windowTitle = computed(() => viewingFile.value ? fileName.value : "File Explorer");
+const isMarkdown = computed(() => fileName.value.endsWith(".md"));
+
+function renderMd(src: string): string {
+  let html = src
+    // Escape HTML
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, _lang, code) =>
+    `<pre class="md-code-block"><code>${code.replace(/\n$/, "")}</code></pre>`
+  );
+
+  // Split into lines for block-level processing
+  const lines = html.split("\n");
+  const out: string[] = [];
+  let inList = false;
+
+  for (const line of lines) {
+    // Skip lines already in code blocks
+    if (line.includes("md-code-block")) {
+      out.push(line);
+      continue;
+    }
+
+    // Headings
+    const hMatch = line.match(/^(#{1,6})\s+(.*)/);
+    if (hMatch) {
+      if (inList) { out.push("</ul>"); inList = false; }
+      const level = hMatch[1].length;
+      out.push(`<h${level}>${inlineMarkdown(hMatch[2])}</h${level}>`);
+      continue;
+    }
+
+    // List items
+    if (line.match(/^[-*]\s+/)) {
+      if (!inList) { out.push("<ul>"); inList = true; }
+      out.push(`<li>${inlineMarkdown(line.replace(/^[-*]\s+/, ""))}</li>`);
+      continue;
+    }
+
+    // Close list if needed
+    if (inList && line.trim() === "") {
+      out.push("</ul>");
+      inList = false;
+    }
+
+    // Horizontal rule
+    if (line.match(/^---+$/)) {
+      out.push("<hr>");
+      continue;
+    }
+
+    // Empty line
+    if (line.trim() === "") {
+      out.push("");
+      continue;
+    }
+
+    // Paragraph text
+    if (inList) { out.push("</ul>"); inList = false; }
+    out.push(`<p>${inlineMarkdown(line)}</p>`);
+  }
+  if (inList) out.push("</ul>");
+
+  return out.join("\n");
+}
+
+function inlineMarkdown(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/__([^_]+)__/g, "<strong>$1</strong>")
+    .replace(/_([^_]+)_/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+}
+
+const renderedMarkdown = computed(() => isMarkdown.value ? renderMd(fileContent.value) : "");
+
+function rawUrl(path: string): string {
+  const repo = currentRepo.value.includes("/") ? currentRepo.value : `u9g/${currentRepo.value}`;
+  return `https://raw.githubusercontent.com/${repo}/HEAD/${path}`;
+}
+const isSvg = computed(() => fileName.value.endsWith(".svg"));
+const svgDataUrl = computed(() => {
+  if (!isSvg.value || !fileContent.value) return "";
+  return `data:image/svg+xml;base64,${btoa(fileContent.value)}`;
+});
 
 function showThisPC() {
   viewingThisPC.value = true;
@@ -484,8 +574,17 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               </button>
             </div>
           </div>
+          <div v-else-if="viewingFile && isSvg && !fileLoading" class="svg-split">
+            <div class="svg-preview">
+              <img :src="svgDataUrl" alt="" class="svg-preview-img" />
+            </div>
+            <div class="svg-code">
+              <pre>{{ fileContent }}</pre>
+            </div>
+          </div>
           <div v-else-if="viewingFile" class="file-viewer">
             <pre v-if="fileLoading">Loading file...</pre>
+            <div v-else-if="isMarkdown" class="md-render" v-html="renderedMarkdown"></div>
             <pre v-else>{{ fileContent }}</pre>
           </div>
           <template v-else>
@@ -504,6 +603,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
               >
                 <span class="col-name">
                   <img v-if="entry.type === 'dir'" :src="fileExplorerIcon" class="entry-icon" alt="" />
+                  <img v-else-if="entry.name.endsWith('.svg')" :src="rawUrl(entry.path)" class="entry-icon svg-entry-icon" alt="" />
                   <svg v-else class="entry-icon" viewBox="0 0 24 24">
                     <path d="M6 2h8l6 6v14H6z" fill="#e8e8e8" stroke="#c0c0c0" stroke-width="0.8" />
                     <path d="M14 2v6h6" fill="none" stroke="#c0c0c0" stroke-width="0.8" />
@@ -802,6 +902,98 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   word-break: break-all;
   line-height: 1.5;
 }
+
+.svg-split {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.svg-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  border-right: 1px solid #e0e0e0;
+  padding: 16px;
+  overflow: auto;
+}
+
+.svg-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.svg-code {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  background: #fff;
+}
+
+.svg-code pre {
+  margin: 0;
+  color: #333;
+  font-size: 12px;
+  font-family: Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.svg-entry-icon {
+  background: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  object-fit: contain;
+}
+
+.md-render {
+  color: #333;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+.md-render h1 { font-size: 1.8em; margin: 0.5em 0 0.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }
+.md-render h2 { font-size: 1.4em; margin: 0.5em 0 0.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }
+.md-render h3 { font-size: 1.2em; margin: 0.5em 0 0.3em; }
+.md-render h4 { font-size: 1.05em; margin: 0.4em 0 0.2em; }
+
+.md-render p { margin: 0.4em 0; }
+.md-render ul { margin: 0.3em 0; padding-left: 24px; }
+.md-render li { margin: 0.15em 0; }
+.md-render hr { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
+
+.md-render code {
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+.md-render :deep(.md-code-block) {
+  background: #f6f6f6;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.md-render :deep(.md-code-block) code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.md-render a { color: #0078d4; text-decoration: none; }
+.md-render a:hover { text-decoration: underline; }
+.md-render strong { font-weight: 600; }
 
 /* This PC view */
 .this-pc-view {

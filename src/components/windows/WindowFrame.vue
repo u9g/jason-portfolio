@@ -25,13 +25,14 @@ let preMaxPos = { x: 0, y: 0 };
 const DRAG_THRESHOLD = 4;
 
 function onTitleBarMouseDown(e: MouseEvent) {
-  if (maximized.value) return;
   dragPending = true;
   dragging = false;
   dragStartX = e.clientX;
   dragStartY = e.clientY;
-  dragOffsetX = e.clientX - posX.value;
-  dragOffsetY = e.clientY - posY.value;
+  if (!maximized.value) {
+    dragOffsetX = e.clientX - posX.value;
+    dragOffsetY = e.clientY - posY.value;
+  }
 }
 
 function onMouseMove(e: MouseEvent) {
@@ -42,6 +43,16 @@ function onMouseMove(e: MouseEvent) {
     if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
     dragging = true;
     dragPending = false;
+    if (maximized.value) {
+      // Restore from maximized: place window so cursor is proportionally on the title bar
+      const restoredWidth = 750;
+      const fractionX = dragStartX / window.innerWidth;
+      posX.value = e.clientX - fractionX * restoredWidth;
+      posY.value = e.clientY - dragStartY;
+      dragOffsetX = e.clientX - posX.value;
+      dragOffsetY = e.clientY - posY.value;
+      maximized.value = false;
+    }
   }
   posX.value = e.clientX - dragOffsetX;
   posY.value = e.clientY - dragOffsetY;
