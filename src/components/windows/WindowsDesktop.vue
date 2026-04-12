@@ -167,7 +167,7 @@ function onContextMenu(e: MouseEvent) {
       @close="projects.close(id)"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
-    <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
+    <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" @open-work-experience="openWorkExpWindow(); startMenuOpen = false" @open-projects="openProjectsWindow(); startMenuOpen = false" />
     <Taskbar :start-menu-open="startMenuOpen" :open-windows="wm.openWindows.value" @toggle-start-menu="startMenuOpen = !startMenuOpen" @taskbar-click="wm.toggleTaskbarWindow" />
   </div>
 </template>

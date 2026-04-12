@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import fileExplorerIcon from "../../assets/file-explorer.svg";
+import projectsIcon from "../../assets/projects.svg";
+import workExpIcon from "../../assets/work-experience.svg";
 import claudeIcon from "../../assets/claude.svg";
 import resumeIcon from "../../assets/resume.svg";
 
@@ -9,11 +11,9 @@ defineProps<{
 
 const emit = defineEmits<{
   "print-resume": [];
+  "open-work-experience": [];
+  "open-projects": [];
 }>();
-
-const menuItems = [
-  { name: "File Explorer", icon: fileExplorerIcon },
-];
 
 const tiles = [
   { name: "Document Mode", color: "#0078d4", wide: false, href: "/" },
@@ -60,13 +60,29 @@ const tiles = [
       <div class="app-list">
         <div class="app-list-header">F</div>
         <button
-          v-for="(item, i) in menuItems"
-          :key="item.name"
           class="app-item slide-up"
-          :style="{ animationDelay: `${i * 30}ms` }"
+          :style="{ animationDelay: '0ms' }"
         >
-          <img :src="item.icon" alt="" class="app-icon-img" />
-          <span class="app-name">{{ item.name }}</span>
+          <img :src="fileExplorerIcon" alt="" class="app-icon-img" />
+          <span class="app-name">File Explorer</span>
+        </button>
+        <div class="app-list-header">P</div>
+        <button
+          class="app-item slide-up"
+          :style="{ animationDelay: '30ms' }"
+          @click="emit('open-projects')"
+        >
+          <img :src="projectsIcon" alt="" class="app-icon-img" />
+          <span class="app-name">Projects</span>
+        </button>
+        <div class="app-list-header">W</div>
+        <button
+          class="app-item slide-up"
+          :style="{ animationDelay: '60ms' }"
+          @click="emit('open-work-experience')"
+        >
+          <img :src="workExpIcon" alt="" class="app-icon-img" />
+          <span class="app-name">Work Experience</span>
         </button>
       </div>
       <div class="tiles">
