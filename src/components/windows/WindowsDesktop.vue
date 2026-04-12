@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import DesktopIcon from "./DesktopIcon.vue";
 import Taskbar from "./Taskbar.vue";
 import StartMenu from "./StartMenu.vue";
+import DesktopContextMenu from "./DesktopContextMenu.vue";
 import wallpaper1 from "../../assets/wallpaper1.jpg";
 import wallpaper2 from "../../assets/wallpaper2.jpg";
 import wallpaper3 from "../../assets/wallpaper3.jpg";
@@ -39,14 +40,24 @@ const emit = defineEmits<{
 
 const iconSelected = ref(false);
 const startMenuOpen = ref(false);
+const contextMenuOpen = ref(false);
+const contextMenuX = ref(0);
+const contextMenuY = ref(0);
 
 function toggleIcon() {
   iconSelected.value = !iconSelected.value;
 }
+
+function onContextMenu(e: MouseEvent) {
+  contextMenuX.value = e.clientX;
+  contextMenuY.value = e.clientY;
+  contextMenuOpen.value = true;
+  startMenuOpen.value = false;
+}
 </script>
 
 <template>
-  <div class="win-desktop" @click="iconSelected = false; startMenuOpen = false">
+  <div class="win-desktop" @click="iconSelected = false; startMenuOpen = false; contextMenuOpen = false" @contextmenu.prevent="onContextMenu">
     <div class="wallpaper-layer" :style="{ backgroundImage: `url(${wallpapers[currentWallpaper]})` }" />
     <div
       class="wallpaper-layer wallpaper-next"
@@ -61,6 +72,7 @@ function toggleIcon() {
         @click.stop="toggleIcon"
       />
     </div>
+    <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" />
     <Taskbar :start-menu-open="startMenuOpen" @toggle-start-menu="startMenuOpen = !startMenuOpen" />
   </div>
