@@ -472,7 +472,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             <svg v-else-if="item.node.icon === 'pc'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="9" rx="1" fill="#5ba4cf" stroke="#4a8ab5" stroke-width="0.5"/><rect x="5" y="11" width="6" height="1" fill="#888"/><rect x="4" y="12" width="8" height="1" rx="0.5" fill="#999"/></svg>
             <svg v-else-if="item.node.icon === 'drive'" class="nav-icon" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" rx="1" fill="#bbb" stroke="#999" stroke-width="0.5"/><rect x="2" y="9" width="3" height="1.5" rx="0.5" fill="#6a6"/></svg>
             <img v-else :src="fileExplorerIcon" class="nav-icon" alt="" />
-            <span class="nav-label">{{ item.node.label }}<svg v-if="item.node.label === 'jason-portfolio' && item.node.icon === 'folder'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
+            <span class="nav-label">{{ item.node.label }}<svg v-if="item.node.label === 'jason-portfolio' && item.node.icon === 'folder'" class="nav-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
           </button>
         </div>
 
@@ -877,6 +877,13 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+.nav-star {
+  width: 10px;
+  height: 10px;
+  vertical-align: -1px;
+  margin-left: 3px;
 }
 
 .entry-star {
