@@ -2,9 +2,8 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
 type SnapZone = "max" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | null;
-type MaxState = "max" | null;
 
-const SNAP_GEOMETRY: Record<string, { x: number; y: number; w: number; h: number }> = {
+const SNAP_GEOMETRY: Record<Exclude<SnapZone, null>, { x: number; y: number; w: number; h: number }> = {
   max:            { x: 0,   y: 0,   w: 1,   h: 1 },
   left:           { x: 0,   y: 0,   w: 0.5, h: 1 },
   right:          { x: 0.5, y: 0,   w: 0.5, h: 1 },
@@ -30,13 +29,13 @@ const emit = defineEmits<{
   mouseup: [e: MouseEvent];
 }>();
 
-const snap = ref<MaxState>(null);
+const snap = ref<SnapZone>(null);
 const snapPreview = ref<SnapZone>(null);
 const posX = ref(100);
 const posY = ref(60);
 const winW = ref(750);
 const winH = ref(500);
-let preSnapPos = { x: 0, y: 0 };
+let preSnap = { x: 0, y: 0, w: 750, h: 500 };
 const DRAG_THRESHOLD = 4;
 const EDGE = 8;
 const CORNER = 50;
@@ -87,8 +86,16 @@ function detectSnapZone(x: number, y: number): SnapZone {
 }
 
 const snapStyle = computed(() => {
-  if (snap.value === "max") return { left: "0", top: "0", width: "100vw", height: "calc(100vh - 40px)" };
-  return { left: posX.value + "px", top: posY.value + "px", width: winW.value + "px", height: winH.value + "px" };
+  if (!snap.value) {
+    return { left: posX.value + "px", top: posY.value + "px", width: winW.value + "px", height: winH.value + "px" };
+  }
+  const g = SNAP_GEOMETRY[snap.value];
+  return {
+    left: `${g.x * 100}vw`,
+    top: `calc((100vh - ${TASKBAR}px) * ${g.y})`,
+    width: `${g.w * 100}vw`,
+    height: `calc((100vh - ${TASKBAR}px) * ${g.h})`,
+  };
 });
 
 const previewStyle = computed(() => {
@@ -101,17 +108,6 @@ const previewStyle = computed(() => {
     height: `calc((100vh - ${TASKBAR}px) * ${g.h})`,
   };
 });
-
-function applySnapZone(zone: SnapZone) {
-  if (!zone || zone === "max") return;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight - TASKBAR;
-  const g = SNAP_GEOMETRY[zone];
-  posX.value = g.x * vw;
-  posY.value = g.y * vh;
-  winW.value = g.w * vw;
-  winH.value = g.h * vh;
-}
 
 function onTitleBarMouseDown(e: MouseEvent) {
   drag.pending = true;
@@ -156,13 +152,15 @@ function onMouseMove(e: MouseEvent) {
     if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
     drag.active = true;
     drag.pending = false;
-    if (snap.value === "max") {
-      const restoredWidth = winW.value;
+    if (snap.value) {
+      const restoredWidth = preSnap.w;
       const fractionX = drag.startX / window.innerWidth;
       posX.value = e.clientX - fractionX * restoredWidth;
       posY.value = e.clientY - drag.startY;
       drag.offsetX = e.clientX - posX.value;
       drag.offsetY = e.clientY - posY.value;
+      winW.value = preSnap.w;
+      winH.value = preSnap.h;
       snap.value = null;
     }
   }
@@ -178,11 +176,9 @@ function onMouseUp(e: MouseEvent) {
   }
   if (drag.active) {
     const zone = detectSnapZone(e.clientX, e.clientY);
-    if (zone === "max") {
-      preSnapPos = { x: posX.value, y: posY.value };
-      snap.value = "max";
-    } else if (zone) {
-      applySnapZone(zone);
+    if (zone) {
+      preSnap = { x: posX.value, y: posY.value, w: winW.value, h: winH.value };
+      snap.value = zone;
     }
   }
   drag.active = false;
@@ -193,10 +189,12 @@ function onMouseUp(e: MouseEvent) {
 function toggleMaximize() {
   if (snap.value) {
     snap.value = null;
-    posX.value = preSnapPos.x;
-    posY.value = preSnapPos.y;
+    posX.value = preSnap.x;
+    posY.value = preSnap.y;
+    winW.value = preSnap.w;
+    winH.value = preSnap.h;
   } else {
-    preSnapPos = { x: posX.value, y: posY.value };
+    preSnap = { x: posX.value, y: posY.value, w: winW.value, h: winH.value };
     snap.value = "max";
   }
 }
@@ -231,7 +229,7 @@ onUnmounted(() => {
       @contextmenu.prevent
     >
       <!-- Resize handles -->
-      <template v-if="snap !== 'max'">
+      <template v-if="!snap">
         <div v-for="dir in resizeDirs" :key="dir"
              :class="['resize-handle', `resize-${dir}`]"
              @mousedown.stop="onResizeMouseDown(dir, $event)" />
