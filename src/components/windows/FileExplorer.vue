@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from "../../data/github-fs";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
+import WindowFrame from "./WindowFrame.vue";
 
 const props = defineProps<{
   open: boolean;
@@ -112,37 +113,7 @@ function onMouseButton(e: MouseEvent) {
   else if (e.button === 4) goForward();
 }
 
-const posX = ref(100);
-const posY = ref(60);
-let dragging = false;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-
-function onMouseDown(e: MouseEvent) {
-  dragging = true;
-  dragOffsetX = e.clientX - posX.value;
-  dragOffsetY = e.clientY - posY.value;
-}
-
-function onMouseMove(e: MouseEvent) {
-  if (!dragging) return;
-  posX.value = e.clientX - dragOffsetX;
-  posY.value = e.clientY - dragOffsetY;
-}
-
-function onMouseUp() {
-  dragging = false;
-}
-
-onMounted(() => {
-  window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mouseup", onMouseUp);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("mousemove", onMouseMove);
-  window.removeEventListener("mouseup", onMouseUp);
-});
+const windowTitle = computed(() => viewingFile.value ? fileName.value : "File Explorer");
 
 function showThisPC() {
   viewingThisPC.value = true;
@@ -330,13 +301,34 @@ async function loadNavChildren(node: NavNode) {
   }
 }
 
+async function loadDriveNavChildren(node: NavNode) {
+  if (node.loaded) return;
+  try {
+    const repos = await fetchUserRepos();
+    node.children = repos.map((r) => ({
+      label: r.name,
+      icon: "folder" as const,
+      path: r.name === "jason-portfolio" ? "" : `__repo__:${r.name}`,
+      expanded: false,
+      loaded: false,
+    }));
+    node.loaded = true;
+  } catch {
+    node.children = [];
+    node.loaded = true;
+  }
+}
+
 async function onNavClick(node: NavNode) {
   if (node.icon === "pc") {
     showThisPC();
     node.expanded = !node.expanded;
   } else if (node.path === "__drive__") {
     showDrive();
-    node.expanded = !node.expanded;
+    if (!node.loaded) {
+      await loadDriveNavChildren(node);
+    }
+    node.expanded = true;
   } else if (node.path !== null) {
     loadDir(node.path);
     if (!node.loaded) {
@@ -368,34 +360,14 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
 </script>
 
 <template>
-  <Transition name="explorer">
-    <div
-      v-if="open"
-      class="explorer-window"
-      :style="{ left: posX + 'px', top: posY + 'px' }"
-      @click.stop="emit('dismiss-menus')"
-      @contextmenu.stop.prevent
-      @mouseup.stop="onMouseButton"
-    >
-      <!-- Title bar -->
-      <div class="title-bar" @mousedown="onMouseDown">
-        <img :src="fileExplorerIcon" class="title-icon" alt="" />
-        <span class="title-text">{{ viewingFile ? fileName : 'File Explorer' }}</span>
-        <div class="title-buttons">
-          <button class="title-btn" aria-label="Minimize">
-            <svg viewBox="0 0 12 12" width="10" height="10"><line x1="1" y1="6" x2="11" y2="6" stroke="#333" stroke-width="1" /></svg>
-          </button>
-          <button class="title-btn" aria-label="Maximize">
-            <svg viewBox="0 0 12 12" width="10" height="10"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="#333" stroke-width="1" /></svg>
-          </button>
-          <button class="title-btn close" aria-label="Close" @click="emit('close')">
-            <svg viewBox="0 0 12 12" width="10" height="10">
-              <line x1="1" y1="1" x2="11" y2="11" stroke="#333" stroke-width="1.2" />
-              <line x1="11" y1="1" x2="1" y2="11" stroke="#333" stroke-width="1.2" />
-            </svg>
-          </button>
-        </div>
-      </div>
+  <WindowFrame
+    :open="open"
+    :title="windowTitle"
+    :icon="fileExplorerIcon"
+    @close="emit('close')"
+    @dismiss-menus="emit('dismiss-menus')"
+    @mouseup.stop="onMouseButton"
+  >
 
       <!-- Navigation toolbar -->
       <div class="toolbar">
@@ -453,7 +425,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
             <span
               class="nav-arrow"
               :class="{ expanded: item.node.expanded, hidden: item.node.loaded && (!item.node.children || item.node.children.length === 0) }"
-              @click.stop="item.node.expanded = !item.node.expanded"
+              @click.stop="item.node.expanded = !item.node.expanded; if (item.node.path === '__drive__' && !item.node.loaded) loadDriveNavChildren(item.node)"
             >›</span>
             <svg v-if="item.node.icon === 'pin'" class="nav-icon" viewBox="0 0 16 16">
               <defs>
@@ -563,90 +535,10 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
         <span v-if="!viewingFile">{{ entries.length }} items</span>
         <span v-else>{{ fileName }}</span>
       </div>
-    </div>
-  </Transition>
+  </WindowFrame>
 </template>
 
 <style lang="css" scoped>
-.explorer-window {
-  position: absolute;
-  width: 750px;
-  height: 500px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #888;
-  border-radius: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  z-index: 15;
-  font-family: "Segoe UI", -apple-system, sans-serif;
-  font-size: 12px;
-}
-
-.explorer-enter-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.explorer-leave-active {
-  transition: opacity 0.1s ease, transform 0.1s ease;
-}
-.explorer-enter-from,
-.explorer-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
-/* Title bar — white like Win10 */
-.title-bar {
-  display: flex;
-  align-items: center;
-  height: 30px;
-  background: #fff;
-  padding: 0 4px 0 10px;
-  cursor: default;
-  flex-shrink: 0;
-  user-select: none;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.title-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-}
-
-.title-text {
-  color: #333;
-  font-size: 12px;
-  flex: 1;
-}
-
-.title-buttons {
-  display: flex;
-}
-
-.title-btn {
-  width: 46px;
-  height: 30px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.title-btn:hover {
-  background: #e5e5e5;
-}
-
-.title-btn.close:hover {
-  background: #e81123;
-}
-
-.title-btn.close:hover svg line {
-  stroke: white;
-}
-
 /* Toolbar */
 .toolbar {
   display: flex;
