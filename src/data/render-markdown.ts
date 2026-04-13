@@ -14,7 +14,7 @@ const langPattern = new RegExp(
 const ARROW_HTML = `<span class="arrow">${arrowSvgRaw.trim()}</span>`;
 const EXPLORER_ICON = `<span class="explorer-btn-icon">${fileExplorerSvgRaw.trim()}</span>`;
 
-const GITHUB_REPO_RE = /https?:\/\/github\.com\/([^/]+\/[^/)]+)/;
+const GITHUB_REPO_RE = /^https?:\/\/github\.com\/([^/]+\/[^/]+?)(?:\/)?(?:[?#].*)?$/;
 
 export function stripMarkdownLinks(text: string): string {
   return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
