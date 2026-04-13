@@ -1,5 +1,9 @@
-function inlineMarkdown(text: string): string {
+function inlineMarkdown(text: string, baseUrl?: string): string {
   return text
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) => {
+      const resolved = /^https?:\/\//.test(src) ? src : (baseUrl ?? "") + src;
+      return `<img src="${resolved}" alt="${alt}" />`;
+    })
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
     .replace(/__([^_]+)__/g, "<strong>$1</strong>")
@@ -59,11 +63,11 @@ export function renderMd(src: string, baseUrl?: string): string {
       const headers = parseRow(rows[0]);
       const bodyRows = rows.slice(2);
       let t = "<table><thead><tr>";
-      for (const h of headers) t += `<th>${inlineMarkdown(h)}</th>`;
+      for (const h of headers) t += `<th>${inlineMarkdown(h, baseUrl)}</th>`;
       t += "</tr></thead><tbody>";
       for (const row of bodyRows) {
         t += "<tr>";
-        for (const cell of parseRow(row)) t += `<td>${inlineMarkdown(cell)}</td>`;
+        for (const cell of parseRow(row)) t += `<td>${inlineMarkdown(cell, baseUrl)}</td>`;
         t += "</tr>";
       }
       t += "</tbody></table>";
@@ -105,7 +109,7 @@ export function renderMd(src: string, baseUrl?: string): string {
     if (hMatch) {
       closeLists();
       const level = hMatch[1].length;
-      out.push(`<h${level}>${inlineMarkdown(hMatch[2])}</h${level}>`);
+      out.push(`<h${level}>${inlineMarkdown(hMatch[2], baseUrl)}</h${level}>`);
       continue;
     }
 
@@ -125,7 +129,7 @@ export function renderMd(src: string, baseUrl?: string): string {
       }
       while (listDepth < depth) { out.push("<ul>"); listDepth++; }
       while (listDepth > depth) { out.push("</ul>"); listDepth--; }
-      out.push(`<li>${inlineMarkdown(listMatch[3])}</li>`);
+      out.push(`<li>${inlineMarkdown(listMatch[3], baseUrl)}</li>`);
       continue;
     }
 
@@ -150,7 +154,7 @@ export function renderMd(src: string, baseUrl?: string): string {
     }
 
     closeLists();
-    out.push(`<p>${inlineMarkdown(line)}</p>`);
+    out.push(`<p>${inlineMarkdown(line, baseUrl)}</p>`);
   }
   closeLists();
 
