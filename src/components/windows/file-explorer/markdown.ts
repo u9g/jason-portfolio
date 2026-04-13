@@ -88,7 +88,8 @@ export function renderMd(src: string, baseUrl?: string): string {
     indentStack.length = 0;
   }
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (line.includes('<pre class="md-code-block">')) {
       inCodeBlock = true;
       out.push(line);
@@ -155,7 +156,15 @@ export function renderMd(src: string, baseUrl?: string): string {
     }
 
     closeLists();
-    out.push(`<p>${inlineMarkdown(line, baseUrl)}</p>`);
+    // Accumulate consecutive plain lines into one <p>
+    const pLines = [inlineMarkdown(line, baseUrl)];
+    while (i + 1 < lines.length) {
+      const next = lines[i + 1];
+      if (next.trim() === "" || next.match(/^(#{1,6})\s+/) || next.match(/^(\s*)([-*])\s+/) || next.match(/^---+$/) || next.includes("<table") || next.includes('<pre class="md-code-block">') || /\x00SLOT\d+\x00/.test(next)) break;
+      pLines.push(inlineMarkdown(next, baseUrl));
+      i++;
+    }
+    out.push(`<p>${pLines.join("\n")}</p>`);
   }
   closeLists();
 

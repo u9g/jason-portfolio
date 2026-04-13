@@ -61,7 +61,7 @@ const rendered = computed(() => renderMd(props.source, props.baseUrl));
 .md-render :deep(a) { color: #0078d4; text-decoration: none; }
 .md-render :deep(a:hover) { text-decoration: underline; }
 .md-render :deep(strong) { font-weight: 600; }
-.md-render :deep(img) { max-width: 100%; height: auto; cursor: pointer; display: block; }
+.md-render :deep(img) { max-width: 100%; height: auto; cursor: pointer; }
 
 .md-render :deep(.img-expand-wrap) {
   position: relative;
