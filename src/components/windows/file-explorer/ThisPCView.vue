@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { PINNED_REPOS } from "../../../data/github-fs";
 import folderIcon from "../../../assets/folder.png";
 import driveIcon from "../../../assets/drive.png";
@@ -7,15 +8,18 @@ const emit = defineEmits<{
   "open-repo": [owner: string, name: string];
   "show-drive": [];
 }>();
+
+const foldersOpen = ref(true);
+const drivesOpen = ref(true);
 </script>
 
 <template>
   <div class="this-pc-view">
-    <button class="section-header">
-      <span class="section-arrow">▾</span>
-      Folders
+    <button class="section-header" @click="foldersOpen = !foldersOpen">
+      <span class="section-arrow" :class="{ collapsed: !foldersOpen }">▾</span>
+      Jason's Pinned Repositories
     </button>
-    <div class="folder-grid">
+    <div v-if="foldersOpen" class="folder-grid">
       <button
         v-for="repo in PINNED_REPOS"
         :key="repo.owner + '/' + repo.name"
@@ -26,11 +30,11 @@ const emit = defineEmits<{
         <span class="folder-tile-label">{{ repo.name }}</span>
       </button>
     </div>
-    <button class="section-header">
-      <span class="section-arrow">▾</span>
+    <button class="section-header" @click="drivesOpen = !drivesOpen">
+      <span class="section-arrow" :class="{ collapsed: !drivesOpen }">▾</span>
       Devices and drives
     </button>
-    <div class="drive-grid">
+    <div v-if="drivesOpen" class="drive-grid">
       <button class="drive-tile" @click="emit('show-drive')">
         <img :src="driveIcon" class="drive-tile-icon" alt="" />
         <div class="drive-tile-info">
@@ -74,6 +78,11 @@ const emit = defineEmits<{
 .section-arrow {
   font-size: 10px;
   color: #666;
+  transition: transform 0.15s;
+}
+
+.section-arrow.collapsed {
+  transform: rotate(-90deg);
 }
 
 .folder-grid {
