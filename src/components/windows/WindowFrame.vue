@@ -35,15 +35,17 @@ const snap = ref<SnapZone>(null);
 const snapPreview = ref<SnapZone>(null);
 const posX = ref(props.initialX ?? 100);
 const posY = ref(props.initialY ?? 60);
-const winW = ref(750);
-const winH = ref(500);
-let preSnap = { x: 0, y: 0, w: 750, h: 500 };
+const winW = ref(DEFAULT_W);
+const winH = ref(DEFAULT_H);
+let preSnap = { x: 0, y: 0, w: DEFAULT_W, h: DEFAULT_H };
 const DRAG_THRESHOLD = 4;
 const EDGE = 8;
 const CORNER = 50;
 const TASKBAR = 40;
 const MIN_W = 300;
 const MIN_H = 200;
+const DEFAULT_W = 750;
+const DEFAULT_H = 500;
 
 const drag = { pending: false, active: false, startX: 0, startY: 0, offsetX: 0, offsetY: 0 };
 
@@ -132,6 +134,12 @@ function onResizeMouseDown(dir: ResizeDir, e: MouseEvent) {
   resize.startH = winH.value;
   resize.startPosX = posX.value;
   resize.startPosY = posY.value;
+}
+
+function onResizeDblClick(dir: ResizeDir) {
+  const s = RESIZE_SIGN[dir];
+  if (s.dw !== 0) winW.value = DEFAULT_W;
+  if (s.dh !== 0) winH.value = DEFAULT_H;
 }
 
 function onMouseMove(e: MouseEvent) {
@@ -234,7 +242,8 @@ onUnmounted(() => {
       <template v-if="!snap">
         <div v-for="dir in resizeDirs" :key="dir"
              :class="['resize-handle', `resize-${dir}`]"
-             @mousedown.stop="onResizeMouseDown(dir, $event)" />
+             @mousedown.stop="onResizeMouseDown(dir, $event)"
+             @dblclick.stop="onResizeDblClick(dir)" />
       </template>
       <div class="title-bar" @mousedown="onTitleBarMouseDown" @dblclick="onTitleBarDblClick">
         <img v-if="icon" :src="icon" class="title-icon" alt="" />
