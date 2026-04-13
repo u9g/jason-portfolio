@@ -426,6 +426,7 @@ const githubUrl = computed(() => {
           v-else-if="viewMode === 'file'"
           ref="fileViewerRef"
           :file-name="fileName"
+          :file-path="currentPath"
           :file-content="fileContent"
           :file-loading="fileLoading"
           :current-repo="currentRepo"

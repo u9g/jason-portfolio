@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, defineAsyncComponent } from "vue";
 import { rawUrl } from "./helpers";
 import MarkdownRender from "./MarkdownRender.vue";
 
+const MonacoViewer = defineAsyncComponent(() => import("./MonacoViewer.vue"));
+
 const props = defineProps<{
   fileName: string;
+  filePath: string;
   fileContent: string;
   fileLoading: boolean;
   currentRepo: string;
 }>();
 
+const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico"]);
+const isImage = computed(() => {
+  const ext = props.fileName.split(".").pop()?.toLowerCase() ?? "";
+  return IMAGE_EXTS.has(ext);
+});
+const imageUrl = computed(() => isImage.value ? rawUrl(props.filePath, props.currentRepo) : "");
+
 const isMarkdown = computed(() => props.fileName.endsWith(".md"));
 const mdBaseUrl = computed(() => {
-  const parts = props.fileName.includes("/") ? props.fileName.split("/").slice(0, -1).join("/") + "/" : "";
-  return rawUrl(parts, props.currentRepo);
+  const dir = props.filePath.includes("/") ? props.filePath.split("/").slice(0, -1).join("/") + "/" : "";
+  return rawUrl(dir, props.currentRepo);
 });
 
 const isSvg = computed(() => props.fileName.endsWith(".svg"));
@@ -114,29 +124,54 @@ defineExpose({ isSvg, svgDataUrl });
 </span></pre>
     </div>
   </div>
+  <div v-else-if="isImage" class="image-viewer">
+    <img :src="imageUrl" :alt="fileName" />
+  </div>
   <div v-else class="file-viewer">
     <pre v-if="fileLoading">Loading file...</pre>
     <MarkdownRender v-else-if="isMarkdown" :source="fileContent" :base-url="mdBaseUrl" />
-    <pre v-else>{{ fileContent }}</pre>
+    <MonacoViewer v-else :content="fileContent" :file-name="fileName" />
   </div>
 </template>
 
 <style lang="css" scoped>
+.image-viewer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  overflow: auto;
+  padding: 16px;
+}
+
+.image-viewer img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 .file-viewer {
-  padding: 12px;
   overflow: auto;
   flex: 1;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 .file-viewer pre {
   margin: 0;
+  padding: 12px;
   color: #333;
   font-size: 12px;
   font-family: Consolas, "Courier New", monospace;
   white-space: pre-wrap;
   word-break: break-all;
   line-height: 1.5;
+}
+
+.file-viewer :deep(.md-render) {
+  padding: 12px;
 }
 
 .svg-split {
