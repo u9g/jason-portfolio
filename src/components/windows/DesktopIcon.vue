@@ -17,23 +17,28 @@ defineProps<{
 
 <style lang="css" scoped>
 .desktop-icon {
-  width: 76px;
+  width: 78px;
+  box-sizing: border-box;
   text-align: center;
-  padding: 0;
-  border-radius: 2px;
+  padding: 4px 2px 3px;
+  border-radius: 1px;
   cursor: default;
   border: 1px solid transparent;
 }
 
-.desktop-icon.selected,
 .desktop-icon:not(.selected):hover {
-  background: rgba(150, 180, 230, 0.5);
-  border-color: rgba(150, 180, 230, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.desktop-icon.selected {
+  background: rgba(0, 120, 215, 0.28);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .desktop-icon.selected:hover {
-  background: rgba(150, 180, 230, 0.6);
-  border-color: rgba(150, 180, 230, 0.8);
+  background: rgba(0, 120, 215, 0.34);
+  border-color: rgba(255, 255, 255, 0.38);
 }
 
 .icon-image {
@@ -46,17 +51,14 @@ defineProps<{
 
 .icon-label {
   display: block;
-  margin-top: 4px;
-  font-size: 11px;
-  color: white;
-  text-shadow:
-    1px 1px 2px rgba(0, 0, 0, 0.9),
-    -1px -1px 2px rgba(0, 0, 0, 0.9),
-    1px -1px 2px rgba(0, 0, 0, 0.9),
-    -1px 1px 2px rgba(0, 0, 0, 0.9),
-    0 0 4px rgba(0, 0, 0, 0.7);
-  font-family: "Segoe UI", -apple-system, sans-serif;
-  line-height: 1.3;
-  word-wrap: break-word;
+  margin-top: 5px;
+  padding: 0 2px 1px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 </style>
