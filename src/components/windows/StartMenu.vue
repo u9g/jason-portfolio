@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { computed, nextTick, ref, watch, type ComponentPublicInstance } from "vue";
 import fileExplorerIcon from "../../assets/file-explorer.svg";
 import projectsIcon from "../../assets/projects.svg";
 import workExpIcon from "../../assets/work-experience.svg";
 import claudeIcon from "../../assets/claude.svg";
 import resumeIcon from "../../assets/resume.svg";
 
-defineProps<{
+type StartMenuAction = "open-file-explorer" | "open-projects" | "open-work-experience";
+
+const props = defineProps<{
   open: boolean;
 }>();
 
@@ -16,11 +19,84 @@ const emit = defineEmits<{
   "open-file-explorer": [];
 }>();
 
+const apps = [
+  { name: "File Explorer", icon: fileExplorerIcon, action: "open-file-explorer" as const },
+  { name: "Projects", icon: projectsIcon, action: "open-projects" as const },
+  { name: "Work Experience", icon: workExpIcon, action: "open-work-experience" as const },
+];
+
+const appSections = computed(() => {
+  const grouped = new Map<string, typeof apps>();
+
+  for (const app of apps) {
+    const letter = app.name.charAt(0).toUpperCase();
+    const entries = grouped.get(letter) ?? [];
+    entries.push(app);
+    grouped.set(letter, entries);
+  }
+
+  return [...grouped.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([letter, entries]) => ({
+      letter,
+      entries: [...entries].sort((a, b) => a.name.localeCompare(b.name)),
+    }));
+});
+
+const availableLetters = computed(() => new Set(appSections.value.map((section) => section.letter)));
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const letterPickerOpen = ref(false);
+const appListRef = ref<HTMLElement | null>(null);
+const sectionRefs = ref<Record<string, HTMLElement | null>>({});
+
 const tiles = [
   { name: "Document Mode", color: "#0078d4", wide: false, href: "/" },
   { name: "Claude Mode", color: "#5a5a5a", wide: false, href: "/claude" },
   { name: "Printable Resume", color: "#d44a4a", wide: true, href: undefined },
 ];
+
+function openLetterPicker() {
+  letterPickerOpen.value = true;
+}
+
+function setSectionRef(letter: string, el: Element | ComponentPublicInstance | null) {
+  sectionRefs.value[letter] = el instanceof HTMLElement ? el : null;
+}
+
+async function jumpToLetter(letter: string) {
+  letterPickerOpen.value = false;
+  await nextTick();
+  const container = appListRef.value;
+  const section = sectionRefs.value[letter];
+  if (!container || !section) return;
+  container.scrollTo({
+    top: Math.max(section.offsetTop - 8, 0),
+    behavior: "smooth",
+  });
+}
+
+function onAppClick(action: StartMenuAction) {
+  switch (action) {
+    case "open-file-explorer":
+      emit("open-file-explorer");
+      break;
+    case "open-projects":
+      emit("open-projects");
+      break;
+    case "open-work-experience":
+      emit("open-work-experience");
+      break;
+  }
+}
+
+watch(
+  () => props.open,
+  (open) => {
+    if (!open) {
+      letterPickerOpen.value = false;
+    }
+  }
+);
 </script>
 
 <template>
@@ -58,34 +134,49 @@ const tiles = [
           </a>
         </div>
       </div>
-      <div class="app-list">
-        <div class="app-list-header">F</div>
-        <button
-          class="app-item slide-up"
-          :style="{ animationDelay: '0ms' }"
-          @click="emit('open-file-explorer')"
-        >
-          <img :src="fileExplorerIcon" alt="" class="app-icon-img" />
-          <span class="app-name">File Explorer</span>
-        </button>
-        <div class="app-list-header">P</div>
-        <button
-          class="app-item slide-up"
-          :style="{ animationDelay: '30ms' }"
-          @click="emit('open-projects')"
-        >
-          <img :src="projectsIcon" alt="" class="app-icon-img" />
-          <span class="app-name">Projects</span>
-        </button>
-        <div class="app-list-header">W</div>
-        <button
-          class="app-item slide-up"
-          :style="{ animationDelay: '60ms' }"
-          @click="emit('open-work-experience')"
-        >
-          <img :src="workExpIcon" alt="" class="app-icon-img" />
-          <span class="app-name">Work Experience</span>
-        </button>
+      <div ref="appListRef" class="app-list">
+        <Transition name="app-list-view" mode="out-in">
+          <div v-if="letterPickerOpen" key="letter-picker" class="app-list-view letter-picker" aria-label="Application letters">
+            <button
+              v-for="(letter, letterIndex) in alphabet"
+              :key="letter"
+              class="letter-picker-item letter-zoom"
+              :class="{ available: availableLetters.has(letter) }"
+              :style="{ animationDelay: `${letterIndex * 10}ms` }"
+              :disabled="!availableLetters.has(letter)"
+              @click="jumpToLetter(letter)"
+            >
+              {{ letter }}
+            </button>
+          </div>
+          <div v-else key="applications" class="app-list-view applications-view">
+            <section
+              v-for="(section, sectionIndex) in appSections"
+              :key="section.letter"
+              :ref="(el) => setSectionRef(section.letter, el)"
+              class="app-section"
+            >
+              <button
+                class="app-list-header"
+                type="button"
+                :style="{ animationDelay: `${sectionIndex * 20}ms` }"
+                @click="openLetterPicker"
+              >
+                <span>{{ section.letter }}</span>
+              </button>
+              <button
+                v-for="(app, appIndex) in section.entries"
+                :key="app.name"
+                class="app-item slide-up"
+                :style="{ animationDelay: `${sectionIndex * 30 + appIndex * 30}ms` }"
+                @click="onAppClick(app.action)"
+              >
+                <img :src="app.icon" alt="" class="app-icon-img" />
+                <span class="app-name">{{ app.name }}</span>
+              </button>
+            </section>
+          </div>
+        </Transition>
       </div>
       <div class="tiles">
         <a
@@ -171,28 +262,63 @@ const tiles = [
   background: rgba(255, 255, 255, 0.1);
 }
 
-.hamburger {
-  font-size: 18px;
-}
-
-.sidebar-icon {
-  font-size: 16px;
-}
-
 .app-list {
+  position: relative;
   width: 220px;
-  padding: 8px 0;
-  overflow-y: auto;
+  overflow: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
+.app-list-view {
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.applications-view {
+  padding: 8px 0;
+}
+
+.app-list-view-enter-active,
+.app-list-view-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.app-list-view-enter-from {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.app-list-view-leave-to {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+.app-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .app-list-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
   padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.app-list-header:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
 }
 
 .app-item {
@@ -217,6 +343,56 @@ const tiles = [
 .app-icon-img {
   width: 24px;
   height: 24px;
+}
+
+.letter-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px 12px;
+}
+
+.letter-picker-item {
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: default;
+}
+
+.letter-picker-item.available {
+  color: white;
+  cursor: pointer;
+}
+
+.letter-picker-item.available:hover,
+.letter-picker-item.available:focus,
+.letter-picker-item.available:active {
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
+  outline: none;
+}
+
+.letter-picker-item:disabled {
+  opacity: 1;
+}
+
+.letter-zoom {
+  animation: letterZoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center;
+}
+
+@keyframes letterZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .tiles {
