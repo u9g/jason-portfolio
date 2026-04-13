@@ -61,17 +61,7 @@ function pushHistory(entry: HistoryEntry) {
 
 async function navigateToHistory(index: number) {
   historyIndex.value = index;
-  const entry = historyStack.value[index];
-  switch (entry.view) {
-    case "thispc": return showThisPC(false);
-    case "drive": return showDrive(false);
-    case "directory":
-      currentRepo.value = entry.repo;
-      return loadDir(entry.path, false);
-    case "file":
-      currentRepo.value = entry.repo;
-      return openFile({ name: entry.name, path: entry.path, type: "file", size: 0 }, false);
-  }
+  navigate(historyStack.value[index], false);
 }
 
 function goBack() {
@@ -107,66 +97,59 @@ watch(windowIcon, (i) => {
   if (w) w.icon = i;
 }, { immediate: true });
 
-// Navigation actions
-function showThisPC(record = true) {
-  viewMode.value = "thispc";
-  currentPath.value = "";
-  entries.value = [];
-  readmeContent.value = "";
-  loading.value = false;
-  if (record) pushHistory({ view: "thispc" });
-}
-
-async function showDrive(record = true) {
-  viewMode.value = "drive";
-  currentPath.value = "";
-  readmeContent.value = "";
-  loading.value = true;
+// Unified navigation
+async function navigate(target: HistoryEntry, record = true) {
   error.value = "";
-  if (record) pushHistory({ view: "drive" });
-  try {
-    entries.value = await fetchUserRepos();
-  } catch {
-    error.value = "Failed to load repositories";
-  } finally {
+  readmeContent.value = "";
+  viewMode.value = target.view;
+
+  if (target.view === "thispc") {
+    currentPath.value = "";
+    entries.value = [];
     loading.value = false;
+    if (record) pushHistory(target);
+    return;
   }
-}
 
-async function loadDir(path: string, record = true) {
-  loading.value = true;
-  error.value = "";
-  readmeContent.value = "";
-  viewMode.value = "directory";
+  if (record) pushHistory(target);
+
+  const isFile = target.view === "file";
+  if (isFile) fileLoading.value = true;
+  else loading.value = true;
+
   try {
-    entries.value = await fetchContents(path, currentRepo.value);
-    currentPath.value = path;
-    if (record) pushHistory({ view: "directory", repo: currentRepo.value, path });
-    const readme = entries.value.find((e) => e.name.toLowerCase() === "readme.md");
-    if (readme) {
-      fetchFileContent(readme.path, currentRepo.value)
-        .then((content) => { readmeContent.value = content; })
-        .catch(() => { /* ignore */ });
+    switch (target.view) {
+      case "drive":
+        currentPath.value = "";
+        entries.value = await fetchUserRepos();
+        break;
+      case "directory":
+        currentRepo.value = target.repo;
+        currentPath.value = target.path;
+        entries.value = await fetchContents(target.path, target.repo);
+        {
+          const readme = entries.value.find((e) => e.name.toLowerCase() === "readme.md");
+          if (readme) {
+            fetchFileContent(readme.path, target.repo)
+              .then((content) => { readmeContent.value = content; })
+              .catch(() => { /* ignore */ });
+          }
+        }
+        break;
+      case "file":
+        currentRepo.value = target.repo;
+        currentPath.value = target.path;
+        fileName.value = target.name;
+        fileContent.value = await fetchFileContent(target.path, target.repo);
+        break;
     }
   } catch {
-    error.value = "Failed to load directory";
+    if (target.view === "drive") error.value = "Failed to load repositories";
+    else if (target.view === "directory") error.value = "Failed to load directory";
+    else fileContent.value = "Failed to load file content.";
   } finally {
-    loading.value = false;
-  }
-}
-
-async function openFile(entry: GHEntry, record = true) {
-  fileLoading.value = true;
-  fileName.value = entry.name;
-  viewMode.value = "file";
-  currentPath.value = entry.path;
-  if (record) pushHistory({ view: "file", repo: currentRepo.value, path: entry.path, name: entry.name });
-  try {
-    fileContent.value = await fetchFileContent(entry.path, currentRepo.value);
-  } catch {
-    fileContent.value = "Failed to load file content.";
-  } finally {
-    fileLoading.value = false;
+    if (isFile) fileLoading.value = false;
+    else loading.value = false;
   }
 }
 
@@ -188,53 +171,42 @@ function onContentClick(e: MouseEvent) {
     : currentPath.value;
   const resolved = dir ? dir + "/" + href : href;
   if (/\.\w+$/.test(href)) {
-    openFile({ name: href.split("/").pop() ?? href, path: resolved, type: "file", size: 0 });
+    navigate({ view: "file", repo: currentRepo.value, path: resolved, name: href.split("/").pop() ?? href });
   } else {
-    loadDir(resolved);
+    navigate({ view: "directory", repo: currentRepo.value, path: resolved });
   }
 }
 
 function onEntryClick(entry: GHEntry) {
   if (entry.path.startsWith("__repo__:")) {
-    currentRepo.value = entry.path.slice(9);
-    loadDir("");
+    const repo = entry.path.slice(9);
+    navigate({ view: "directory", repo, path: "" });
   } else if (entry.type === "dir") {
-    loadDir(entry.path);
+    navigate({ view: "directory", repo: currentRepo.value, path: entry.path });
   } else {
-    openFile(entry);
+    navigate({ view: "file", repo: currentRepo.value, path: entry.path, name: entry.name });
   }
 }
 
 function goUp() {
-  if (viewMode.value === "file") {
-    viewMode.value = "directory";
-    return;
-  }
   if (viewMode.value === "thispc") return;
-  if (viewMode.value === "drive") {
-    showThisPC();
-    return;
-  }
-  if (currentPath.value === "") {
-    showDrive();
-    return;
-  }
-  const parts = currentPath.value.split("/");
-  parts.pop();
-  loadDir(parts.join("/"));
+  if (viewMode.value === "drive") return navigate({ view: "thispc" });
+  const parentPath = currentPath.value.split("/").slice(0, -1).join("/");
+  if (viewMode.value === "file") return navigate({ view: "directory", repo: currentRepo.value, path: parentPath });
+  if (currentPath.value === "") return navigate({ view: "drive" });
+  navigate({ view: "directory", repo: currentRepo.value, path: parentPath });
 }
 
 const canGoUp = computed(() => viewMode.value !== "thispc");
 
 function onNavigateSegment(path: string) {
-  if (path === "__thispc__") showThisPC();
-  else if (path === "__drive__") showDrive();
-  else loadDir(path);
+  if (path === "__thispc__") navigate({ view: "thispc" });
+  else if (path === "__drive__") navigate({ view: "drive" });
+  else navigate({ view: "directory", repo: currentRepo.value, path });
 }
 
 function onOpenRepo(owner: string, name: string) {
-  currentRepo.value = owner + "/" + name;
-  loadDir("");
+  navigate({ view: "directory", repo: owner + "/" + name, path: "" });
 }
 
 // Path segments
@@ -263,15 +235,15 @@ const hasLoaded = ref(false);
 watch(() => wState.value.open, (isOpen) => {
   if (isOpen && !hasLoaded.value) {
     hasLoaded.value = true;
-    if (props.initialRepo) currentRepo.value = props.initialRepo;
+    const repo = props.initialRepo ?? currentRepo.value;
     if (props.initialFile) {
-      openFile({ name: props.initialFile.split("/").pop() ?? props.initialFile, path: props.initialFile, type: "file", size: 0 });
+      navigate({ view: "file", repo, path: props.initialFile, name: props.initialFile.split("/").pop() ?? props.initialFile });
     } else if (props.initialDir) {
-      loadDir(props.initialDir);
+      navigate({ view: "directory", repo, path: props.initialDir });
     } else if (props.initialRepo) {
-      loadDir("");
+      navigate({ view: "directory", repo, path: "" });
     } else {
-      showThisPC();
+      navigate({ view: "thispc" });
     }
   }
 }, { immediate: true });
@@ -332,11 +304,11 @@ async function loadDriveNavChildren(node: NavNode) {
 
 async function onNavClick(node: NavNode) {
   if (node.icon === "pc") {
-    showThisPC();
+    navigate({ view: "thispc" });
   } else if (node.path === "__drive__") {
-    showDrive();
+    navigate({ view: "drive" });
   } else if (node.path !== null) {
-    loadDir(node.path);
+    navigate({ view: "directory", repo: currentRepo.value, path: node.path });
   } else {
     node.expanded = !node.expanded;
   }
@@ -420,7 +392,7 @@ const githubUrl = computed(() => {
         <ThisPCView
           v-else-if="viewMode === 'thispc'"
           @open-repo="onOpenRepo"
-          @show-drive="showDrive"
+          @show-drive="navigate({ view: 'drive' })"
         />
         <FileViewer
           v-else-if="viewMode === 'file'"
