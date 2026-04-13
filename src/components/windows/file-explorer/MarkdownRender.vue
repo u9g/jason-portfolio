@@ -29,7 +29,7 @@ const rendered = computed(() => renderMd(props.source, props.baseUrl));
 .md-render :deep(h4) { font-size: 1.05em; margin: 0.4em 0 0.2em; }
 
 .md-render :deep(p) { margin: 0.4em 0; }
-.md-render :deep(ul) { margin: 0.3em 0; padding-left: 24px; }
+.md-render :deep(ul), .md-render :deep(ol) { margin: 0.3em 0; padding-left: 24px; }
 .md-render :deep(li) { margin: 0.15em 0; }
 .md-render :deep(hr) { border: none; border-top: 1px solid #ddd; margin: 1em 0; }
 

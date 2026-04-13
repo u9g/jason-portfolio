@@ -80,11 +80,16 @@ export function renderMd(src: string, baseUrl?: string): string {
   const out: string[] = [];
   let listDepth = 0;
   const indentStack: number[] = [];
+  const listTypeStack: Array<"ul" | "ol"> = [];
   let inCodeBlock = false;
   let inTable = false;
 
   function closeLists() {
-    while (listDepth > 0) { out.push("</ul>"); listDepth--; }
+    while (listDepth > 0) {
+      const type = listTypeStack.pop() ?? "ul";
+      out.push(`</${type}>`);
+      listDepth--;
+    }
     indentStack.length = 0;
   }
 
@@ -115,23 +120,39 @@ export function renderMd(src: string, baseUrl?: string): string {
       continue;
     }
 
-    const listMatch = line.match(/^(\s*)([-*])\s+(.*)/);
+    const listMatch = line.match(/^(\s*)(?:([-*])|(\d+)\.)\s+(.*)/);
     if (listMatch) {
       const indent = listMatch[1].length;
+      const listType = listMatch[3] ? "ol" : "ul";
+      const content = listMatch[4];
       let depth: number;
       if (listDepth === 0 || indent > indentStack[indentStack.length - 1]) {
         depth = listDepth + 1;
         indentStack.push(indent);
       } else {
         // Find the matching depth for this indent level
-        depth = indentStack.findIndex(i => i >= indent) + 1;
+        depth = indentStack.findIndex((i) => i >= indent) + 1;
         if (depth === 0) depth = 1;
         indentStack.length = depth;
         indentStack[depth - 1] = indent;
       }
-      while (listDepth < depth) { out.push("<ul>"); listDepth++; }
-      while (listDepth > depth) { out.push("</ul>"); listDepth--; }
-      out.push(`<li>${inlineMarkdown(listMatch[3], baseUrl)}</li>`);
+      while (listDepth > depth) {
+        const type = listTypeStack.pop() ?? "ul";
+        out.push(`</${type}>`);
+        listDepth--;
+      }
+      if (listDepth === depth && listTypeStack[depth - 1] && listTypeStack[depth - 1] !== listType) {
+        const type = listTypeStack.pop() ?? "ul";
+        out.push(`</${type}>`);
+        out.push(`<${listType}>`);
+        listTypeStack.push(listType);
+      }
+      while (listDepth < depth) {
+        out.push(`<${listType}>`);
+        listTypeStack.push(listType);
+        listDepth++;
+      }
+      out.push(`<li>${inlineMarkdown(content, baseUrl)}</li>`);
       continue;
     }
 
@@ -160,7 +181,7 @@ export function renderMd(src: string, baseUrl?: string): string {
     const pLines = [inlineMarkdown(line, baseUrl)];
     while (i + 1 < lines.length) {
       const next = lines[i + 1];
-      if (next.trim() === "" || next.match(/^(#{1,6})\s+/) || next.match(/^(\s*)([-*])\s+/) || next.match(/^---+$/) || next.includes("<table") || next.includes('<pre class="md-code-block">') || /\x00SLOT\d+\x00/.test(next)) break;
+      if (next.trim() === "" || next.match(/^(#{1,6})\s+/) || next.match(/^(\s*)(?:([-*])|(\d+)\.)\s+/) || next.match(/^---+$/) || next.includes("<table") || next.includes('<pre class="md-code-block">') || /\x00SLOT\d+\x00/.test(next)) break;
       pLines.push(inlineMarkdown(next, baseUrl));
       i++;
     }
