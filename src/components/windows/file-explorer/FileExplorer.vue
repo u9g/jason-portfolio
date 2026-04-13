@@ -40,6 +40,7 @@ const fileContent = ref("");
 const fileName = ref("");
 const fileLoading = ref(false);
 const currentRepo = ref("jason-portfolio");
+const searchQuery = ref("");
 const readmeContent = ref("");
 const readmeBaseUrl = computed(() => {
   const dir = currentPath.value ? currentPath.value + "/" : "";
@@ -101,6 +102,7 @@ watch(windowIcon, (i) => {
 async function navigate(target: HistoryEntry, record = true) {
   error.value = "";
   readmeContent.value = "";
+  searchQuery.value = "";
   viewMode.value = target.view;
 
   if (target.view === "thispc") {
@@ -335,6 +337,12 @@ function flattenNav(nodes: NavNode[], depth: number): FlatNavItem[] {
 
 const flatNav = computed(() => flattenNav(navTree.value, 0));
 
+const filteredEntries = computed(() => {
+  const q = searchQuery.value.toLowerCase().trim();
+  if (!q) return entries.value;
+  return entries.value.filter((e) => e.name.toLowerCase().includes(q));
+});
+
 const githubUrl = computed(() => {
   const repo = currentRepo.value.includes("/") ? currentRepo.value : `u9g/${currentRepo.value}`;
   const base = `https://github.com/${repo}`;
@@ -373,10 +381,13 @@ const githubUrl = computed(() => {
       :can-go-up="canGoUp"
       :path-segments="pathSegments"
       :github-url="githubUrl"
+      :show-search="viewMode !== 'thispc' && viewMode !== 'file'"
+      :search-query="searchQuery"
       @back="goBack"
       @forward="goForward"
       @up="goUp"
       @navigate-segment="onNavigateSegment"
+      @update:search-query="searchQuery = $event"
     />
 
     <div class="body">
@@ -406,7 +417,7 @@ const githubUrl = computed(() => {
         <div v-else-if="hasReadme" class="dir-readme-split">
           <div class="dir-readme-listing">
             <DirectoryListing
-              :entries="entries"
+              :entries="filteredEntries"
               :current-repo="currentRepo"
               :is-drive="viewMode === 'drive'"
               @entry-click="onEntryClick"
@@ -418,7 +429,7 @@ const githubUrl = computed(() => {
         </div>
         <DirectoryListing
           v-else
-          :entries="entries"
+          :entries="filteredEntries"
           :current-repo="currentRepo"
           :is-drive="viewMode === 'drive'"
           @entry-click="onEntryClick"
@@ -427,7 +438,7 @@ const githubUrl = computed(() => {
     </div>
 
     <div class="status-bar">
-      <span v-if="viewMode !== 'file'">{{ entries.length }} items</span>
+      <span v-if="viewMode !== 'file'">{{ filteredEntries.length }} items</span>
       <span v-else>{{ fileName }}</span>
     </div>
 
