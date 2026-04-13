@@ -128,6 +128,29 @@ export const PINNED_REPOS: PinnedRepo[] = [
   { name: "jason-portfolio", owner: "u9g" },
 ];
 
+export async function fetchTree(repo = "jason-portfolio"): Promise<GHEntry[]> {
+  const key = `__tree__:${repo}`;
+  if (key in cache) return cache[key];
+
+  const fullRepo = repo.includes("/") ? repo : `${USER}/${repo}`;
+  const res = await fetch(`https://api.github.com/repos/${fullRepo}/git/trees/HEAD?recursive=1`);
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+
+  const data = await res.json() as { tree: { path: string; type: string; size?: number }[] };
+  const entries: GHEntry[] = data.tree
+    .filter((item) => item.type === "blob" || item.type === "tree")
+    .map((item) => ({
+      name: item.path.split("/").pop() ?? item.path,
+      path: item.path,
+      type: item.type === "tree" ? "dir" as const : "file" as const,
+      size: item.size ?? 0,
+    }));
+
+  cache[key] = entries;
+  saveCache(cache);
+  return entries;
+}
+
 export async function fetchFileContent(path: string, repo = "jason-portfolio"): Promise<string> {
   const fullRepo = repo.includes("/") ? repo : `${USER}/${repo}`;
   const res = await fetch(

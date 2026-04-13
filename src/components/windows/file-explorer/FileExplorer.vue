@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { fetchContents, fetchFileContent, fetchUserRepos, type GHEntry } from "../../../data/github-fs";
 import { rawUrl } from "./helpers";
 import MarkdownRender from "./MarkdownRender.vue";
@@ -12,6 +12,7 @@ import NavigationPane from "./NavigationPane.vue";
 import ThisPCView from "./ThisPCView.vue";
 import DirectoryListing from "./DirectoryListing.vue";
 import FileViewer from "./FileViewer.vue";
+import QuickOpen from "./QuickOpen.vue";
 import Arrow from "../../shared/Arrow.vue";
 
 const props = defineProps<{
@@ -343,6 +344,26 @@ const filteredEntries = computed(() => {
   return entries.value.filter((e) => e.name.toLowerCase().includes(q));
 });
 
+// Quick open (Ctrl+K)
+const quickOpenVisible = ref(false);
+
+function onKeydown(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+    if (!wState.value.focused) return;
+    if (viewMode.value === "thispc" || viewMode.value === "drive") return;
+    e.preventDefault();
+    quickOpenVisible.value = true;
+  }
+}
+
+function onQuickOpenSelect(entry: GHEntry) {
+  quickOpenVisible.value = false;
+  navigate({ view: "file", repo: currentRepo.value, path: entry.path, name: entry.name });
+}
+
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
+
 const githubUrl = computed(() => {
   const repo = currentRepo.value.includes("/") ? currentRepo.value : `u9g/${currentRepo.value}`;
   const base = `https://github.com/${repo}`;
@@ -440,7 +461,17 @@ const githubUrl = computed(() => {
     <div class="status-bar">
       <span v-if="viewMode !== 'file'">{{ filteredEntries.length }} items</span>
       <span v-else>{{ fileName }}</span>
+      <span v-if="viewMode !== 'thispc' && viewMode !== 'drive'" class="status-hint">
+        Try <kbd class="status-kbd">Ctrl+K</kbd>
+      </span>
     </div>
+
+    <QuickOpen
+      :open="quickOpenVisible"
+      :current-repo="currentRepo"
+      @close="quickOpenVisible = false"
+      @select="onQuickOpenSelect"
+    />
 
     <div v-if="expandedImg" class="img-lightbox" @click="expandedImg = ''">
       <img :src="expandedImg" class="img-lightbox-img" />
@@ -550,5 +581,25 @@ const githubUrl = computed(() => {
   color: #666;
   font-size: 11px;
   flex-shrink: 0;
+}
+
+.status-hint {
+  margin-left: auto;
+  color: #999;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-kbd {
+  font-size: 10px;
+  color: #777;
+  background: #e8e8e8;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-family: inherit;
+  line-height: 16px;
 }
 </style>
