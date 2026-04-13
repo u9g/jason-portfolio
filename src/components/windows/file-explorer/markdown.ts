@@ -164,7 +164,7 @@ export function renderMd(src: string, baseUrl?: string): string {
       pLines.push(inlineMarkdown(next, baseUrl));
       i++;
     }
-    out.push(`<p>${pLines.join("\n")}</p>`);
+    out.push(`<p>${pLines.join("<br>")}</p>`);
   }
   closeLists();
 
