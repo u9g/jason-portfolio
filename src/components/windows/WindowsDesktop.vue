@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import DesktopIcon from "./DesktopIcon.vue";
 import Taskbar from "./Taskbar.vue";
-import StartMenu from "./StartMenu.vue";
+import StartMenu from "./start-menu/StartMenu.vue";
 import DesktopContextMenu from "./DesktopContextMenu.vue";
 import FileExplorer from "./file-explorer/FileExplorer.vue";
 import ConversationWindow from "./ConversationWindow.vue";
