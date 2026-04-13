@@ -156,6 +156,7 @@ function onContextMenu(e: MouseEvent) {
       :window-icon="workExpIcon"
       :items="conversations.jobs"
       @close="workExp.close(id)"
+      @open-explorer="openNewExplorer($event)"
     />
     <ConversationWindow
       v-for="id in projects.ids.value"
@@ -165,6 +166,7 @@ function onContextMenu(e: MouseEvent) {
       :window-icon="projectsIcon"
       :items="conversations.projects"
       @close="projects.close(id)"
+      @open-explorer="openNewExplorer($event)"
     />
     <DesktopContextMenu :open="contextMenuOpen" :x="contextMenuX" :y="contextMenuY" @close="contextMenuOpen = false" @next-background="advance" @prev-background="goBack" />
     <StartMenu :open="startMenuOpen" @print-resume="emit('print-resume')" @open-file-explorer="openNewExplorer(); startMenuOpen = false" @open-work-experience="workExp.open(); startMenuOpen = false" @open-projects="projects.open(); startMenuOpen = false" />

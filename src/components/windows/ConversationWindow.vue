@@ -14,7 +14,16 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: [];
+  "open-explorer": [repo: string];
 }>();
+
+function onDetailClick(e: MouseEvent) {
+  const btn = (e.target as HTMLElement).closest<HTMLElement>(".open-in-explorer-btn");
+  if (btn?.dataset.repo) {
+    e.preventDefault();
+    emit("open-explorer", btn.dataset.repo);
+  }
+}
 
 const { getWindow, focusWindow, minimizeWindow } = useWindowManager();
 const defaultState = { open: false, minimized: false, focused: false, zIndex: 15, initialX: 100, initialY: 60 };
@@ -63,7 +72,7 @@ watch(selectedSlug, () => {
         </button>
       </div>
 
-      <div ref="detailPane" class="detail-pane">
+      <div ref="detailPane" class="detail-pane" @click="onDetailClick">
         <template v-if="selected">
           <div class="detail-header">
             <img
@@ -232,5 +241,39 @@ watch(selectedSlug, () => {
 .msg-answer :deep(.arrow svg) {
   width: 10px;
   height: 10px;
+}
+
+.msg-answer :deep(.open-in-explorer-btn) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f5f5f5;
+  color: #333;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  vertical-align: middle;
+  transform: translateY(1px);
+}
+
+.msg-answer :deep(.open-in-explorer-btn:hover) {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.msg-answer :deep(.explorer-btn-icon) {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+
+.msg-answer :deep(.explorer-btn-icon svg) {
+  width: 14px;
+  height: 14px;
 }
 </style>
