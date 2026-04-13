@@ -2,7 +2,7 @@ function inlineMarkdown(text: string, baseUrl?: string): string {
   return text
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) => {
       const resolved = /^https?:\/\//.test(src) ? src : (baseUrl ?? "") + src;
-      return `<img src="${resolved}" alt="${alt}" />`;
+      return `<span class="img-expand-wrap"><img src="${resolved}" alt="${alt}" /></span>`;
     })
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
@@ -18,7 +18,7 @@ function inlineMarkdown(text: string, baseUrl?: string): string {
 function preserveHtmlTags(src: string): { text: string; slots: string[] } {
   const slots: string[] = [];
   const allowed =
-    /<(p|h1)\s+align="center"\s*>|<\/(p|h1)>|<img\s+(?:src|alt|width)="[^"]*"(?:\s+(?:src|alt|width)="[^"]*")*\s*\/?>/gi;
+    /<(p|h1)\s+align="center"\s*>|<\/(p|h1|b|code)>|<(b|code)>|<img\s+(?:src|alt|width|height)="[^"]*"(?:\s+(?:src|alt|width|height)="[^"]*")*\s*\/?>/gi;
   const text = src.replace(allowed, (m) => {
     slots.push(m);
     return `\x00SLOT${slots.length - 1}\x00`;
@@ -35,6 +35,7 @@ function restoreHtmlTags(html: string, slots: string[], baseUrl?: string): strin
         return `src="${baseUrl}${src}"`;
       });
     }
+    if (tag.startsWith("<img")) tag = `<span class="img-expand-wrap">${tag}</span>`;
     return tag;
   });
 }
