@@ -61,8 +61,30 @@ const rendered = computed(() => renderMd(props.source, props.baseUrl));
 .md-render :deep(a) { color: #0078d4; text-decoration: none; }
 .md-render :deep(a:hover) { text-decoration: underline; }
 .md-render :deep(strong) { font-weight: 600; }
-.md-render :deep(img) { max-width: 100%; height: auto; }
-.md-render :deep(p[align="center"] img) { max-width: 50%; }
+.md-render :deep(img) { max-width: 100%; height: auto; cursor: pointer; display: block; }
+
+.md-render :deep(.img-expand-wrap) {
+  position: relative;
+  display: inline-block;
+}
+
+.md-render :deep(.img-expand-wrap)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") no-repeat center;
+  opacity: 0;
+  transition: opacity 0.15s, background-color 0.15s;
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.md-render :deep(.img-expand-wrap):hover::after {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.md-render :deep(p[align="center"] .img-expand-wrap) { max-width: 50%; }
+.md-render :deep(p[align="center"] img) { max-width: 100%; }
 .md-render :deep(table) { border-collapse: collapse; margin: 0.5em 0; font-size: 12px; border: 1px solid #ddd; }
 .md-render :deep(th), .md-render :deep(td) { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
 .md-render :deep(th) { background: #f6f6f6; font-weight: 600; }

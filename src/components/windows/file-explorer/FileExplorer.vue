@@ -170,7 +170,15 @@ async function openFile(entry: GHEntry, record = true) {
   }
 }
 
+const expandedImg = ref("");
+
 function onContentClick(e: MouseEvent) {
+  const img = (e.target as HTMLElement).closest("img") as HTMLImageElement | null;
+  if (img) {
+    e.preventDefault();
+    expandedImg.value = img.src;
+    return;
+  }
   const anchor = (e.target as HTMLElement).closest("a[data-internal]") as HTMLAnchorElement | null;
   if (!anchor) return;
   e.preventDefault();
@@ -354,6 +362,15 @@ function flattenNav(nodes: NavNode[], depth: number): FlatNavItem[] {
 }
 
 const flatNav = computed(() => flattenNav(navTree.value, 0));
+
+const githubUrl = computed(() => {
+  const repo = currentRepo.value.includes("/") ? currentRepo.value : `u9g/${currentRepo.value}`;
+  const base = `https://github.com/${repo}`;
+  if (viewMode.value === "drive" || viewMode.value === "thispc") return "";
+  if (viewMode.value === "file") return `${base}/blob/HEAD/${currentPath.value}`;
+  if (currentPath.value) return `${base}/tree/HEAD/${currentPath.value}`;
+  return base;
+});
 </script>
 
 <template>
@@ -383,6 +400,7 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
       :can-go-forward="canGoForward"
       :can-go-up="canGoUp"
       :path-segments="pathSegments"
+      :github-url="githubUrl"
       @back="goBack"
       @forward="goForward"
       @up="goUp"
@@ -438,6 +456,10 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
     <div class="status-bar">
       <span v-if="viewMode !== 'file'">{{ entries.length }} items</span>
       <span v-else>{{ fileName }}</span>
+    </div>
+
+    <div v-if="expandedImg" class="img-lightbox" @click="expandedImg = ''">
+      <img :src="expandedImg" class="img-lightbox-img" />
     </div>
   </WindowFrame>
 </template>
@@ -516,6 +538,23 @@ const flatNav = computed(() => flattenNav(navTree.value, 0));
   min-width: 0;
 }
 
+
+.img-lightbox {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.img-lightbox-img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
 
 .status-bar {
   height: 22px;
