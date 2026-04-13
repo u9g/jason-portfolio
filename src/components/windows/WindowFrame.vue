@@ -246,7 +246,7 @@ onUnmounted(() => {
              @dblclick.stop="onResizeDblClick(dir)" />
       </template>
       <div class="title-bar" @mousedown="onTitleBarMouseDown" @dblclick="onTitleBarDblClick">
-        <img v-if="icon" :src="icon" class="title-icon" alt="" />
+        <img v-if="icon" :src="icon" class="title-icon" alt="" draggable="false" />
         <span class="title-text">{{ title }}</span>
         <div class="title-buttons">
           <button class="title-btn" aria-label="Minimize" @click.stop="emit('minimize')">
