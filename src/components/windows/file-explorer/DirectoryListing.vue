@@ -10,6 +10,11 @@ const props = defineProps<{
   isDrive?: boolean;
 }>();
 
+const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico"]);
+function isImage(name: string): boolean {
+  return IMAGE_EXTS.has(name.split(".").pop()?.toLowerCase() ?? "");
+}
+
 function formatDate(iso?: string): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -37,6 +42,7 @@ const emit = defineEmits<{
       <span class="col-name">
         <img v-if="entry.type === 'dir'" :src="folderIcon" class="entry-icon" alt="" />
         <img v-else-if="entry.name.endsWith('.svg')" :src="rawUrl(entry.path, props.currentRepo)" class="entry-icon svg-entry-icon" alt="" />
+        <img v-else-if="isImage(entry.name)" :src="rawUrl(entry.path, props.currentRepo)" class="entry-icon svg-entry-icon" alt="" />
         <img v-else :src="fileTextIcon" class="entry-icon" alt="" />
         <span class="entry-label">{{ entry.name }}<svg v-if="entry.path === '__repo__:jason-portfolio'" class="entry-star" viewBox="0 0 10 10"><polygon points="5,0 6.2,3.5 10,3.5 7,5.8 8,9.5 5,7.2 2,9.5 3,5.8 0,3.5 3.8,3.5" fill="#e8b500"/></svg></span>
       </span>
