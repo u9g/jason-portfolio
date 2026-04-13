@@ -31,6 +31,8 @@ const emit = defineEmits<{
   mouseup: [e: MouseEvent];
 }>();
 
+const DEFAULT_W = 750;
+const DEFAULT_H = 500;
 const snap = ref<SnapZone>(null);
 const snapPreview = ref<SnapZone>(null);
 const posX = ref(props.initialX ?? 100);
@@ -44,8 +46,6 @@ const CORNER = 50;
 const TASKBAR = 40;
 const MIN_W = 300;
 const MIN_H = 200;
-const DEFAULT_W = 750;
-const DEFAULT_H = 500;
 
 const drag = { pending: false, active: false, startX: 0, startY: 0, offsetX: 0, offsetY: 0 };
 
