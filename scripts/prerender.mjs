@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
@@ -16,6 +16,39 @@ const SITE = "https://jasonlernerman.com";
 const SITE_NAME = "Jason";
 const FULL_NAME = "Jason Lernerman";
 const allConversations = [...conversations.jobs, ...conversations.projects];
+const essaysDir = resolve(__dirname, "../src/data/essays");
+const essays = readdirSync(essaysDir)
+  .filter((name) => name.endsWith(".md"))
+  .map((name) => parseEssay(readFileSync(resolve(essaysDir, name), "utf-8")));
+
+function parseEssay(raw) {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) throw new Error("Invalid essay frontmatter");
+
+  const frontmatter = {};
+  for (const line of match[1].split("\n")) {
+    const idx = line.indexOf(":");
+    if (idx !== -1) {
+      frontmatter[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    }
+  }
+
+  return {
+    title: frontmatter.title,
+    date: frontmatter.date,
+    slug: frontmatter.slug,
+    body: match[2].trim(),
+  };
+}
+
+function stripMarkdown(text) {
+  return text
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 function getMeta(url) {
   if (url === "/") {
@@ -28,6 +61,7 @@ function getMeta(url) {
 
   const slug = url.replace("/claude/", "") || "about";
   const conv = allConversations.find((c) => c.slug === slug);
+  const essay = essays.find((e) => e.slug === slug);
 
   if (slug === "about" || url === "/claude") {
     return {
@@ -40,6 +74,15 @@ function getMeta(url) {
     return {
       title: `OSS | ${SITE_NAME}`,
       description: `Notable open source contributions by ${FULL_NAME} across Rust, TypeScript, and C++ projects.`,
+    };
+  }
+  if (essay) {
+    const description = stripMarkdown(essay.body)
+      .replace(/^[-*]\s*/gm, "")
+      .slice(0, 160);
+    return {
+      title: `${essay.title} | ${SITE_NAME}`,
+      description: description || `${essay.title} by ${FULL_NAME}.`,
     };
   }
   if (conv) {
@@ -74,10 +117,8 @@ const routes = [
   "/claude",
   "/claude/about",
   "/claude/oss",
-  "/claude/midnight-sky",
-  "/claude/dataset-ai",
-  "/claude/vue-technology",
-  "/claude/cerium",
+  ...allConversations.map((conv) => `/claude/${conv.slug}`),
+  ...essays.map((essay) => `/claude/${essay.slug}`),
 ];
 
 for (const url of routes) {
